@@ -61,10 +61,15 @@
                         <span>Settings</span>
                     </a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a href="#" class="dropdown-item">
-                        <i class="lni lni-exit"></i>
-                        <span>Sign Out</span>
-                    </a></li>
+                    <li>
+                        <form action="{% url 'users:logout' %}" method="post">
+                            {% csrf_token %}
+                            <button class="dropdown-item">
+                                <i class="lni lni-exit"></i>
+                                <span>Sign Out</span>
+                            </button>
+                        </form>
+                    </li>
                 </ul>
             </div>
         </aside>

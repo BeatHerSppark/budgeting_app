@@ -116,3 +116,9 @@ a.sidebar-link:hover {
     padding-bottom: 0.5rem;
     transition: all 0.2s;
 }
+
+form button {
+    width: 100%;
+    border: none;
+    background-color: transparent;
+}
