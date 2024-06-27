@@ -1,0 +1,101 @@
+*, ::after, ::before {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    text-decoration: none;
+}
+
+li {
+    list-style: none;
+}
+
+h1 {
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.wrapper {
+    display: flex;
+}
+
+.main {
+    height: 100vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    width: 100%;
+    background-color: #fafbfe;
+    transition: all 0.35s ease-in-out;
+}
+
+#sidebar {
+    width: 4.375rem;
+    min-width: 4.375rem;
+    z-index: 1000;
+    transition: all 0.25s  ease-in-out;
+    display: flex;
+    flex-direction: column;
+    background-color: #0e223e;
+}
+
+#sidebar.expand {
+    width: 16.25rem;
+    min-width: 16.25rem;
+}
+
+#toggle-btn {
+    background-color: transparent;
+    cursor: pointer;
+    border: none;
+    padding: 1rem 1.5rem;
+}
+
+#toggle-btn i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.sidebar-logo {
+    margin: auto 0;
+}
+
+.sidebar-logo a {
+    color: white;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+#sidebar:not(.expand) .sidebar-logo,
+#sidebar:not(.expand) a.sidebar-link span {
+    display: none;
+}
+
+.sidebar-nav {
+    padding: 2rem 0;
+    flex: 1 1 auto;
+}
+
+a.sidebar-link {
+    padding: 0.625rem 1.625rem;
+    color: white;
+    display: block;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-link i {
+    font-size: 1.1rem;
+    margin-right: 0.75rem;
+}
+
+a.sidebar-link:hover {
+    background-color: rgba(255, 255, 255, 0.075);
+    border-left: 3px solid #3b7ddd;
+}
+
+.sidebar-item {
+    position: relative;
+}
