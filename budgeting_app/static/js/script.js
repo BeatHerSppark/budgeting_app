@@ -6,8 +6,8 @@ window.onload = () => {
 }
 
 burgerMenu.addEventListener("click", () => {
-    document.getElementById("sidebar").classList.toggle("expand");
+    document.getElementById("sidebar").classList.toggle("collapse");
 })
 sidebarLogo.addEventListener("click", () => {
-    document.getElementById("sidebar").classList.toggle("expand");
+    document.getElementById("sidebar").classList.toggle("collapse");
 })

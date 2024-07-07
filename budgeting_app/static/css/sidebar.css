@@ -31,8 +31,8 @@ h1 {
 }
 
 #sidebar {
-    width: 4.375rem;
-    min-width: 4.375rem;
+    width: 16.25rem;
+    min-width: 16.25rem;
     z-index: 1000;
     transition: all 0.25s  ease-in-out;
     display: flex;
@@ -40,9 +40,9 @@ h1 {
     background-color: #0e223e;
 }
 
-#sidebar.expand {
-    width: 16.25rem;
-    min-width: 16.25rem;
+#sidebar.collapse {
+    width: 4.375rem;
+    min-width: 4.375rem;
 }
 
 #toggle-btn {
@@ -67,8 +67,8 @@ h1 {
     font-weight: 600;
 }
 
-#sidebar:not(.expand) .sidebar-logo,
-#sidebar:not(.expand) a.sidebar-link span {
+#sidebar:is(.collapse) .sidebar-logo,
+#sidebar:is(.collapse) a.sidebar-link span {
     display: none;
 }
 
