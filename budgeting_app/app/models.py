@@ -7,5 +7,4 @@ class Transaction(models.Model):
     transaction_type = models.BooleanField(default=True) # True = expense, False = income
     amount = models.FloatField()
     date = models.DateField(default=now)
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE, default=None)
     comment = models.TextField(max_length=200)
