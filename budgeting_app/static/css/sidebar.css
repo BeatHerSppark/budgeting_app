@@ -21,16 +21,20 @@ h1 {
     display: flex;
 }
 
-.main {
-    height: 100vh;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    width: 100%;
+body {
     background-color: #fafbfe;
+}
+
+.main {
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+    height: 100vh;
+    width: 100%;
     transition: all 0.35s ease-in-out;
 }
 
 #sidebar {
+    height: 100vh;
     width: 16.25rem;
     min-width: 16.25rem;
     z-index: 1000;
@@ -59,11 +63,12 @@ h1 {
 
 .sidebar-logo {
     margin: auto 0;
+    margin-top: 0.595rem
 }
 
 .sidebar-logo a {
     color: white;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: 600;
 }
 
@@ -81,7 +86,7 @@ a.sidebar-link {
     padding: 0.625rem 1.625rem;
     color: white;
     display: block;
-    font-size: 1rem;
+    font-size: 1.125rem;
     white-space: nowrap;
 }
 
@@ -121,4 +126,17 @@ form button {
     width: 100%;
     border: none;
     background-color: transparent;
+}
+
+
+.date_nav p {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.date_nav p:hover {
+    cursor: pointer;
+}
+
+#datePicker {
+    width: auto;
 }

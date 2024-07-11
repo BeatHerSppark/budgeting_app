@@ -20,8 +20,8 @@ class Category(models.Model):
 
 class Transaction(models.Model):
     CHOICES = [
-        ('expense', 'Expense'),
-        ('income', 'Income')
+        ('Expense', 'Expense'),
+        ('Income', 'Income')
     ]
     transaction_type = models.CharField(max_length=7, choices=CHOICES)
     amount = models.FloatField()
@@ -29,6 +29,9 @@ class Transaction(models.Model):
     profile = models.ForeignKey(to=Profile, on_delete=models.CASCADE, default=None)
     category = models.ForeignKey(to=Category, on_delete=models.CASCADE, default=None)
     comment = models.TextField(max_length=200, blank=True, null=True)
+
+    def __str__(self):
+        return str(self.amount) + " " + self.profile.user.username
 
 
 class Icon(models.Model):

@@ -4,11 +4,90 @@
 Dashboard
 {% endblock %}
 
+{% block username %}
+{{ user.username }}
+{% endblock %}
+
 {% block content %}
-<div class="main p-3">
-    <div class="text-center">
-        <h1>Main Content</h1>
-        <p>Content</p>
+<main class="main px-md-5">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-5">
+        <h1 class="fs-1">Dashboard</h1>
+        <div class="dates">
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <div class="btn-group me-2">
+                    <button id="btnDay" type="button" class="btn btn-sm px-3 py-2 btn-outline-secondary fs-5 btnDateMode">Day</button>
+                    <button id="btnWeek" type="button" class="btn btn-sm px-3 py-2 btn-outline-secondary fs-5 btnDateMode">Week</button>
+                    <button id="btnMonth" type="button" class="btn btn-sm px-3 py-2 btn-outline-secondary fs-5 btnDateMode">Month</button>
+                    <button id="btnYear" type="button" class="btn btn-sm px-3 py-2 btn-outline-secondary fs-5 btnDateMode">Year</button>
+                </div>
+                <button type="button" class="btn btn-sm px-3 py-2 btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1 fs-5">
+                    Custom
+                </button>
+            </div>
+            <div class="date_nav d-flex flex-row mt-3 bg-white rounded-pill align-items-center justify-content-between p-2">
+                <i class="lni lni-arrow-left rounded-circle p-2 bg-secondary-subtle"></i>
+                <input type="date" name="date" id="datePicker" class="form-control">
+                <i class="lni lni-arrow-right rounded-circle p-2 bg-secondary-subtle"></i>
+            </div>
+        </div>
     </div>
-</div>
+    <div class="pb-3 mb-3 border-bottom">
+        <p></p>
+    </div>
+
+    <div class="mt-4 mb-5 d-flex justify-content-between align-items-center">
+        <h2 class="fs-4">Recent Transactions</h2>
+        <div>
+            <button type="button" id="quick_add_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#transactionModal">Add Transaction</button>
+        </div>
+    </div>
+
+    <div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="transactionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="transactionModalLabel">New Transaction</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="{% url 'app:dashboard' %}" method="post">
+                {% csrf_token %}
+                {{ form }}
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Add Transaction</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <div class="table-responsive small">
+        <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+            <th scope="col">#</th>
+            <th scope="col">Type</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Category</th>
+            <th scope="col">Date</th>
+            <th scope="col">Comment</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for transaction in recent_transactions %}
+            <tr>
+            <td>1</td>
+            <td>{{ transaction.transaction_type }}</td>
+            <td>{{ transaction.amount }}</td>
+            <td>{{ transaction.category }}</td>
+            <td>{{ transaction.date }}</td>
+            <td>{{ transaction.comment }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    </div>
+</main>
 {% endblock %}

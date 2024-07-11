@@ -15,6 +15,8 @@ def register_view(request):
             login(request, saved)
             return redirect("app:dashboard")
     else:
+        if request.user.is_authenticated:
+            return redirect("app:dashboard")
         form = UserCreationForm()
     return render(request, "users/register.html", { "form": form })
 
@@ -27,6 +29,8 @@ def login_view(request):
                 return redirect(request.POST.get('next'))
             return redirect("app:dashboard")
     else:
+        if request.user.is_authenticated:
+            return redirect("app:dashboard")
         form = AuthenticationForm()
     return render(request, "users/login.html", { "form": form })
 
