@@ -38,30 +38,11 @@ Dashboard
     <div class="mt-4 mb-5 d-flex justify-content-between align-items-center">
         <h2 class="fs-4">Recent Transactions</h2>
         <div>
-            <button type="button" id="quick_add_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#transactionModal">Add Transaction</button>
+            <button type="button" id="quick_add_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#typeModelToggle">Add Transaction</button>
         </div>
     </div>
 
-    <div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="transactionModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h1 class="modal-title fs-5" id="transactionModalLabel">New Transaction</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <form action="{% url 'app:dashboard' %}" method="post">
-                {% csrf_token %}
-                {{ form }}
-              </form>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Add Transaction</button>
-            </div>
-          </div>
-        </div>
-      </div>
+    {% include 'partials/_transaction_modal.html' with expenseCategoryList=expenseCategories %}
 
     <div class="table-responsive small">
         <table class="table table-striped table-sm">
