@@ -5,10 +5,35 @@ Register
 {% endblock %}
 
 {% block content %}
-    <h1>Register</h1>
-    <form action="/users/register/" method="post">
+<main class="form-signin w-100 m-auto">
+    <form action="{% url 'users:register' %}" method="post">
         {% csrf_token %}
-        {{ form }}
-        <button>Submit</button>
+        <h1 class="h3 mb-3 fw-normal text-center">Create an account</h1>
+
+        <div class="form-floating mb-2">
+            <input type="text" class="form-control" id="username" name="username" placeholder="Username">
+            <label for="username">Username</label>
+        </div>
+        <div class="form-floating mb-2">
+            <input type="password" class="form-control" id="password1" name="password1" placeholder="Password">
+            <label for="password1">Password</label>
+        </div>
+        <div class="form-floating mb-4">
+            <input type="password" class="form-control" id="password2" name="password2" placeholder="Password">
+            <label for="password2">Confirm Password</label>
+        </div>
+
+        {% comment %} <div class="form-check text-start my-3">
+            <input class="form-check-input" type="checkbox" value="remember-me" id="flexCheckDefault">
+            <label class="form-check-label" for="flexCheckDefault">
+                Remember me
+            </label>
+        </div> {% endcomment %}
+        {% if request.GET.next %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+        {% endif %}
+        <button class="btn btn-primary w-100 py-2 mb-3" type="submit">Sign in</button>
+        <a href="{% url 'users:login' %}" class="link-offset-2 text-secondary">Already have an account?</a>
     </form>
+</main>
 {% endblock %}

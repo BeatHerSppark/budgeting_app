@@ -5,13 +5,31 @@ Login
 {% endblock %}
 
 {% block content %}
-    <h1>Login</h1>
-    <form action="/users/login/" method="post">
+<main class="form-signin w-100 m-auto">
+    <form action="{% url 'users:login' %}" method="post">
         {% csrf_token %}
-        {{ form }}
+        <h1 class="h3 mb-3 fw-normal text-center">Please sign in</h1>
+
+        <div class="form-floating mb-2">
+            <input type="text" class="form-control" id="username" name="username" placeholder="Username">
+            <label for="username">Username</label>
+        </div>
+        <div class="form-floating">
+            <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+            <label for="password">Password</label>
+        </div>
+
+        {% comment %} <div class="form-check text-start my-3">
+            <input class="form-check-input" type="checkbox" value="remember-me" id="flexCheckDefault">
+            <label class="form-check-label" for="flexCheckDefault">
+                Remember me
+            </label>
+        </div> {% endcomment %}
         {% if request.GET.next %}
             <input type="hidden" name="next" value="{{ request.GET.next }}">
         {% endif %}
-        <button>Submit</button>
+        <button class="btn btn-primary w-100 py-2 mb-3" type="submit">Sign in</button>
+        <a href="{% url 'users:register' %}" class="link-offset-2 text-secondary">Don't have an account?</a>
     </form>
+</main>
 {% endblock %}
