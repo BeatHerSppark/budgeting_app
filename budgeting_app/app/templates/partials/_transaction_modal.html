@@ -25,20 +25,32 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <form action="{% url 'app:dashboard' %}" method="post">
+            {% csrf_token %}
             <div class="modal-body">
                 <input type="hidden" name="transaction_type" value="Expense">
-                <div>
-                    <label for="amount">Amount:</label>
+                <div class="form-floating mb-3">
                     <input class="form-control" type="number" name="amount" id="amount">
+                    <label for="amount">Amount</label>
                 </div>
-                <div>
-                    <label for="category">Category:</label>
-                    <input class="form-control" list="category-list" id="category" name="category">
-                    <datalist id="category-list">
-                        {% for category in expenseCategoryList %}
-                            <option value="{{category}}"></option>
-                        {% endfor %}
-                    </datalist>
+
+                <div class="form-floating mb-3">
+                  <select class="form-select" id="category" name="category" aria-label="Choose a category">
+                    <option selected>Choose a category</option>
+                    {% for category in expenseCategoryList %}
+                      <option value="{{category}}">{{category}}</option>
+                    {% endfor %}
+                  </select>
+                  <label for="floatingSelect">Category</label>
+                </div>
+
+                <div class="mb-3">
+                  <label for="date" class="mb-1">Date of expense:</label><br>
+                  <input type="date" name="date" id="date">
+                </div>
+
+                <div class="form-floating mb-3">
+                  <textarea class="form-control" placeholder="Comments" id="comment" name="comment" style="height: 100px"></textarea>
+                  <label for="comment">Comments</label>
                 </div>
             </div>
             <div class="modal-footer">
@@ -48,6 +60,7 @@
       </div>
     </div>
   </div>
+
   <div class="modal fade" id="incomeModalToggle" aria-hidden="true" aria-labelledby="incomeModalToggleLabel" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">

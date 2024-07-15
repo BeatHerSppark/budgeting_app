@@ -140,3 +140,7 @@ form button {
 #datePicker {
     width: auto;
 }
+
+textarea {
+    resize: none;
+}

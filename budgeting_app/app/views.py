@@ -1,23 +1,32 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from .models import Transaction, Category
-from . import forms
 
 # Create your views here.
 @login_required(login_url="/users/login/")
 def dashboard_view(request):
-    form = forms.AddTransaction()
     expenseCategories = Category.objects.filter(category_type="expense")
-    print(expenseCategories)
     incomeCategories = Category.objects.filter(category_type="Income")
     #current_day = datetime.now().strftime('%Y-%m-%d')
     #current_week = datetime.now().strftime('%Y-W%V')
-    recent_transactions = Transaction.objects.filter(profile=request.user.profile).order_by("date")[:10]
+    recent_transactions = Transaction.objects.filter(profile=request.user.profile).order_by("-date")[:10]
+
+    if request.method == "POST":
+        transaction_type = request.POST['transaction_type']
+        amount = request.POST['amount']
+        category = Category.objects.get(title=request.POST['category'])
+        date = request.POST['date']
+        comment = request.POST['comment']
+        profile = request.user.profile
+
+        transaction = Transaction(transaction_type=transaction_type, amount=amount, date=date, profile=profile, category=category, comment=comment)
+        transaction.save()
+        return redirect("app:dashboard")
+
     return render(request, "app/dashboard.html", {
         "user": request.user,
         "recent_transactions": recent_transactions,
-        "form": form,
         "expenseCategories": expenseCategories,
         "incomeCategories": incomeCategories,
     },)
