@@ -22,7 +22,7 @@ h1 {
 }
 
 body {
-    background-color: #fafbfe;
+    background-color: #f5f7fa;
 }
 
 .main {
@@ -143,4 +143,15 @@ form button {
 
 textarea {
     resize: none;
+}
+
+.cards {
+    flex: 1;
+}
+.cards .card {
+    border: none;
+}
+
+.graph {
+    flex: 3;
 }

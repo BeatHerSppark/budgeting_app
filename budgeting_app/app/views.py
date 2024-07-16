@@ -6,6 +6,7 @@ from .models import Transaction, Category
 # Create your views here.
 @login_required(login_url="/users/login/")
 def dashboard_view(request):
+    request.session.set_expiry(0)
     expenseCategories = Category.objects.filter(category_type="expense")
     incomeCategories = Category.objects.filter(category_type="Income")
     #current_day = datetime.now().strftime('%Y-%m-%d')
@@ -37,4 +38,13 @@ def transactions_view(request):
 
 @login_required(login_url="/users/login/")
 def categories_view(request):
-    return render(request, "app/categories.html")
+    defaultExpenseCategories = Category.objects.filter(category_type="expense").filter(default_category="True")
+    userExpenseCategories = Category.objects.filter(category_type="expense").filter(profile=request.user.profile)
+    defaultIncomeCategories = Category.objects.filter(category_type="income").filter(default_category="True")
+    userIncomeCategories = Category.objects.filter(category_type="income").filter(profile=request.user.profile)
+    return render(request, "app/categories.html", {
+        "defaultExpenseCategories": defaultExpenseCategories,
+        "userExpenseCategories": userExpenseCategories,
+        "defaultIncomeCategories": defaultIncomeCategories,
+        "userIncomeCategories": userIncomeCategories,
+    })

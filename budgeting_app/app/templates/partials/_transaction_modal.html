@@ -45,7 +45,7 @@
 
                 <div class="mb-3">
                   <label for="date" class="mb-1">Date of expense:</label><br>
-                  <input type="date" name="date" id="date">
+                  <input type="date" class="form-control" name="date" id="date">
                 </div>
 
                 <div class="form-floating mb-3">
@@ -69,24 +69,37 @@
             <button class="btn rounded-circle me-2" data-bs-target="#typeModelToggle" data-bs-toggle="modal">
               <i class="lni lni-arrow-left mt-2"></i>
             </button>
-            <h1 class="modal-title fs-5" id="expenseModalToggleLabel">Add Income</h1>
+            <h1 class="modal-title fs-5" id="incomeModalToggleLabel">Add Income</h1>
           </div>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <form action="{% url 'app:dashboard' %}" method="post">
+            {% csrf_token %}
             <div class="modal-body">
-                <input type="hidden" name="transaction_type" value="Income">
-                <div>
-                    <label for="amount">Amount:</label>
-                    <input type="number" name="amount" id="amount">
+                <input type="hidden" name="transaction_type" value="Expense">
+                <div class="form-floating mb-3">
+                    <input class="form-control" type="number" name="amount" id="amount">
+                    <label for="amount">Amount</label>
                 </div>
-                <div>
-                    <label for="category">Category:</label>
-                    <input list="category-list" id="category" name="category">
-                    <datalist id="category-list">
-                        {% block incomeCategoryList %}
-                        {% endblock%}
-                    </datalist>
+
+                <div class="form-floating mb-3">
+                  <select class="form-select" id="category" name="category" aria-label="Choose a category">
+                    <option selected>Choose a category</option>
+                    {% for category in incomeCategoryList %}
+                      <option value="{{category}}">{{category}}</option>
+                    {% endfor %}
+                  </select>
+                  <label for="floatingSelect">Category</label>
+                </div>
+
+                <div class="mb-3">
+                  <label for="date" class="mb-1">Date of expense:</label><br>
+                  <input type="date" class="form-control" name="date" id="date">
+                </div>
+
+                <div class="form-floating mb-3">
+                  <textarea class="form-control" placeholder="Comments" id="comment" name="comment" style="height: 100px"></textarea>
+                  <label for="comment">Comments</label>
                 </div>
             </div>
             <div class="modal-footer">

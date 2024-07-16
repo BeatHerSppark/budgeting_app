@@ -46,7 +46,7 @@
             <div class="sidebar-footer sidebar-item dropdown">
                 <a href="#" class="sidebar-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <img src="https://i.pinimg.com/564x/a1/e8/29/a1e829055e2b5d834f0a4b2caa4c51e5.jpg" alt="pfp">
-                    <span>{% block username %}BeatHerSppark{% endblock %}</span>
+                    <span>{{ request.user.username }}</span>
                 </a>
                 <ul class="ms-2 dropdown-menu">
                     <li><a href="#" class="dropdown-item">
