@@ -1,4 +1,5 @@
 {% extends 'app/layout.html' %}
+{% load humanize %}
 
 {% block title %}
 Dashboard
@@ -37,33 +38,51 @@ Dashboard
 
     <div class="d-flex gap-4">
         <div class="cards">
-            <div class="card mb-4 shadow-sm" style="width: 100%;">
+            <div class="card mb-4 shadow-sm p-2" style="width: 100%;">
                 <div class="card-body">
-                  <h5 class="card-title">Card title</h5>
-                  <h6 class="card-subtitle mb-2 text-body-secondary">Card subtitle</h6>
-                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                  <a href="#" class="card-link">Card link</a>
-                  <a href="#" class="card-link">Another link</a>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="card-title fs-5 fw-normal text-secondary mb-3">Total</h5>
+                            <p class="card-text fs-3 fw-semibold">${{ request.user.profile.budget|floatformat:"-2"|intcomma }}</p>
+                        </div>
+                        <i class="lni lni-coin fs-3 bg-primary-subtle p-2 rounded text-primary"></i>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <p class="text-success text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni lni-angle-double-up"></i> 5.27%</p>
+                        <p class="text-secondary fs-6 mb-0">Since last month</p>
+                    </div>
                 </div>
-              </div>
-              <div class="card mb-4 shadow-sm" style="width: 100%;">
+            </div>
+            <div class="card mb-4 shadow-sm p-2" style="width: 100%;">
                 <div class="card-body">
-                  <h5 class="card-title">Card title</h5>
-                  <h6 class="card-subtitle mb-2 text-body-secondary">Card subtitle</h6>
-                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                  <a href="#" class="card-link">Card link</a>
-                  <a href="#" class="card-link">Another link</a>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="card-title fs-5 fw-normal text-secondary mb-3">Expenses</h5>
+                            <p class="card-text fs-3 fw-semibold">${{ expenses }}</p>
+                        </div>
+                        <i class="lni lni-shopping-basket fs-3 bg-primary-subtle p-2 rounded text-primary"></i>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <p class="text-danger text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni lni-angle-double-down"></i> 7.13%</p>
+                        <p class="text-secondary fs-6 mb-0">Since last month</p>
+                    </div>
                 </div>
-              </div>
-              <div class="card shadow-sm" style="width: 100%;">
+            </div>
+            <div class="card mb-4 shadow-sm p-2" style="width: 100%;">
                 <div class="card-body">
-                  <h5 class="card-title">Card title</h5>
-                  <h6 class="card-subtitle mb-2 text-body-secondary">Card subtitle</h6>
-                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                  <a href="#" class="card-link">Card link</a>
-                  <a href="#" class="card-link">Another link</a>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="card-title fs-5 fw-normal text-secondary mb-3">Income</h5>
+                            <p class="card-text fs-3 fw-semibold">${{ income }}</p>
+                        </div>
+                        <i class="lni lni-revenue fs-3 bg-primary-subtle p-2 rounded text-primary"></i>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <p class="text-success text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni lni-angle-double-up"></i> 2.75%</p>
+                        <p class="text-secondary fs-6 mb-0">Since last month</p>
+                    </div>
                 </div>
-              </div>
+            </div>
         </div>
         <div class="graph" style="background-color: white; height=400px;"></div>
     </div>
@@ -78,18 +97,18 @@ Dashboard
     {% include 'partials/_transaction_modal.html' with expenseCategoryList=expenseCategories incomeCategoryList=incomeCategories %}
 
     <div class="table-responsive small">
-        <table class="table table-striped table-sm">
-        <thead>
+        <table class="table table-light table-striped table-sm">
+        <thead class="fs-6">
             <tr>
-            <th scope="col">#</th>
-            <th scope="col">Type</th>
-            <th scope="col">Amount</th>
-            <th scope="col">Category</th>
-            <th scope="col">Date</th>
-            <th scope="col">Comment</th>
+                <th scope="col">#</th>
+                <th scope="col">Type</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Category</th>
+                <th scope="col">Date</th>
+                <th scope="col">Comment</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody class="fs-6">
         {% for transaction in recent_transactions %}
             <tr>
             <td>1</td>
