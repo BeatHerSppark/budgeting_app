@@ -6,6 +6,11 @@ Login
 
 {% block content %}
 <main class="form-signin w-100 m-auto">
+    {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            Please enter a correct username and password. Note that both fields may be case-sensitive.
+        </div>
+    {% endif %}
     <form action="{% url 'users:login' %}" method="post">
         {% csrf_token %}
         <h1 class="h3 mb-3 fw-normal text-center">Please sign in</h1>

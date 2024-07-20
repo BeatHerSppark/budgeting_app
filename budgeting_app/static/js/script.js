@@ -30,5 +30,3 @@ btnsDateMode.forEach(btn => {
         btn.classList.remove("btn-outline-secondary");
     })
 })
-
-// QUICK ADD

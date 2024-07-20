@@ -1,11 +1,24 @@
 {% extends 'users/layout.html' %}
-
+{% load static %}
 {% block title%}
 Register
 {% endblock %}
 
 {% block content %}
 <main class="form-signin w-100 m-auto">
+    {% if form.errors.password2 %}
+        <div class="alert alert-danger" role="alert">
+            {{ form.errors.password2 }}
+        </div>
+    {% elif form.errors.username %}
+        <div class="alert alert-danger" role="alert">
+            {{ form.errors.username }}
+        </div>
+    {% else %}
+        <div class="alert alert-danger" role="alert">
+            {{ form.errors }}
+        </div>
+    {% endif %}
     <form action="{% url 'users:register' %}" method="post">
         {% csrf_token %}
         <h1 class="h3 mb-3 fw-normal text-center">Create an account</h1>
@@ -36,4 +49,6 @@ Register
         <a href="{% url 'users:login' %}" class="link-offset-2 text-secondary">Already have an account?</a>
     </form>
 </main>
+
+<script src="{% static 'js/register.js' %}"></script>
 {% endblock %}
