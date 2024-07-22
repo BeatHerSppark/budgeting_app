@@ -52,6 +52,4 @@ dashboard_delete_transactions.addEventListener("click", () => {
     .then(data => {
         location.reload();
     })
-
-
 })
