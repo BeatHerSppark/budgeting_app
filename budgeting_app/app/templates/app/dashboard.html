@@ -78,6 +78,8 @@ Dashboard
 
     {% include 'partials/_transaction_modal.html' with expenseCategoryList=expenseCategories incomeCategoryList=incomeCategories %}
 
+    <button class="btn btn-outline-danger mb-4 d-none" id="dashboard_delete_transactions">Delete selected transactions</button>
+
     <div class="table-responsive small">
         <table class="table table-light table-striped table-sm">
         <thead class="fs-6">
@@ -93,7 +95,7 @@ Dashboard
         <tbody class="fs-6">
         {% for transaction in recent_transactions %}
             <tr>
-            <td>1</td>
+            <td><input type="checkbox" name="selected_transaction" id="{{ transaction.id }}" value="{{ transaction.id }}"></td>
             <td>{{ transaction.transaction_type }}</td>
             <td>{{ transaction.amount }}</td>
             <td>{{ transaction.category }}</td>

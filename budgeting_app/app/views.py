@@ -2,17 +2,37 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from users.models import Profile
+import json
+from django.http import JsonResponse
 from .models import Transaction, Category
 
 # Create your views here.
+@login_required(login_url="/users/login/")
+def dashboard_delete_transactions(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        profile = Profile.objects.get(user=request.user)
+
+        for transactionID in data['checkedIDs']:
+            transaction = Transaction.objects.get(id=int(transactionID))
+            if transaction.transaction_type == "Expense":
+                profile.budget += float(transaction.amount)
+            else:
+                profile.budget -= float(transaction.amount)
+            profile.save()
+            transaction.delete()
+
+        return JsonResponse({'message': "Transactions deleted successfully."}, status=200)
+
+
 @login_required(login_url="/users/login/")
 def dashboard_view(request):
     request.session.set_expiry(0)
     expenseCategories = Category.objects.filter(category_type="expense")
     incomeCategories = Category.objects.filter(category_type="income")
-    #current_day = datetime.now().strftime('%Y-%m-%d')
+    current_day = datetime.now().strftime('%Y-%m-%d')
     #current_week = datetime.now().strftime('%Y-W%V')
-    recent_transactions = Transaction.objects.filter(profile=request.user.profile).order_by("-date")[:10]
+    recent_transactions = Transaction.objects.filter(profile=request.user.profile).order_by("-submission_time")[:10]
     userExpenseTransactions = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense")
     userIncomeTransactions = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income")
     expenses = 0
@@ -41,6 +61,7 @@ def dashboard_view(request):
         return redirect("app:dashboard")
 
     return render(request, "app/dashboard.html", {
+        "current_day": current_day,
         "recent_transactions": recent_transactions,
         "expenseCategories": expenseCategories,
         "incomeCategories": incomeCategories,

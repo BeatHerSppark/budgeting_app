@@ -14,10 +14,6 @@ Register
         <div class="alert alert-danger" role="alert">
             {{ form.errors.username }}
         </div>
-    {% else %}
-        <div class="alert alert-danger" role="alert">
-            {{ form.errors }}
-        </div>
     {% endif %}
     <form action="{% url 'users:register' %}" method="post">
         {% csrf_token %}
@@ -45,7 +41,7 @@ Register
         {% if request.GET.next %}
             <input type="hidden" name="next" value="{{ request.GET.next }}">
         {% endif %}
-        <button class="btn btn-primary w-100 py-2 mb-3" type="submit">Sign in</button>
+        <button class="btn btn-primary w-100 py-2 mb-3" type="submit">Register</button>
         <a href="{% url 'users:login' %}" class="link-offset-2 text-secondary">Already have an account?</a>
     </form>
 </main>

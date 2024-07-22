@@ -14,19 +14,44 @@ sidebarLogo.addEventListener("click", () => {
     document.getElementById("sidebar").classList.toggle("collapse");
 })
 
-// DATE PICKER LOGIC
-const btnsDateMode = document.querySelectorAll(".btnDateMode");
+// DELETING TRANSACTIONS
+const transaction_checkboxes = document.querySelectorAll("td input");
 
-// Adding/remove style for selected date mode and calling handle function
-btnsDateMode.forEach(btn => {
-    btn.addEventListener("click", (e) => {
-        btnsDateMode.forEach(button => {
-            if(button.classList.contains("btn-secondary")) {
-                button.classList.remove("btn-secondary");
-                button.classList.add("btn-outline-secondary");
+transaction_checkboxes.forEach(checkbox => {
+    checkbox.addEventListener("change", () => {
+        if(checkbox.checked) {
+            document.getElementById("dashboard_delete_transactions").classList.remove("d-none");
+            document.getElementById("dashboard_delete_transactions").classList.add("d-block");
+        }
+        let noneSelected=true;
+        transaction_checkboxes.forEach(checkbox2 => {
+            if(checkbox2.checked) {
+                noneSelected=false;
             }
         })
-        btn.classList.add("btn-secondary");
-        btn.classList.remove("btn-outline-secondary");
+        if(noneSelected) {
+            document.getElementById("dashboard_delete_transactions").classList.remove("d-block");
+            document.getElementById("dashboard_delete_transactions").classList.add("d-none");
+        }
     })
+})
+
+const dashboard_delete_transactions = document.getElementById("dashboard_delete_transactions");
+
+dashboard_delete_transactions.addEventListener("click", () => {
+    let idArray = [];
+    transaction_checkboxes.forEach(checkbox => {
+        if(checkbox.checked) idArray.push(checkbox.id);
+    })
+
+    fetch("/app/dashboard-delete-transactions", {
+        body: JSON.stringify({ checkedIDs: idArray }),
+        method: "POST",
+    })
+    .then(res => res.json())
+    .then(data => {
+        location.reload();
+    })
+
+
 })
