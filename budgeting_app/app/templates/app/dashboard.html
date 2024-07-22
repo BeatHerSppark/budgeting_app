@@ -83,7 +83,7 @@ Dashboard
     </div>
 
     {% include 'partials/_transaction_modal.html' with expenseCategoryList=expenseCategories incomeCategoryList=incomeCategories %}
-
+    {% include 'partials/_edit_modal.html' %}
     <button class="btn btn-outline-danger mb-4 d-none" id="dashboard_delete_transactions">Delete selected transactions</button>
 
     <div class="table-responsive small">
@@ -96,17 +96,33 @@ Dashboard
                 <th scope="col">Category</th>
                 <th scope="col">Date</th>
                 <th scope="col">Comment</th>
+                <th scope="col"></th>
             </tr>
         </thead>
         <tbody class="fs-6">
         {% for transaction in recent_transactions %}
             <tr>
-            <td><input type="checkbox" name="selected_transaction" id="{{ transaction.id }}" value="{{ transaction.id }}"></td>
-            <td>{{ transaction.transaction_type }}</td>
-            <td>{{ transaction.amount }}</td>
-            <td>{{ transaction.category }}</td>
-            <td>{{ transaction.date }}</td>
-            <td>{{ transaction.comment }}</td>
+            <td class="align-middle text-left"><input type="checkbox" name="selected_transaction" id="{{ transaction.id }}" value="{{ transaction.id }}"></td>
+            <td class="align-middle text-left">{{ transaction.transaction_type }}</td>
+            <td class="align-middle text-left">{{ transaction.amount }}</td>
+            <td class="align-middle text-left">{{ transaction.category }}</td>
+            <td class="align-middle text-left">{{ transaction.date }}</td>
+            <td class="align-middle text-left">{{ transaction.comment }}</td>
+            <td class="align-middle text-left">
+                <button
+                    class="border-0"
+                    id="edit_transaction"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editModalToggle"
+                    data-bs-type="{{ transaction.transaction_type }}"
+                    data-bs-amount="{{ transaction.amount }}"
+                    data-bs-category="{{ transaction.category }}"
+                    data-bs-date="{{ transaction.date }}"
+                    data-bs-comment="{{ transaction.comment }}"
+                >
+                    <i class="lni lni-cog fs-5 mt-2"></i>
+                </button>
+            </td>
             </tr>
         {% endfor %}
         </tbody>

@@ -1,111 +1,112 @@
 <div class="modal fade" id="typeModelToggle" aria-hidden="true" aria-labelledby="typeModelToggleLabel" tabindex="-1">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="typeModelToggleLabel">Type of transaction:</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body d-flex justify-content-around">
-          <button class="btn btn-primary" data-bs-target="#expenseModalToggle" data-bs-toggle="modal">Expense</button>
-          <button class="btn btn-primary" data-bs-target="#incomeModalToggle" data-bs-toggle="modal">Income</button>
-        </div>
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="typeModelToggleLabel">Type of transaction:</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body d-flex justify-content-around">
+        <button class="btn btn-primary" data-bs-target="#expenseModalToggle" data-bs-toggle="modal">Expense</button>
+        <button class="btn btn-primary" data-bs-target="#incomeModalToggle" data-bs-toggle="modal">Income</button>
       </div>
     </div>
   </div>
-  <div class="modal fade" id="expenseModalToggle" aria-hidden="true" aria-labelledby="expenseModalToggleLabel" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header d-flex align-items-center justify-content-between">
-          <div class="d-flex align-items-center">
-            <button class="btn rounded-circle me-2" data-bs-target="#typeModelToggle" data-bs-toggle="modal">
-              <i class="lni lni-arrow-left mt-2"></i>
-            </button>
-            <h1 class="modal-title fs-5" id="expenseModalToggleLabel">Add Expense</h1>
+</div>
+
+<div class="modal fade" id="expenseModalToggle" aria-hidden="true" aria-labelledby="expenseModalToggleLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+          <button class="btn rounded-circle me-2" data-bs-target="#typeModelToggle" data-bs-toggle="modal">
+            <i class="lni lni-arrow-left mt-2"></i>
+          </button>
+          <h1 class="modal-title fs-5" id="expenseModalToggleLabel">Add Expense</h1>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{% url 'app:dashboard' %}" method="post">
+          {% csrf_token %}
+          <div class="modal-body">
+              <input type="hidden" name="transaction_type" value="Expense">
+              <div class="form-floating mb-3">
+                  <input class="form-control" type="number" name="amount" id="amount">
+                  <label for="amount">Amount</label>
+              </div>
+
+              <div class="form-floating mb-3">
+                <select class="form-select" id="category" name="category" aria-label="Choose a category">
+                  <option selected>Choose a category</option>
+                  {% for category in expenseCategoryList %}
+                    <option value="{{category}}">{{category}}</option>
+                  {% endfor %}
+                </select>
+                <label for="floatingSelect">Category</label>
+              </div>
+
+              <div class="mb-3">
+                <label for="date" class="mb-1">Date of expense:</label><br>
+                <input type="date" class="form-control" name="date" id="date" max="{{ current_day }}" value="{{ current_day }}">
+              </div>
+
+              <div class="form-floating mb-3">
+                <textarea class="form-control" placeholder="Comments" id="comment" name="comment" style="height: 100px"></textarea>
+                <label for="comment">Comments</label>
+              </div>
           </div>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <form action="{% url 'app:dashboard' %}" method="post">
-            {% csrf_token %}
-            <div class="modal-body">
-                <input type="hidden" name="transaction_type" value="Expense">
-                <div class="form-floating mb-3">
-                    <input class="form-control" type="number" name="amount" id="amount">
-                    <label for="amount">Amount</label>
-                </div>
-
-                <div class="form-floating mb-3">
-                  <select class="form-select" id="category" name="category" aria-label="Choose a category">
-                    <option selected>Choose a category</option>
-                    {% for category in expenseCategoryList %}
-                      <option value="{{category}}">{{category}}</option>
-                    {% endfor %}
-                  </select>
-                  <label for="floatingSelect">Category</label>
-                </div>
-
-                <div class="mb-3">
-                  <label for="date" class="mb-1">Date of expense:</label><br>
-                  <input type="date" class="form-control" name="date" id="date" max="{{ current_day }}" value="{{ current_day }}">
-                </div>
-
-                <div class="form-floating mb-3">
-                  <textarea class="form-control" placeholder="Comments" id="comment" name="comment" style="height: 100px"></textarea>
-                  <label for="comment">Comments</label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary">Add Expense</button>
-            </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="incomeModalToggle" aria-hidden="true" aria-labelledby="incomeModalToggleLabel" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header d-flex align-items-center justify-content-between">
-          <div class="d-flex align-items-center">
-            <button class="btn rounded-circle me-2" data-bs-target="#typeModelToggle" data-bs-toggle="modal">
-              <i class="lni lni-arrow-left mt-2"></i>
-            </button>
-            <h1 class="modal-title fs-5" id="incomeModalToggleLabel">Add Income</h1>
+          <div class="modal-footer">
+              <button class="btn btn-primary">Add Expense</button>
           </div>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <form action="{% url 'app:dashboard' %}" method="post">
-            {% csrf_token %}
-            <div class="modal-body">
-                <input type="hidden" name="transaction_type" value="Income">
-                <div class="form-floating mb-3">
-                    <input class="form-control" type="number" name="amount" id="amount">
-                    <label for="amount">Amount</label>
-                </div>
-
-                <div class="form-floating mb-3">
-                  <select class="form-select" id="category" name="category" aria-label="Choose a category">
-                    <option selected>Choose a category</option>
-                    {% for category in incomeCategoryList %}
-                      <option value="{{category}}">{{category}}</option>
-                    {% endfor %}
-                  </select>
-                  <label for="floatingSelect">Category</label>
-                </div>
-
-                <div class="mb-3">
-                  <label for="date" class="mb-1">Date of expense:</label><br>
-                  <input type="date" class="form-control" name="date" id="date" max="{{ current_day }}" value="{{ current_day }}">
-                </div>
-
-                <div class="form-floating mb-3">
-                  <textarea class="form-control" placeholder="Comments" id="comment" name="comment" style="height: 100px"></textarea>
-                  <label for="comment">Comments</label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary">Add Expense</button>
-            </div>
-        </form>
-      </div>
+      </form>
     </div>
   </div>
+</div>
+
+<div class="modal fade" id="incomeModalToggle" aria-hidden="true" aria-labelledby="incomeModalToggleLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+          <button class="btn rounded-circle me-2" data-bs-target="#typeModelToggle" data-bs-toggle="modal">
+            <i class="lni lni-arrow-left mt-2"></i>
+          </button>
+          <h1 class="modal-title fs-5" id="incomeModalToggleLabel">Add Income</h1>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{% url 'app:dashboard' %}" method="post">
+          {% csrf_token %}
+          <div class="modal-body">
+              <input type="hidden" name="transaction_type" value="Income">
+              <div class="form-floating mb-3">
+                  <input class="form-control" type="number" name="amount" id="amount">
+                  <label for="amount">Amount</label>
+              </div>
+
+              <div class="form-floating mb-3">
+                <select class="form-select" id="category" name="category" aria-label="Choose a category">
+                  <option selected>Choose a category</option>
+                  {% for category in incomeCategoryList %}
+                    <option value="{{category}}">{{category}}</option>
+                  {% endfor %}
+                </select>
+                <label for="floatingSelect">Category</label>
+              </div>
+
+              <div class="mb-3">
+                <label for="date" class="mb-1">Date of expense:</label><br>
+                <input type="date" class="form-control" name="date" id="date" max="{{ current_day }}" value="{{ current_day }}">
+              </div>
+
+              <div class="form-floating mb-3">
+                <textarea class="form-control" placeholder="Comments" id="comment" name="comment" style="height: 100px"></textarea>
+                <label for="comment">Comments</label>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button class="btn btn-primary">Add Income</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>

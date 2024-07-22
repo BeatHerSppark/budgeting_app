@@ -5,8 +5,8 @@ from django.utils.timezone import now
 # Create your models here.
 class Category(models.Model):
     CHOICES = [
-        ('expense', 'Expense'),
-        ('income', 'Income')
+        ('Expense', 'Expense'),
+        ('Income', 'Income')
     ]
     category_type = models.CharField(max_length=7, choices=CHOICES)
     default_category = models.BooleanField(default=False) # Premade categories have value True, user-made categories have value False

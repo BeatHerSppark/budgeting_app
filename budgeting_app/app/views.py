@@ -26,10 +26,20 @@ def dashboard_delete_transactions(request):
 
 
 @login_required(login_url="/users/login/")
+def dashboard_get_categories(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        categories = Category.objects.filter(category_type=data["category_type"]).values('title')
+        categories_list = list(categories)
+        return  JsonResponse({"categories": categories_list}, status=200)
+
+
+@login_required(login_url="/users/login/")
 def dashboard_view(request):
     request.session.set_expiry(0)
-    expenseCategories = Category.objects.filter(category_type="expense")
-    incomeCategories = Category.objects.filter(category_type="income")
+    expenseCategories = Category.objects.filter(category_type="Expense")
+    incomeCategories = Category.objects.filter(category_type="Income")
+    categories = Category.objects.all()
     current_day = datetime.now().strftime('%Y-%m-%d')
     #current_week = datetime.now().strftime('%Y-W%V')
     recent_transactions = Transaction.objects.filter(profile=request.user.profile).order_by("-submission_time")[:10]
@@ -65,6 +75,7 @@ def dashboard_view(request):
         "recent_transactions": recent_transactions,
         "expenseCategories": expenseCategories,
         "incomeCategories": incomeCategories,
+        "categories": categories,
         "expenses": expenses,
         "income": income,
     },)
@@ -75,10 +86,10 @@ def transactions_view(request):
 
 @login_required(login_url="/users/login/")
 def categories_view(request):
-    defaultExpenseCategories = Category.objects.filter(category_type="expense").filter(default_category="True")
-    userExpenseCategories = Category.objects.filter(category_type="expense").filter(profile=request.user.profile)
-    defaultIncomeCategories = Category.objects.filter(category_type="income").filter(default_category="True")
-    userIncomeCategories = Category.objects.filter(category_type="income").filter(profile=request.user.profile)
+    defaultExpenseCategories = Category.objects.filter(category_type="Expense").filter(default_category="True")
+    userExpenseCategories = Category.objects.filter(category_type="Expense").filter(profile=request.user.profile)
+    defaultIncomeCategories = Category.objects.filter(category_type="Income").filter(default_category="True")
+    userIncomeCategories = Category.objects.filter(category_type="Income").filter(profile=request.user.profile)
     return render(request, "app/categories.html", {
         "defaultExpenseCategories": defaultExpenseCategories,
         "userExpenseCategories": userExpenseCategories,

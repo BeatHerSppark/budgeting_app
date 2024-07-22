@@ -53,3 +53,58 @@ dashboard_delete_transactions.addEventListener("click", () => {
         location.reload();
     })
 })
+
+// EDITING TRANSACTIONS
+const formatDate = (dateStr) => {
+    let formattedDate = new Date(dateStr);
+    let year = formattedDate.getFullYear();
+    let month = (formattedDate.getMonth() + 1).toString();
+    let day = formattedDate.getDate().toString();
+    if (month.length < 2) {
+        month = '0' + month;
+    }
+    if (day.length < 2) {
+        day = '0' + day;
+    }
+
+    return `${year}-${month}-${day}`;
+}
+const editModal = document.getElementById("editModalToggle");
+if(editModal) {
+    editModal.addEventListener("show.bs.modal", e => {
+        const button = e.relatedTarget;
+        const type = button.getAttribute("data-bs-type");
+        const amount = button.getAttribute("data-bs-amount");
+        const category = button.getAttribute("data-bs-category");
+        const date = button.getAttribute("data-bs-date");
+        const comment = button.getAttribute("data-bs-comment");
+
+        const typeInput = editModal.querySelector("#transaction_type");
+        const amountInput = editModal.querySelector("#amount");
+        const categoryInput = editModal.querySelector("#category");
+        const dateInput = editModal.querySelector("#date");
+        const commentInput = editModal.querySelector("#comment");
+
+        fetch("/app/dashboard-get-categories", {
+            body: JSON.stringify({ category_type: type }),
+            method: "POST",
+        })
+        .then(res => res.json())
+        .then(data => {
+            data.categories.forEach(category => {
+                categoryInput.innerHTML += `<option value="${category.title}">${category.title}</option>`
+            })
+            categoryInput.value = category;
+        })
+
+        typeInput.value = type;
+        amountInput.value = amount;
+        dateInput.value = formatDate(date);
+        commentInput.value = comment;
+    })
+
+    editModal.addEventListener("hide.bs.modal", e => {
+        const categoryInput = editModal.querySelector("#category");
+        categoryInput.innerHTML = `<option selected>Choose a category</option>`
+    })
+}
