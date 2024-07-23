@@ -73,12 +73,14 @@ const editModal = document.getElementById("editModalToggle");
 if(editModal) {
     editModal.addEventListener("show.bs.modal", e => {
         const button = e.relatedTarget;
+        const id = button.getAttribute("data-bs-id");
         const type = button.getAttribute("data-bs-type");
         const amount = button.getAttribute("data-bs-amount");
         const category = button.getAttribute("data-bs-category");
         const date = button.getAttribute("data-bs-date");
         const comment = button.getAttribute("data-bs-comment");
 
+        const idInput = editModal.querySelector("#id");
         const typeInput = editModal.querySelector("#transaction_type");
         const amountInput = editModal.querySelector("#amount");
         const categoryInput = editModal.querySelector("#category");
@@ -97,6 +99,7 @@ if(editModal) {
             categoryInput.value = category;
         })
 
+        idInput.value = id;
         typeInput.value = type;
         amountInput.value = amount;
         dateInput.value = formatDate(date);

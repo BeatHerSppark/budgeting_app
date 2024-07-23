@@ -35,6 +35,29 @@ def dashboard_get_categories(request):
 
 
 @login_required(login_url="/users/login/")
+def dashboard_edit_transaction(request):
+    if request.method == "POST":
+        profile = Profile.objects.get(user=request.user)
+        transaction = Transaction.objects.get(id=request.POST["id"])
+        prevAmount = transaction.amount
+        transaction.amount = request.POST["amount"]
+        transaction.category = Category.objects.get(title=request.POST['category'])
+        transaction.date = request.POST["date"]
+        transaction.comment = request.POST["comment"]
+
+        if request.POST["transaction_type"] == "Expense":
+            profile.budget += float(prevAmount)
+            profile.budget -= float(transaction.amount)
+        else:
+            profile.budget -= float(prevAmount)
+            profile.budget += float(transaction.amount)
+
+        profile.save()
+        transaction.save()
+        return redirect("app:dashboard")
+
+
+@login_required(login_url="/users/login/")
 def dashboard_view(request):
     request.session.set_expiry(0)
     expenseCategories = Category.objects.filter(category_type="Expense")
