@@ -28,9 +28,11 @@ def dashboard_delete_transactions(request):
 @login_required(login_url="/users/login/")
 def dashboard_get_categories(request):
     if request.method == "POST":
+        profile = Profile.objects.get(user=request.user)
         data = json.loads(request.body)
-        categories = Category.objects.filter(category_type=data["category_type"]).values('title')
-        categories_list = list(categories)
+        defaultCategories = Category.objects.filter(default_category=True).filter(category_type=data["category_type"]).values('title')
+        userCategories = Category.objects.filter(profile=profile).filter(category_type=data["category_type"]).values('title')
+        categories_list = list(defaultCategories) + list(userCategories)
         return  JsonResponse({"categories": categories_list}, status=200)
 
 
@@ -41,7 +43,11 @@ def dashboard_edit_transaction(request):
         transaction = Transaction.objects.get(id=request.POST["id"])
         prevAmount = transaction.amount
         transaction.amount = request.POST["amount"]
-        transaction.category = Category.objects.get(title=request.POST['category'])
+        print(request.POST["category"])
+        if request.POST["category"] == "Choose a category":
+            transaction.category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title="Uncategorized")
+        else:
+            transaction.category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title=request.POST["category"])
         transaction.date = request.POST["date"]
         transaction.comment = request.POST["comment"]
 
@@ -60,9 +66,11 @@ def dashboard_edit_transaction(request):
 @login_required(login_url="/users/login/")
 def dashboard_view(request):
     request.session.set_expiry(0)
-    expenseCategories = Category.objects.filter(category_type="Expense")
-    incomeCategories = Category.objects.filter(category_type="Income")
-    categories = Category.objects.all()
+    defaultExpenseCategories = Category.objects.filter(category_type="Expense").filter(default_category="True")
+    userExpenseCategories = Category.objects.filter(category_type="Expense").filter(profile=request.user.profile)
+    defaultIncomeCategories = Category.objects.filter(category_type="Income").filter(default_category="True")
+    userIncomeCategories = Category.objects.filter(category_type="Income").filter(profile=request.user.profile)
+
     current_day = datetime.now().strftime('%Y-%m-%d')
     #current_week = datetime.now().strftime('%Y-W%V')
     recent_transactions = Transaction.objects.filter(profile=request.user.profile).order_by("-submission_time")[:10]
@@ -78,7 +86,10 @@ def dashboard_view(request):
     if request.method == "POST":
         transaction_type = request.POST['transaction_type']
         amount = request.POST['amount']
-        category = Category.objects.get(title=request.POST['category'])
+        if request.POST["category"] == "Choose a category":
+            category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title="Uncategorized")
+        else:
+            category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title=request.POST['category'])
         date = request.POST['date']
         comment = request.POST['comment']
 
@@ -96,9 +107,10 @@ def dashboard_view(request):
     return render(request, "app/dashboard.html", {
         "current_day": current_day,
         "recent_transactions": recent_transactions,
-        "expenseCategories": expenseCategories,
-        "incomeCategories": incomeCategories,
-        "categories": categories,
+        "defaultExpenseCategories": defaultExpenseCategories,
+        "userExpenseCategories": userExpenseCategories,
+        "defaultIncomeCategories": defaultIncomeCategories,
+        "userIncomeCategories": userIncomeCategories,
         "expenses": expenses,
         "income": income,
     },)

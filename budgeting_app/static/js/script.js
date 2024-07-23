@@ -96,7 +96,12 @@ if(editModal) {
             data.categories.forEach(category => {
                 categoryInput.innerHTML += `<option value="${category.title}">${category.title}</option>`
             })
-            categoryInput.value = category;
+            if(category=="Uncategorized") {
+                categoryInput.value = "Choose a category";
+            }
+            else {
+                categoryInput.value = category;
+            }
         })
 
         idInput.value = id;

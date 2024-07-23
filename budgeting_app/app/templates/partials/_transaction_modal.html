@@ -37,7 +37,10 @@
               <div class="form-floating mb-3">
                 <select class="form-select" id="category" name="category" aria-label="Choose a category">
                   <option selected>Choose a category</option>
-                  {% for category in expenseCategoryList %}
+                  {% for category in defaultExpenseCategories %}
+                    <option value="{{category}}">{{category}}</option>
+                  {% endfor %}
+                  {% for category in userExpenseCategories %}
                     <option value="{{category}}">{{category}}</option>
                   {% endfor %}
                 </select>
@@ -86,7 +89,10 @@
               <div class="form-floating mb-3">
                 <select class="form-select" id="category" name="category" aria-label="Choose a category">
                   <option selected>Choose a category</option>
-                  {% for category in incomeCategoryList %}
+                  {% for category in defaultIncomeCategories %}
+                    <option value="{{category}}">{{category}}</option>
+                  {% endfor %}
+                  {% for category in userIncomeCategories %}
                     <option value="{{category}}">{{category}}</option>
                   {% endfor %}
                 </select>
