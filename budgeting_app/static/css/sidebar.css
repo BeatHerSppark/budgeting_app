@@ -155,3 +155,19 @@ textarea {
 .graph {
     flex: 3;
 }
+
+
+
+/* CATEGORIES */
+
+#addExpenseCategory:hover {
+    cursor: pointer;
+}
+
+#iconsContainer .icon{
+    transition: 0.2s;
+}
+
+#iconsContainer .icon:hover {
+    cursor: pointer;
+}

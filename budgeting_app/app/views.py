@@ -4,7 +4,7 @@ from datetime import datetime
 from users.models import Profile
 import json
 from django.http import JsonResponse
-from .models import Transaction, Category
+from .models import Transaction, Category, Icon
 
 # Create your views here.
 @login_required(login_url="/users/login/")
@@ -125,9 +125,11 @@ def categories_view(request):
     userExpenseCategories = Category.objects.filter(category_type="Expense").filter(profile=request.user.profile)
     defaultIncomeCategories = Category.objects.filter(category_type="Income").filter(default_category="True")
     userIncomeCategories = Category.objects.filter(category_type="Income").filter(profile=request.user.profile)
+    icons = Icon.objects.all()
     return render(request, "app/categories.html", {
         "defaultExpenseCategories": defaultExpenseCategories,
         "userExpenseCategories": userExpenseCategories,
         "defaultIncomeCategories": defaultIncomeCategories,
         "userIncomeCategories": userIncomeCategories,
+        "icons": icons,
     })

@@ -37,4 +37,6 @@ class Transaction(models.Model):
 
 class Icon(models.Model):
     icon_tag = models.CharField(max_length=50)
-    category = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.icon_tag

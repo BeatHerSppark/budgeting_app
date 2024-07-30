@@ -1,5 +1,7 @@
 {% extends 'app/layout.html' %}
 
+{% load static %}
+
 {% block title %}
 Categories
 {% endblock %}
@@ -12,6 +14,9 @@ Categories
     <div class="pb-1 mb-2 border-bottom">
         <p></p>
     </div>
+
+    {% include 'partials/_category_modal.html' %}
+
     <div class="mt-4 mb-4">
         <h2 class="fs-5 mb-4">Expense Categories</h2>
         <div class="categories d-flex gap-4">
@@ -31,7 +36,10 @@ Categories
                 <p class="text-center">{{ category.title }}</p>
             </div>
             {% endfor %}
-            <div class="d-flex flex-column align-items-center justify-content-center">
+            <div id="addExpenseCategory" class="d-flex flex-column align-items-center justify-content-center"
+                data-bs-toggle="modal"
+                data-bs-target="#expenseCategoryToggle"
+            >
                 <div class="mb-1 icon rounded-circle bg-warning d-flex justify-content-center align-items-center" style="width:75px; height:75px;">
                     <i class="lni lni-plus text-white fs-2"></i>
                 </div>
@@ -68,4 +76,8 @@ Categories
         </div>
     </div>
 </main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/categories.js' %}"></script>
 {% endblock %}
