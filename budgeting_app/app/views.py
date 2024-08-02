@@ -133,3 +133,18 @@ def categories_view(request):
         "userIncomeCategories": userIncomeCategories,
         "icons": icons,
     })
+
+@login_required(login_url="/users/login/")
+def create_category(request):
+    if request.method=="POST":
+        profile = Profile.objects.get(user=request.user)
+        data = json.loads(request.body)
+        title = data["title"]
+        icon_tag = "lni-question-circle"
+        category_type = data["category_type"]
+        if data["icon_tag"] != None:
+            icon_tag = data["icon_tag"]
+
+        category = Category(category_type=category_type, default_category=False, title=title, icon_tag=icon_tag, profile=profile)
+        category.save()
+        return redirect("app:categories")

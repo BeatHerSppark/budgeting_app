@@ -22,7 +22,24 @@ icons.forEach(icon => {
 
             iconTag = null;
         }
-
-        console.log(iconTag);
     })
+})
+
+const expenseBtn = document.getElementById("createExpenseCategory");
+const titleInput = document.getElementById("title");
+const category_type = document.getElementById("category_type")
+
+expenseBtn.addEventListener('click', () => {
+    if(titleInput.value) {
+        fetch("/app/create-category", {
+            body: JSON.stringify({
+                icon_tag: iconTag,
+                title: title.value,
+                category_type: category_type.value,
+            }),
+            method: "POST",
+        })
+        .then(res => res.json())
+        .then(data => location.reload())
+    }
 })

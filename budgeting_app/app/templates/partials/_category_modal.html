@@ -2,15 +2,15 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header d-flex align-items-center justify-content-between">
-            <h1 class="modal-title fs-5" id="expenseCategoryToggleLabel">Add category</h1>
+            <h1 class="modal-title fs-5" id="expenseCategoryToggleLabel">Creating category</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <form action="{% url 'app:dashboard' %}" method="post">
+        <form method="post">
             {% csrf_token %}
             <div class="modal-body">
-                <input type="hidden" name="category_type" value="Expense">
+                <input type="hidden" name="category_type" id="category_type" value="Expense">
                 <div class="form-floating mb-3">
-                    <input class="form-control" type="text" name="title" id="title">
+                    <input class="form-control" type="text" name="title" id="title" required>
                     <label for="amount">Title</label>
                 </div>
 
@@ -26,7 +26,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary">Add Expense</button>
+                <button id="createExpenseCategory" class="btn btn-primary">Create</button>
             </div>
         </form>
       </div>
