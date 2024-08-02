@@ -8,10 +8,10 @@
         <form method="post">
             {% csrf_token %}
             <div class="modal-body">
-                <input type="hidden" name="category_type" id="category_type" value="Expense">
+                <input type="hidden" name="category_type" id="category_type1" value="Expense">
                 <div class="form-floating mb-3">
-                    <input class="form-control" type="text" name="title" id="title" required>
-                    <label for="amount">Title</label>
+                    <input class="form-control" type="text" name="title" id="title1" required>
+                    <label for="title1">Title</label>
                 </div>
 
                 <div class="mb-3">
@@ -27,6 +27,41 @@
             </div>
             <div class="modal-footer">
                 <button id="createExpenseCategory" class="btn btn-primary">Create</button>
+            </div>
+        </form>
+      </div>
+    </div>
+</div>
+
+<div class="modal fade" id="incomeCategoryToggle" aria-hidden="true" aria-labelledby="incomeCategoryToggleLabel" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header d-flex align-items-center justify-content-between">
+            <h1 class="modal-title fs-5" id="incomeCategoryToggleLabel">Creating category</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="modal-body">
+                <input type="hidden" name="category_type" id="category_type2" value="Income">
+                <div class="form-floating mb-3">
+                    <input class="form-control" type="text" name="title" id="title2" required>
+                    <label for="title2">Title</label>
+                </div>
+
+                <div class="mb-3">
+                    <p>Choose an icon:</p>
+                    <div id="iconsContainer" class="d-flex flex-wrap gap-2">
+                        {% for icon in icons %}
+                        <div data-bs-icon="{{ icon }}" class="mb-1 icon rounded-circle bg-secondary d-flex justify-content-center align-items-center" style="width:60px; height:60px;">
+                            <i class="lni {{ icon }} text-white fs-3"></i>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="createIncomeCategory" class="btn btn-primary">Create</button>
             </div>
         </form>
       </div>

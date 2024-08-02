@@ -160,7 +160,7 @@ textarea {
 
 /* CATEGORIES */
 
-#addExpenseCategory:hover {
+#addExpenseCategory:hover, #addIncomeCategory:hover {
     cursor: pointer;
 }
 

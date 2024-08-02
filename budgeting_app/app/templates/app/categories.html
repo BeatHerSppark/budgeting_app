@@ -67,7 +67,10 @@ Categories
                 <p class="text-center">{{ category.title }}</p>
             </div>
             {% endfor %}
-            <div class="d-flex flex-column align-items-center justify-content-center">
+            <div id="addIncomeCategory" class="d-flex flex-column align-items-center justify-content-center"
+                data-bs-toggle="modal"
+                data-bs-target="#incomeCategoryToggle"
+            >
                 <div class="mb-1 icon rounded-circle bg-warning d-flex justify-content-center align-items-center" style="width:75px; height:75px;">
                     <i class="lni lni-plus text-white fs-2"></i>
                 </div>

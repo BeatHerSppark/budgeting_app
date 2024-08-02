@@ -26,16 +26,34 @@ icons.forEach(icon => {
 })
 
 const expenseBtn = document.getElementById("createExpenseCategory");
-const titleInput = document.getElementById("title");
-const category_type = document.getElementById("category_type")
+const incomeBtn = document.getElementById("createIncomeCategory");
+const titleInput1 = document.getElementById("title1");
+const titleInput2 = document.getElementById("title2");
+const category_type1 = document.getElementById("category_type1");
+const category_type2 = document.getElementById("category_type2");
 
 expenseBtn.addEventListener('click', () => {
-    if(titleInput.value) {
+    if(titleInput1.value) {
         fetch("/app/create-category", {
             body: JSON.stringify({
                 icon_tag: iconTag,
-                title: title.value,
-                category_type: category_type.value,
+                title: titleInput1.value,
+                category_type: category_type1.value,
+            }),
+            method: "POST",
+        })
+        .then(res => res.json())
+        .then(data => location.reload())
+    }
+})
+
+incomeBtn.addEventListener('click', () => {
+    if(titleInput2.value) {
+        fetch("/app/create-category", {
+            body: JSON.stringify({
+                icon_tag: iconTag,
+                title: titleInput2.value,
+                category_type: category_type2.value,
             }),
             method: "POST",
         })
