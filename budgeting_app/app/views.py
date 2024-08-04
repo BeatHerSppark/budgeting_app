@@ -43,7 +43,7 @@ def dashboard_edit_transaction(request):
         transaction = Transaction.objects.get(id=request.POST["id"])
         prevAmount = transaction.amount
         transaction.amount = request.POST["amount"]
-        print(request.POST["category"])
+
         if request.POST["category"] == "Choose a category":
             transaction.category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title="Uncategorized")
         else:
@@ -146,5 +146,17 @@ def create_category(request):
             icon_tag = data["icon_tag"]
 
         category = Category(category_type=category_type, default_category=False, title=title, icon_tag=icon_tag, profile=profile)
+        category.save()
+        return redirect("app:categories")
+
+
+@login_required(login_url="/users/login/")
+def edit_category(request):
+    if request.method=="POST":
+        profile = Profile.objects.get(user=request.user)
+        data = json.loads(request.body)
+        category = Category.objects.get(id=data["id"])
+        category.title = data["title"]
+        category.icon_tag = data["icon_tag"]
         category.save()
         return redirect("app:categories")

@@ -16,27 +16,35 @@ Categories
     </div>
 
     {% include 'partials/_category_modal.html' %}
+    {% include 'partials/_edit_category_modal.html' %}
 
     <div class="mt-4 mb-4">
         <h2 class="fs-5 mb-4">Expense Categories</h2>
         <div class="categories d-flex gap-4">
             {% for category in defaultExpenseCategories %}
             <div class="d-flex flex-column align-items-center justify-content-center">
-                <div class="mb-1 icon rounded-circle bg-primary d-flex justify-content-center align-items-center" style="width:75px; height:75px;">
+                <div class="mb-1 icon rounded-circle bg-secondary d-flex justify-content-center align-items-center" style="width:75px; height:75px;">
                     <i class="lni {{ category.icon_tag }} text-white fs-2"></i>
                 </div>
                 <p class="text-center">{{ category.title }}</p>
             </div>
             {% endfor %}
             {% for category in userExpenseCategories %}
-            <div class="d-flex flex-column align-items-center justify-content-center">
+            <div id="editExpenseCategory" class="d-flex flex-column align-items-center justify-content-center category-icon"
+                data-bs-toggle="modal"
+                data-bs-target="#editCategoryModal"
+                data-bs-id="{{ category.id }}"
+                data-bs-type="{{ category.category_type }}"
+                data-bs-title="{{ category.title }}"
+                data-bs-icontag="{{ category.icon_tag }}"
+            >
                 <div class="mb-1 icon rounded-circle bg-primary d-flex justify-content-center align-items-center" style="width:75px; height:75px;">
                     <i class="lni {{ category.icon_tag }} text-white fs-2"></i>
                 </div>
                 <p class="text-center">{{ category.title }}</p>
             </div>
             {% endfor %}
-            <div id="addExpenseCategory" class="d-flex flex-column align-items-center justify-content-center"
+            <div id="addExpenseCategory" class="d-flex flex-column align-items-center justify-content-center category-icon"
                 data-bs-toggle="modal"
                 data-bs-target="#expenseCategoryToggle"
             >
@@ -53,21 +61,28 @@ Categories
         <div class="categories d-flex gap-4">
             {% for category in defaultIncomeCategories %}
             <div class="d-flex flex-column align-items-center justify-content-center">
-                <div class="mb-1 icon rounded-circle bg-primary d-flex justify-content-center align-items-center" style="width:75px; height:75px;">
+                <div class="mb-1 icon rounded-circle bg-secondary d-flex justify-content-center align-items-center" style="width:75px; height:75px;">
                     <i class="lni {{ category.icon_tag }} text-white fs-2"></i>
                 </div>
                 <p class="text-center">{{ category.title }}</p>
             </div>
             {% endfor %}
             {% for category in userIncomeCategories %}
-            <div class="d-flex flex-column align-items-center justify-content-center">
+            <div class="d-flex flex-column align-items-center justify-content-center category-icon"
+                data-bs-toggle="modal"
+                data-bs-target="#editCategoryModal"
+                data-bs-id="{{ category.id }}"
+                data-bs-type="{{ category.category_type }}"
+                data-bs-title="{{ category.title }}"
+                data-bs-icontag="{{ category.icon_tag }}"
+            >
                 <div class="mb-1 icon rounded-circle bg-primary d-flex justify-content-center align-items-center" style="width:75px; height:75px;">
                     <i class="lni {{ category.icon_tag }} text-white fs-2"></i>
                 </div>
                 <p class="text-center">{{ category.title }}</p>
             </div>
             {% endfor %}
-            <div id="addIncomeCategory" class="d-flex flex-column align-items-center justify-content-center"
+            <div id="addIncomeCategory" class="d-flex flex-column align-items-center justify-content-center category-icon"
                 data-bs-toggle="modal"
                 data-bs-target="#incomeCategoryToggle"
             >

@@ -1,0 +1,35 @@
+<div class="modal fade" id="editCategoryModal" aria-hidden="true" aria-labelledby="editCategoryModalLabel" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header d-flex align-items-center justify-content-between">
+                <h1 class="modal-title fs-5" id="editCategoryModalLabel">Editing category</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="id">
+                    <input type="hidden" name="category_type" id="category_type" value="Expense">
+                    <div class="form-floating mb-3">
+                        <input class="form-control" type="text" name="title" id="title" required>
+                        <label for="title">Title</label>
+                    </div>
+
+                    <div class="mb-3">
+                        <p>Choose an icon:</p>
+                        <div id="iconsContainer" class="d-flex flex-wrap gap-2">
+                            {% for icon in icons %}
+                            <div data-bs-icon="{{ icon }}" class="mb-1 icon rounded-circle bg-secondary d-flex justify-content-center align-items-center" style="width:60px; height:60px;">
+                                <i class="lni {{ icon }} text-white fs-3"></i>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="editCategoryBtn" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

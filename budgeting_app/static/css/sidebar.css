@@ -160,8 +160,13 @@ textarea {
 
 /* CATEGORIES */
 
-#addExpenseCategory:hover, #addIncomeCategory:hover {
+.category-icon {
+    transition: 0.2s;
+}
+
+.category-icon:hover {
     cursor: pointer;
+    opacity: 75%;
 }
 
 #iconsContainer .icon{

@@ -11,5 +11,6 @@ urlpatterns = [
     path('dashboard-edit-transaction', views.dashboard_edit_transaction, name="dashboard_edit_transaction"),
     path('transactions/', views.transactions_view, name="transactions"),
     path('categories/', views.categories_view, name="categories"),
-    path('create-category', csrf_exempt(views.create_category), name="create_category")
+    path('create-category', csrf_exempt(views.create_category), name="create_category"),
+    path('edit-category', csrf_exempt(views.edit_category), name="edit_category"),
 ]
