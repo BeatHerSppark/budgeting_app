@@ -157,6 +157,19 @@ def edit_category(request):
         data = json.loads(request.body)
         category = Category.objects.get(id=data["id"])
         category.title = data["title"]
-        category.icon_tag = data["icon_tag"]
+        if data["icon_tag"]:
+            category.icon_tag = data["icon_tag"]
+        else:
+            category.icon_tag = "lni-question-circle"
         category.save()
         return redirect("app:categories")
+
+
+@login_required(login_url="/users/login/")
+def delete_category(request):
+    if request.method=="POST":
+        data = json.loads(request.body)
+        category = Category.objects.get(id=data["id"])
+        category.delete()
+
+        return JsonResponse({'message': "Category deleted successfully."}, status=200)

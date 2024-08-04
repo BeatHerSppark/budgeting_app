@@ -88,6 +88,7 @@ if(editCategory) {
         titleInput.value = title;
 
         editBtn = document.getElementById("editCategoryBtn");
+        deleteBtn = document.getElementById("deleteCategoryBtn");
 
         editBtn.addEventListener("click", () => {
             if(titleInput.value) {
@@ -103,6 +104,17 @@ if(editCategory) {
                 .then(res => res.json())
                 .then(data => location.reload())
             }
+        })
+
+        deleteBtn.addEventListener("click", () => {
+            fetch("/app/delete-category", {
+                body: JSON.stringify({
+                    id: id,
+                }),
+                method: "POST",
+            })
+            .then(res => res.json())
+            .then(data => location.reload())
         })
     })
     editCategory.addEventListener("hide.bs.modal", e => {
