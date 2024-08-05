@@ -1,5 +1,6 @@
 {% extends 'app/layout.html' %}
 {% load humanize %}
+{% load static %}
 
 {% block title %}
 Dashboard
@@ -48,7 +49,7 @@ Dashboard
                             <h5 class="card-title fs-5 fw-normal text-secondary mb-3">Expenses</h5>
                             <p class="card-text fs-3 fw-semibold">${{ expenses }}</p>
                         </div>
-                        <i class="lni lni-shopping-basket fs-3 bg-primary-subtle p-2 rounded text-primary"></i>
+                        <i class="lni lni-stats-down fs-3 bg-primary-subtle p-2 rounded text-primary"></i>
                     </div>
                     <div class="d-flex gap-3">
                         <p class="text-danger text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni lni-angle-double-down"></i> 7.13%</p>
@@ -63,7 +64,7 @@ Dashboard
                             <h5 class="card-title fs-5 fw-normal text-secondary mb-3">Income</h5>
                             <p class="card-text fs-3 fw-semibold">${{ income }}</p>
                         </div>
-                        <i class="lni lni-revenue fs-3 bg-primary-subtle p-2 rounded text-primary"></i>
+                        <i class="lni lni-stats-up fs-3 bg-primary-subtle p-2 rounded text-primary"></i>
                     </div>
                     <div class="d-flex gap-3">
                         <p class="text-success text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni lni-angle-double-up"></i> 2.75%</p>
@@ -131,4 +132,8 @@ Dashboard
         </table>
     </div>
 </main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}

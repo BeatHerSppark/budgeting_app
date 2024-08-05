@@ -45,7 +45,7 @@ def dashboard_edit_transaction(request):
         transaction.amount = request.POST["amount"]
 
         if request.POST["category"] == "Choose a category":
-            transaction.category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title="Uncategorized")
+            transaction.category = Category.objects.get(category_type="Uncategorized")
         else:
             transaction.category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title=request.POST["category"])
         transaction.date = request.POST["date"]
@@ -87,7 +87,7 @@ def dashboard_view(request):
         transaction_type = request.POST['transaction_type']
         amount = request.POST['amount']
         if request.POST["category"] == "Choose a category":
-            category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title="Uncategorized")
+            category = Category.objects.get(category_type="Uncategorized")
         else:
             category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title=request.POST['category'])
         date = request.POST['date']
@@ -117,7 +117,10 @@ def dashboard_view(request):
 
 @login_required(login_url="/users/login/")
 def transactions_view(request):
-    return render(request, "app/transactions.html")
+    transactions = Transaction.objects.filter(profile=request.user.profile).order_by("-submission_time")
+    return render(request, "app/transactions.html", {
+        "transactions": transactions,
+    })
 
 @login_required(login_url="/users/login/")
 def categories_view(request):
