@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from users.models import Profile
 import json
 from django.http import JsonResponse
@@ -117,10 +117,24 @@ def dashboard_view(request):
 
 @login_required(login_url="/users/login/")
 def transactions_view(request):
-    transactions = Transaction.objects.filter(profile=request.user.profile).order_by("-submission_time")
+    start = request.GET.get("start")
+    end = request.GET.get("end")
+    transactions = None
+    selected_date = request.GET.get("date")
+    if start==None or end==None:
+        today = date.today()
+        monday = today - timedelta(days=today.weekday())
+        transactions = Transaction.objects.filter(profile=request.user.profile).filter(date__range=(monday, today)).order_by("-date")
+        selected_date = "week"
+    else:
+        transactions = Transaction.objects.filter(profile=request.user.profile).filter(date__range=(start, end)).order_by("-date")
+
+    print(transactions)
     return render(request, "app/transactions.html", {
         "transactions": transactions,
+        "selected_date": selected_date,
     })
+
 
 @login_required(login_url="/users/login/")
 def categories_view(request):
