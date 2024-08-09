@@ -74,13 +74,22 @@ def dashboard_view(request):
     current_day = datetime.now().strftime('%Y-%m-%d')
     #current_week = datetime.now().strftime('%Y-W%V')
     recent_transactions = Transaction.objects.filter(profile=request.user.profile).order_by("-submission_time")[:10]
-    userExpenseTransactions = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense")
-    userIncomeTransactions = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income")
+
+    start = request.GET.get("start")
+    end = request.GET.get("end")
+    selected_date = request.GET.get("date")
+    if start==None or end==None:
+        end = date.today()
+        start = end - timedelta(days=end.weekday())
+        selected_date = "week"
+
+    expenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
+    incomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
     expenses = 0
     income = 0
-    for expense in userExpenseTransactions:
+    for expense in expenseSelection:
         expenses += expense.amount
-    for earning in userIncomeTransactions:
+    for earning in incomeSelection:
         income += earning.amount
 
     if request.method == "POST":
@@ -90,7 +99,7 @@ def dashboard_view(request):
             category = Category.objects.get(category_type="Uncategorized")
         else:
             category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title=request.POST['category'])
-        date = request.POST['date']
+        dateTransaction = request.POST['date']
         comment = request.POST['comment']
 
         profile = Profile.objects.get(user=request.user)
@@ -100,7 +109,7 @@ def dashboard_view(request):
             profile.budget += float(amount)
         profile.save()
 
-        transaction = Transaction(transaction_type=transaction_type, amount=amount, date=date, profile=profile, category=category, comment=comment)
+        transaction = Transaction(transaction_type=transaction_type, amount=amount, date=dateTransaction, profile=profile, category=category, comment=comment)
         transaction.save()
         return redirect("app:dashboard")
 
@@ -113,6 +122,7 @@ def dashboard_view(request):
         "userIncomeCategories": userIncomeCategories,
         "expenses": expenses,
         "income": income,
+        "selected_date": selected_date,
     },)
 
 @login_required(login_url="/users/login/")
@@ -122,17 +132,27 @@ def transactions_view(request):
     transactions = None
     selected_date = request.GET.get("date")
     if start==None or end==None:
-        today = date.today()
-        monday = today - timedelta(days=today.weekday())
-        transactions = Transaction.objects.filter(profile=request.user.profile).filter(date__range=(monday, today)).order_by("-date")
+        end = date.today()
+        start = end - timedelta(days=end.weekday())
+        transactions = Transaction.objects.filter(profile=request.user.profile).filter(date__range=(start, end)).order_by("-date")
         selected_date = "week"
     else:
         transactions = Transaction.objects.filter(profile=request.user.profile).filter(date__range=(start, end)).order_by("-date")
 
-    print(transactions)
+    expenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
+    incomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
+    expenses = 0
+    income = 0
+    for expense in expenseSelection:
+        expenses += expense.amount
+    for earning in incomeSelection:
+        income += earning.amount
+
     return render(request, "app/transactions.html", {
         "transactions": transactions,
         "selected_date": selected_date,
+        "expenses": expenses,
+        "income": income,
     })
 
 

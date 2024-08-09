@@ -1,5 +1,5 @@
 {% extends 'app/layout.html' %}
-
+{% load humanize %}
 {% load static %}
 
 {% block title %}
@@ -29,22 +29,22 @@ Transactions
         <div class="card shadow-sm p-2" style="width: 100%;">
             <div class="card-body text-center">
                 <i class="lni lni-coin fs-3 p-2 rounded text-secondary"></i>
-                <p class="card-text text-secondary fs-3 fw-semibold mb-1">$100.00</p>
+                <p class="card-text text-secondary fs-3 fw-semibold mb-1">${{ request.user.profile.budget|floatformat:"-2"|intcomma }}</p>
                 <h5 class="card-title fs-6 fw-normal text-secondary">Total</h5>
             </div>
         </div>
         <div class="card shadow-sm p-2" style="width: 100%;">
             <div class="card-body text-center">
                 <i class="lni lni-stats-down fs-3 p-2 rounded text-secondary"></i>
-                <p class="card-text text-secondary fs-3 fw-semibold mb-1">$0.00</p>
-                <h5 class="card-title fs-6 fw-normal text-secondary">Expenses</h5>
+                <p class="card-text text-secondary fs-3 fw-semibold mb-1">${{ expenses }}</p>
+                <h5 class="card-title fs-6 fw-normal text-secondary">Expenses <span class="text-black-50">{% if selected_date == 'today' %}(Today){% elif selected_date == 'week' %}(This week){% elif selected_date == 'month' %}(This month){% else %}(This year){% endif %}</span></h5>
             </div>
         </div>
         <div class="card shadow-sm p-2" style="width: 100%;">
             <div class="card-body text-center">
                 <i class="lni lni-stats-up fs-3 p-2 rounded text-secondary"></i>
-                <p class="card-text text-secondary fs-3 fw-semibold mb-1">$0.00</p>
-                <h5 class="card-title fs-6 fw-normal text-secondary">Income</h5>
+                <p class="card-text text-secondary fs-3 fw-semibold mb-1">${{ income }}</p>
+                <h5 class="card-title fs-6 fw-normal text-secondary">Income <span class="text-black-50">{% if selected_date == 'today' %}(Today){% elif selected_date == 'week' %}(This week){% elif selected_date == 'month' %}(This month){% else %}(This year){% endif %}</span></h5>
             </div>
         </div>
         <div class="card shadow-sm p-2" style="width: 100%;">
@@ -64,10 +64,12 @@ Transactions
         <div style="width:65%;">
             <div class="mt-4 mb-4 d-flex justify-content-between align-items-center" >
                 <h2 class="fs-5">Transaction History</h2>
-                <div>
+                <div class="d-flex gap-2 align-items-center">
+                    <button class="btn btn-outline-danger d-none" id="dashboard_delete_transactions">Delete selected transactions</button>
                     <button type="button" id="quick_add_btn" class="btn btn-primary">Add Transaction</button>
                 </div>
             </div>
+
             <div class="table-responsive small">
                 <table class="table table-light table-striped table-sm">
                 <thead class="fs-6">

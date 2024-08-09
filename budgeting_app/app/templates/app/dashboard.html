@@ -18,10 +18,10 @@ Dashboard
     <div class="mt-4 mb-4 d-flex justify-content-between align-items-center">
         <h2 class="fs-5">Overview</h2>
         <div class="dates d-flex gap-2">
-            <button class="btn btn-outline-secondary">Today</button>
-            <button class="btn btn-outline-secondary">This week</button>
-            <button class="btn btn-outline-secondary">This month</button>
-            <button class="btn btn-outline-secondary">This year</button>
+            <a href="#" id="todayBtn" class="btn {% if selected_date == 'today' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">Today</a>
+            <a href="#" id="weekBtn" class="btn {% if selected_date == 'week' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">This week</a>
+            <a href="#" id="monthBtn" class="btn {% if selected_date == 'month' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">This month</a>
+            <a href="#" id="yearBtn" class="btn {% if selected_date == 'year' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">This year</a>
         </div>
     </div>
 
