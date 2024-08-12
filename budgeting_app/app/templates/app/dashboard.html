@@ -52,8 +52,8 @@ Dashboard
                         <i class="lni lni-stats-down fs-3 bg-danger-subtle p-2 rounded text-danger"></i>
                     </div>
                     <div class="d-flex gap-3">
-                        <p class="text-danger text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni lni-angle-double-down"></i> 7.13%</p>
-                        <p class="text-secondary fs-6 mb-0">Since last month</p>
+                        <p class="{% if percentExpenses > 0 %}text-success{% elif percentExpenses < 0 %}text-danger{% else %}text-secondary{% endif %} text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni {% if percentExpenses > 0 %}lni-angle-double-up{% elif percentExpenses < 0 %}lni-angle-double-down{% else %}lni-minus{% endif %}"></i> {{ percentExpenses }}%</p>
+                        <p class="text-secondary fs-6 mb-0">Since {% if selected_date == 'today' %}yesterday{% elif selected_date == 'week' %}last week{% elif selected_date == 'month' %}last month{% else %}last year{% endif %} <span class="text-black-50">(${{ lastIncome }})</span></p>
                     </div>
                 </div>
             </div>
@@ -67,8 +67,8 @@ Dashboard
                         <i class="lni lni-stats-up fs-3 bg-success-subtle p-2 rounded text-success"></i>
                     </div>
                     <div class="d-flex gap-3">
-                        <p class="text-success text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni lni-angle-double-up"></i> 2.75%</p>
-                        <p class="text-secondary fs-6 mb-0">Since last month</p>
+                        <p class="{% if percentIncome > 0 %}text-success{% elif percentIncome < 0 %}text-danger{% else %}text-secondary{% endif %} text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni {% if percentIncome > 0 %}lni-angle-double-up{% elif percentIncome < 0 %}lni-angle-double-down{% else %}lni-minus{% endif %}"></i> {{ percentIncome }}%</p>
+                        <p class="text-secondary fs-6 mb-0">Since {% if selected_date == 'today' %}yesterday{% elif selected_date == 'week' %}last week{% elif selected_date == 'month' %}last month{% else %}last year{% endif %} <span class="text-black-50">(${{ lastExpenses }})</span></p>
                     </div>
                 </div>
             </div>
@@ -77,7 +77,7 @@ Dashboard
     </div>
 
     <div class="mt-4 mb-4 d-flex justify-content-between align-items-center">
-        <h2 class="fs-5">Recent Transactions</h2>
+        <h2 class="fs-5">Recently Added Transactions</h2>
         <div>
             <button type="button" id="quick_add_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#typeModelToggle">Add Transaction</button>
         </div>

@@ -63,6 +63,38 @@ def dashboard_edit_transaction(request):
         return redirect("app:dashboard")
 
 
+def handleDashboardLastPeriod(request, selected_date):
+    lastExpenseSelection = None
+    lastIncomeSelection = None
+
+    if selected_date == "today":
+        yesterday = (datetime.now() - timedelta(days=1)).date()
+        lastExpenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(yesterday, yesterday))
+        lastIncomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(yesterday, yesterday))
+    elif selected_date == "week":
+        today = datetime.now().date()
+        days_to_monday = today.weekday() + 7
+        last_monday = today - timedelta(days=days_to_monday)
+        last_sunday = last_monday + timedelta(days=6)
+        lastExpenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(last_monday, last_sunday))
+        lastIncomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(last_monday, last_sunday))
+    elif selected_date == "month":
+        today = datetime.now().date()
+        first_of_current_month = today.replace(day=1)
+        last_of_previous_month = first_of_current_month - timedelta(days=1)
+        first_of_previous_month = last_of_previous_month.replace(day=1)
+        lastExpenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(first_of_previous_month, last_of_previous_month))
+        lastIncomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(first_of_previous_month, last_of_previous_month))
+    else:
+        today = datetime.now().date()
+        first_of_current_year = today.replace(month=1, day=1)
+        last_of_previous_year = first_of_current_year - timedelta(days=1)
+        first_of_previous_year = last_of_previous_year.replace(month=1, day=1)
+        lastExpenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(first_of_previous_year, last_of_previous_year))
+        lastIncomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(first_of_previous_year, last_of_previous_year))
+
+    return lastExpenseSelection, lastIncomeSelection
+
 @login_required(login_url="/users/login/")
 def dashboard_view(request):
     request.session.set_expiry(0)
@@ -87,10 +119,21 @@ def dashboard_view(request):
     incomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
     expenses = 0
     income = 0
+    lastExpenses = 0
+    lastIncome = 0
     for expense in expenseSelection:
         expenses += expense.amount
     for earning in incomeSelection:
         income += earning.amount
+
+    lastExpenseSelection, lastIncomeSelection = handleDashboardLastPeriod(request, selected_date)
+    for expense in lastExpenseSelection:
+        lastExpenses += expense.amount
+    for earning in lastIncomeSelection:
+        lastIncome += earning.amount
+
+    percentExpenses = round(((expenses - lastExpenses)/lastExpenses)*100, 2)
+    percentIncome = round(((income - lastIncome)/lastIncome)*100, 2)
 
     if request.method == "POST":
         transaction_type = request.POST['transaction_type']
@@ -123,6 +166,10 @@ def dashboard_view(request):
         "expenses": expenses,
         "income": income,
         "selected_date": selected_date,
+        "lastExpenses": lastExpenses,
+        "lastIncome": lastIncome,
+        "percentExpenses": percentExpenses,
+        "percentIncome": percentIncome,
     },)
 
 @login_required(login_url="/users/login/")
