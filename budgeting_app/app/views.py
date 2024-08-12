@@ -16,9 +16,9 @@ def dashboard_delete_transactions(request):
         for transactionID in data['checkedIDs']:
             transaction = Transaction.objects.get(id=int(transactionID))
             if transaction.transaction_type == "Expense":
-                profile.budget += float(transaction.amount)
+                profile.total += float(transaction.amount)
             else:
-                profile.budget -= float(transaction.amount)
+                profile.total -= float(transaction.amount)
             profile.save()
             transaction.delete()
 
@@ -52,11 +52,11 @@ def dashboard_edit_transaction(request):
         transaction.comment = request.POST["comment"]
 
         if request.POST["transaction_type"] == "Expense":
-            profile.budget += float(prevAmount)
-            profile.budget -= float(transaction.amount)
+            profile.total += float(prevAmount)
+            profile.total -= float(transaction.amount)
         else:
-            profile.budget -= float(prevAmount)
-            profile.budget += float(transaction.amount)
+            profile.total -= float(prevAmount)
+            profile.total += float(transaction.amount)
 
         profile.save()
         transaction.save()
@@ -104,9 +104,9 @@ def dashboard_view(request):
 
         profile = Profile.objects.get(user=request.user)
         if transaction_type == "Expense":
-            profile.budget -= float(amount)
+            profile.total -= float(amount)
         else:
-            profile.budget += float(amount)
+            profile.total += float(amount)
         profile.save()
 
         transaction = Transaction(transaction_type=transaction_type, amount=amount, date=dateTransaction, profile=profile, category=category, comment=comment)

@@ -4,6 +4,18 @@
     padding: 0;
 }
 
+.bg-info-subtle {
+    background-color: #337BDF !important;
+}
+
+.bg-info {
+    background-color: #75afff !important;
+}
+
+p {
+    margin-bottom: 0 !important;
+}
+
 a {
     text-decoration: none;
 }
@@ -73,8 +85,37 @@ body {
 }
 
 #sidebar:is(.collapse) .sidebar-logo,
-#sidebar:is(.collapse) a.sidebar-link span {
+#sidebar:is(.collapse) .sidebar-link span {
     display: none;
+}
+
+#sidebar:is(.collapse) .progress {
+    height: 10px;
+}
+
+#sidebar:not(.collapse) .progress_container {
+    display: none;
+}
+
+.progress_container p {
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+.budget_container p {
+    font-size: 0.75rem;
+}
+
+.card-header p {
+    font-size: 0.825rem;
+}
+
+.progress_body p {
+    font-size: 0.55rem;
+}
+
+.progress_body .progress {
+    flex: 1;
 }
 
 .sidebar-nav {
@@ -82,7 +123,7 @@ body {
     flex: 1 1 auto;
 }
 
-a.sidebar-link {
+.sidebar-link {
     padding: 0.625rem 1.625rem;
     color: white;
     display: block;

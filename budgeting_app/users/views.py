@@ -10,7 +10,7 @@ def register_view(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             saved = form.save()
-            profile = Profile(user=saved, budget=0)
+            profile = Profile(user=saved, total=0)
             profile.save()
             login(request, saved)
             return redirect("app:dashboard")
