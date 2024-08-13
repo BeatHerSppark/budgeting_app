@@ -160,3 +160,74 @@ if(editModal) {
         categoryInput.innerHTML = `<option selected>Choose a category</option>`
     })
 }
+
+// EXPENSE VS INCOME CHART
+const urlParams = new URLSearchParams(window.location.search);
+let start = null, end=null, selected_date=null;
+if (!urlParams.get('start')) {
+    start = formatDate_date( getMonday(new Date()) );
+    end = formatDate_date(new Date());
+    selected_date = "week";
+} else {
+    start = urlParams.get('start');
+    end = urlParams.get('end');
+    selected_date = urlParams.get('selected_date');
+}
+
+let incomeData = [];
+let expensesData = [];
+
+fetch("/app/dashboard-get-chart", {
+    body: JSON.stringify({
+        start: start,
+        end: end,
+        selected_date: selected_date,
+    }),
+    method: "POST",
+})
+.then(res => res.json())
+.then(data => console.log(data))
+
+var options = {
+    chart: {
+        type: 'area',
+        height: '100%',
+    },
+    stroke: {
+        curve: 'smooth'
+    },
+    series: [
+        {
+            name: 'Income',
+            data: [31, 40, 28, 51, 42, 109, 100]
+        },
+        {
+            name: 'Expenses',
+            data: [11, 32, 45, 32, 34, 52, 41]
+        }
+    ],
+    xaxis: {
+        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
+    },
+    fill: {
+        type: 'gradient',
+        gradient: {
+            shadeIntensity: 1,
+            opacityFrom: 0.7,
+            opacityTo: 0.9,
+            stops: [0, 90, 100]
+        }
+    },
+    dataLabels: {
+        enabled: false
+    },
+    tooltip: {
+        shared: true,
+        intersect: false
+    },
+    colors: ['#00E396', '#E91E63']
+};
+
+var chart = new ApexCharts(document.querySelector("#expenseIncomeChart"), options);
+
+chart.render();

@@ -96,6 +96,15 @@ def handleDashboardLastPeriod(request, selected_date):
     return lastExpenseSelection, lastIncomeSelection
 
 @login_required(login_url="/users/login/")
+def dashboard_get_chart(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        expenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(data['start'], data['end']))
+        incomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(data['start'], data['end']))
+
+        return JsonResponse({"data": data})
+
+@login_required(login_url="/users/login/")
 def dashboard_view(request):
     request.session.set_expiry(0)
     defaultExpenseCategories = Category.objects.filter(category_type="Expense").filter(default_category="True")
