@@ -47,7 +47,7 @@ Dashboard
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
                             <h5 class="card-title fs-5 fw-normal text-secondary mb-3">Expenses</h5>
-                            <p class="card-text fs-3 fw-semibold">${{ expenses }}</p>
+                            <p class="card-text fs-3 fw-semibold">${{ expenses|floatformat:"-2"|intcomma }}</p>
                         </div>
                         <i class="lni lni-stats-down fs-3 bg-danger-subtle p-2 rounded text-danger"></i>
                     </div>
@@ -62,7 +62,7 @@ Dashboard
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
                             <h5 class="card-title fs-5 fw-normal text-secondary mb-3">Income</h5>
-                            <p class="card-text fs-3 fw-semibold">${{ income }}</p>
+                            <p class="card-text fs-3 fw-semibold">${{ income|floatformat:"-2"|intcomma }}</p>
                         </div>
                         <i class="lni lni-stats-up fs-3 bg-success-subtle p-2 rounded text-success"></i>
                     </div>

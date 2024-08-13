@@ -1,0 +1,23 @@
+<div class="modal fade" id="editBudgetModal" aria-hidden="true" aria-labelledby="editBudgetModalLabel" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header d-flex align-items-center justify-content-between">
+                <h1 class="modal-title fs-5" id="editBudgetModalLabel">Budget settings</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div>
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p class="mb-2 text-black-50">Enter your monthly budget</p>
+                    <div class="form-floating mb-3">
+                        <input class="form-control" type="number" min="0" name="budget" id="budget" value="{{ request.user.profile.budget }}" required>
+                        <label for="title">Budget</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="editBudgetBtn" class="btn btn-primary">Set budget</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

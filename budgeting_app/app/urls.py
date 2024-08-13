@@ -14,5 +14,6 @@ urlpatterns = [
     path('create-category', csrf_exempt(views.create_category), name="create_category"),
     path('edit-category', csrf_exempt(views.edit_category), name="edit_category"),
     path('delete-category', csrf_exempt(views.delete_category), name="delete_category"),
+    path('edit-budget', csrf_exempt(views.edit_budget), name="edit_budget"),
     #path('transactions-by-range', csrf_exempt(views.transactions_by_range), name="transactions_by_range"),
 ]

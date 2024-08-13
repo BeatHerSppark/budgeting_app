@@ -106,6 +106,10 @@ body {
     font-size: 0.75rem;
 }
 
+#editBudget:hover {
+    cursor: pointer;
+}
+
 .card-header p {
     font-size: 0.825rem;
 }

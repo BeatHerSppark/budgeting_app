@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from datetime import datetime, date, timedelta
 from users.models import Profile
 import json
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
+from django.urls import reverse
 from .models import Transaction, Category, Icon
 
 # Create your views here.
@@ -62,7 +63,6 @@ def dashboard_edit_transaction(request):
         transaction.save()
         return redirect("app:dashboard")
 
-
 def handleDashboardLastPeriod(request, selected_date):
     lastExpenseSelection = None
     lastIncomeSelection = None
@@ -109,7 +109,7 @@ def dashboard_view(request):
 
     start = request.GET.get("start")
     end = request.GET.get("end")
-    selected_date = request.GET.get("date")
+    selected_date = request.GET.get("selected_date")
     if start==None or end==None:
         end = date.today()
         start = end - timedelta(days=end.weekday())
@@ -134,6 +134,10 @@ def dashboard_view(request):
 
     percentExpenses = round(((expenses - lastExpenses)/lastExpenses)*100, 2)
     percentIncome = round(((income - lastIncome)/lastIncome)*100, 2)
+    if expenses == 0:
+        percentExpenses = 0
+    if income == 0:
+        percentIncome = 0
 
     if request.method == "POST":
         transaction_type = request.POST['transaction_type']
@@ -151,10 +155,12 @@ def dashboard_view(request):
         else:
             profile.total += float(amount)
         profile.save()
-
         transaction = Transaction(transaction_type=transaction_type, amount=amount, date=dateTransaction, profile=profile, category=category, comment=comment)
         transaction.save()
-        return redirect("app:dashboard")
+
+        url = f"{request.path_info}?start={request.POST['start']}&end={request.POST['end']}&selected_date={request.POST['selected_date']}"
+
+        return redirect(url) if request.POST['start'] else redirect(request.path_info)
 
     return render(request, "app/dashboard.html", {
         "current_day": current_day,
@@ -171,6 +177,16 @@ def dashboard_view(request):
         "percentExpenses": percentExpenses,
         "percentIncome": percentIncome,
     },)
+
+@login_required(login_url="/users/login/")
+def edit_budget(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        profile = Profile.objects.get(user=request.user)
+        profile.budget = data["budget"]
+        profile.save()
+        return JsonResponse({"message": "Changed budget successfully."}, status=200)
+
 
 @login_required(login_url="/users/login/")
 def transactions_view(request):

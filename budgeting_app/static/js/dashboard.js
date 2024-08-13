@@ -37,25 +37,25 @@ const getFirstOfYear = (d) => {
 
 todayBtn.addEventListener("click", () => {
     let today = formatDate_date(new Date());
-    todayBtn.href = `?start=${encodeURIComponent(today)}&end=${encodeURIComponent(today)}&date=${encodeURIComponent("today")}`;
+    todayBtn.href = `?start=${encodeURIComponent(today)}&end=${encodeURIComponent(today)}&selected_date=${encodeURIComponent("today")}`;
 })
 
 weekBtn.addEventListener("click", () => {
     let today = formatDate_date(new Date());
     let monday = formatDate_date( getMonday(new Date()) );
-    weekBtn.href = `?start=${encodeURIComponent(monday)}&end=${encodeURIComponent(today)}&date=${encodeURIComponent("week")}`;
+    weekBtn.href = `?start=${encodeURIComponent(monday)}&end=${encodeURIComponent(today)}&selected_date=${encodeURIComponent("week")}`;
 })
 
 monthBtn.addEventListener("click", () => {
     let today = formatDate_date(new Date());
     let firstOfMonth = formatDate_date( getFirstOfMonth(new Date()) );
-    monthBtn.href = `?start=${encodeURIComponent(firstOfMonth)}&end=${encodeURIComponent(today)}&date=${encodeURIComponent("month")}`;
+    monthBtn.href = `?start=${encodeURIComponent(firstOfMonth)}&end=${encodeURIComponent(today)}&selected_date=${encodeURIComponent("month")}`;
 })
 
 yearBtn.addEventListener("click", () => {
     let today = formatDate_date(new Date());
     let firstOfYear = formatDate_date( getFirstOfYear(new Date()) );
-    yearBtn.href = `?start=${encodeURIComponent(firstOfYear)}&end=${encodeURIComponent(today)}&date=${encodeURIComponent("year")}`;
+    yearBtn.href = `?start=${encodeURIComponent(firstOfYear)}&end=${encodeURIComponent(today)}&selected_date=${encodeURIComponent("year")}`;
 })
 
 // DELETING TRANSACTIONS
