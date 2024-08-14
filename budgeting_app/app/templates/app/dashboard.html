@@ -37,8 +37,8 @@ Dashboard
                         <i class="lni lni-coin fs-3 bg-primary-subtle p-2 rounded text-primary"></i>
                     </div>
                     <div class="d-flex gap-3">
-                        <p class="text-success text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni lni-angle-double-up"></i> 5.27%</p>
-                        <p class="text-secondary fs-6 mb-0">Since last month</p>
+                        <p class="text-success text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni lni-angle-double-up"></i> {{percentTotal}}%</p>
+                        <p class="text-secondary fs-6 mb-0">Since {% if selected_date == 'today' %}yesterday{% elif selected_date == 'week' %}last week{% elif selected_date == 'month' %}last month{% else %}last year{% endif %} <span class="text-black-50">(${{ lastTotal }})</p>
                     </div>
                 </div>
             </div>
