@@ -164,7 +164,6 @@ def dashboard_view(request):
 
     lastTotal = totalIncome - totalExpenses
     percentTotal = round(((request.user.profile.total - lastTotal)/abs(lastTotal))*100, 2) if lastTotal!=0 else 0
-    print(percentTotal)
 
     if request.method == "POST":
         transaction_type = request.POST['transaction_type']
