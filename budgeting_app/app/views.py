@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from datetime import datetime, date, timedelta
+from dateutil.relativedelta import relativedelta
 from users.models import Profile
 import json
 from django.http import JsonResponse, HttpResponseRedirect
@@ -214,11 +216,28 @@ def dashboard_view(request):
 def edit_budget(request):
     if request.method == "POST":
         data = json.loads(request.body)
+        if(float(data["budget"]) < 0):
+            messages.error(request, "Budget can't be negative.")
+            return JsonResponse({"message": "Budget can't be negative."}, status=200)
         profile = Profile.objects.get(user=request.user)
         profile.budget = data["budget"]
         profile.save()
         return JsonResponse({"message": "Changed budget successfully."}, status=200)
 
+@login_required(login_url="/users/login/")
+def get_budget(request):
+    today = datetime.today()
+    beginning_of_month = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    end_of_month = (beginning_of_month + relativedelta(months=1)) - relativedelta(days=1)
+    end_of_month = end_of_month.replace(hour=0, minute=0, second=0, microsecond=0)
+    transactions = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(beginning_of_month, end_of_month))
+    spent_this_month = 0
+    for transaction in transactions:
+        spent_this_month += transaction.amount
+
+    percentSpent = round((spent_this_month / request.user.profile.budget)*100, 2) if request.user.profile.budget!=0 else 0
+
+    return JsonResponse({"spent_this_month": spent_this_month, "percent_spent": percentSpent}, status=200)
 
 @login_required(login_url="/users/login/")
 def transactions_view(request):
