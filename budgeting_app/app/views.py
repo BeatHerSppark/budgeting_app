@@ -71,8 +71,12 @@ def handleDashboardLastPeriod(request, selected_date, oldest=False):
     start = None
     end = None
     if oldest:
-        oldest_transaction = Transaction.objects.earliest("date")
-        start = oldest_transaction.date
+        oldest_transaction = None
+        try:
+            oldest_transaction = Transaction.objects.earliest("date")
+        except Transaction.DoesNotExist:
+            oldest_transaction = None
+        start = oldest_transaction.date if oldest_transaction else None
 
     if selected_date == "today":
         start = (datetime.now() - timedelta(days=1)).date() if start==None else start
