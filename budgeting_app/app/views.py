@@ -172,8 +172,16 @@ def dashboard_view(request):
     percentTotal = round(((request.user.profile.total - lastTotal)/abs(lastTotal))*100, 2) if lastTotal!=0 else 0
 
     if request.method == "POST":
+        post_start = request.POST['start'] if request.POST['start']!="0" else start
+        post_end = request.POST['end'] if request.POST['end']!="0" else end
+        post_selected_date = request.POST['selected_date'] if request.POST['selected_date']!="0" else selected_date
+        url = f"{request.path_info}?start={post_start}&end={post_end}&selected_date={post_selected_date}"
+
         transaction_type = request.POST['transaction_type']
         amount = request.POST['amount']
+        if(float(amount) < 0):
+            messages.error(request, "Amount can't be negative.")
+            return redirect(url) if request.POST['start'] else redirect(request.path_info)
         if request.POST["category"] == "Choose a category":
             category = Category.objects.get(category_type="Uncategorized")
         else:
@@ -189,12 +197,6 @@ def dashboard_view(request):
         profile.save()
         transaction = Transaction(transaction_type=transaction_type, amount=amount, date=dateTransaction, profile=profile, category=category, comment=comment)
         transaction.save()
-
-        post_start = request.POST['start'] if request.POST['start']!="0" else start
-        post_end = request.POST['end'] if request.POST['end']!="0" else end
-        post_selected_date = request.POST['selected_date'] if request.POST['selected_date']!="0" else selected_date
-
-        url = f"{request.path_info}?start={post_start}&end={post_end}&selected_date={post_selected_date}"
 
         return redirect(url) if request.POST['start'] else redirect(request.path_info)
 
