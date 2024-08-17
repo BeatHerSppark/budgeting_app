@@ -3,6 +3,7 @@ const todayBtn = document.getElementById("todayBtn");
 const weekBtn = document.getElementById("weekBtn");
 const monthBtn = document.getElementById("monthBtn");
 const yearBtn = document.getElementById("yearBtn");
+const allTimeBtn = document.getElementById("allTimeBtn");
 
 const formatDate = (date) => {
     let year = date.getFullYear();
@@ -58,6 +59,12 @@ yearBtn.addEventListener("click", () => {
     yearBtn.href = `?start=${encodeURIComponent(firstOfYear)}&end=${encodeURIComponent(today)}&date=${encodeURIComponent("year")}`;
 })
 
+allTimeBtn.addEventListener("click", () => {
+    let earliestDate = formatDate(new Date(0));
+    let today = formatDate(new Date());
+    allTimeBtn.href = `?start=${encodeURIComponent(earliestDate)}&end=${encodeURIComponent(today)}&date=${encodeURIComponent("allTime")}`;
+})
+
 // DELETE TRANSACTIONS
 const transaction_checkboxes = document.querySelectorAll("td input");
 
@@ -97,3 +104,19 @@ dashboard_delete_transactions.addEventListener("click", () => {
         location.reload();
     })
 })
+
+// CHART
+var options = {
+    chart: {
+        height: 'auto',
+        type: 'pie',
+    },
+    series: [44, 33, 23], // Three values
+    labels: ['Apples', 'Oranges', 'Bananas'], // Labels for the values
+    legend: {
+        position: 'bottom'
+    }
+};
+
+var chart = new ApexCharts(document.querySelector("#pieChart"), options);
+chart.render();

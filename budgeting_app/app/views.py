@@ -268,11 +268,14 @@ def transactions_view(request):
     for earning in incomeSelection:
         income += earning.amount
 
+    percentProductivity = round(((income-expenses)/expenses)*100, 2) if expenses!=0 else 0
+
     return render(request, "app/transactions.html", {
         "transactions": transactions,
         "selected_date": selected_date,
         "expenses": expenses,
         "income": income,
+        "percentProductivity": percentProductivity,
     })
 
 

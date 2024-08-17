@@ -201,6 +201,11 @@ textarea {
     flex: 3;
 }
 
+.apexcharts-canvas {
+    height: 100% !important;
+    max-height: 100%;
+}
+
 
 
 /* CATEGORIES */

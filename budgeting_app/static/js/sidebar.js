@@ -51,7 +51,6 @@ fetch("/app/get-budget", {
     const progressPercent = document.getElementById("progressPercent");
     const progressPercentText = document.getElementById("progressPercentText");
     let stm = formatNumber(data?.spent_this_month);
-    console.log(data.percent_spent);
     dataField.innerText = "$" + String(stm);
     progressPercent.style.width = `${data?.percent_spent}%`;
     progressPercent.innerText = `${data?.percent_spent}%`;
