@@ -38,7 +38,7 @@ Dashboard
                         <i class="lni lni-coin fs-3 bg-primary-subtle p-2 rounded text-primary"></i>
                     </div>
                     <div class="d-flex gap-3">
-                        <p class="text-success text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni lni-angle-double-up"></i> {{percentTotal}}%</p>
+                        <p class="{% if percentTotal > 0 %}text-success{% elif percentTotal < 0 %}text-danger{% else %}text-secondary{% endif %} text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni {% if percentExpenses > 0 %}lni-angle-double-up{% elif percentExpenses < 0 %}lni-angle-double-down{% else %}lni-minus{% endif %}"></i> {{ percentTotal }}%</p>
                         <p class="text-secondary fs-6 mb-0">Since {% if selected_date == 'today' %}yesterday{% elif selected_date == 'week' %}last week{% elif selected_date == 'month' %}last month{% else %}last year{% endif %} <span class="text-black-50">(${{ lastTotal }})</p>
                     </div>
                 </div>
@@ -78,8 +78,11 @@ Dashboard
     </div>
 
     <div class="mt-4 mb-4 d-flex justify-content-between align-items-center">
-        <h2 class="fs-5">Recently Added Transactions</h2>
-        <div>
+        <div class="d-flex gap-3 align-items-center">
+            <h2 class="fs-5">Recently Added Transactions</h2>
+            <button class="btn btn-outline-danger d-none" id="dashboard_delete_transactions">Delete selected transactions</button>
+        </div>
+        <div >
             <button type="button" id="quick_add_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#typeModelToggle">Add Transaction</button>
         </div>
     </div>
@@ -87,7 +90,7 @@ Dashboard
     {% include 'partials/_transaction_modal.html' %}
     {% include 'partials/_edit_modal.html' %}
 
-    <button class="btn btn-outline-danger mb-4 d-none" id="dashboard_delete_transactions">Delete selected transactions</button>
+
 
     <div class="table-responsive small">
         <table class="table table-light table-striped table-sm">
@@ -106,7 +109,7 @@ Dashboard
         {% for transaction in recent_transactions %}
             <tr>
             <td class="align-middle text-left"><input type="checkbox" name="selected_transaction" id="{{ transaction.id }}" value="{{ transaction.id }}"></td>
-            <td class="align-middle text-left">{{ transaction.transaction_type }}</td>
+            <td class="align-middle text-left fw-bold {% if transaction.transaction_type == 'Expense' %}text-danger{% else %}text-success{% endif %}">{{ transaction.transaction_type }}</td>
             <td class="align-middle text-left">{{ transaction.amount }}</td>
             <td class="align-middle text-left">{{ transaction.category }}</td>
             <td class="align-middle text-left">{{ transaction.date|date:"b. d, Y"|capfirst }}</td>

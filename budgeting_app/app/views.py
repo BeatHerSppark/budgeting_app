@@ -123,6 +123,8 @@ def handleDashboardLastPeriod(request, selected_date, oldest=False):
 def dashboard_get_chart(request):
     if request.method == "POST":
         data = json.loads(request.body)
+        if data['selected_date'] == 'today':
+            print("today")
 
         return JsonResponse({"data": data})
 
@@ -134,7 +136,7 @@ def dashboard_view(request):
     defaultIncomeCategories = Category.objects.filter(category_type="Income").filter(default_category="True")
     userIncomeCategories = Category.objects.filter(category_type="Income").filter(profile=request.user.profile)
 
-    current_day = datetime.now().strftime('%Y-%m-%d')
+    current_day = datetime.now().strftime('%Y-%m-%dT%H:%M')
     #current_week = datetime.now().strftime('%Y-W%V')
     recent_transactions = Transaction.objects.filter(profile=request.user.profile).order_by("-submission_time")[:10]
 
@@ -148,10 +150,8 @@ def dashboard_view(request):
     else:
         start = datetime.strptime(start, "%Y-%m-%d").date()
         end = datetime.strptime(end, "%Y-%m-%d").date()
-
     start = datetime.combine(start, time(0, 0, 0))
     end = datetime.combine(end, time(23, 59, 59, 999999))
-    print(start)
 
     expenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
     incomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
@@ -189,8 +189,8 @@ def dashboard_view(request):
     percentTotal = round(((request.user.profile.total - lastTotal)/abs(lastTotal))*100, 2) if lastTotal!=0 else 0
 
     if request.method == "POST":
-        post_start = request.POST['start'] if request.POST['start']!="0" else start
-        post_end = request.POST['end'] if request.POST['end']!="0" else end
+        post_start = request.POST['start'] if request.POST['start']!="0" else start.strftime("%Y-%m-%d")
+        post_end = request.POST['end'] if request.POST['end']!="0" else end.strftime("%Y-%m-%d")
         post_selected_date = request.POST['selected_date'] if request.POST['selected_date']!="0" else selected_date
         url = f"{request.path_info}?start={post_start}&end={post_end}&selected_date={post_selected_date}"
 
@@ -204,9 +204,7 @@ def dashboard_view(request):
         else:
             category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title=request.POST['category'])
         dateTransaction = request.POST['date']
-        parsed_date = datetime.strptime(dateTransaction, "%Y-%m-%d").date()
-        current_time = datetime.now().time()
-        datetime_combined = datetime.combine(parsed_date, current_time)
+        parsed_date = datetime.strptime(dateTransaction, '%Y-%m-%dT%H:%M').date()
         comment = request.POST['comment']
 
         profile = Profile.objects.get(user=request.user)
@@ -215,7 +213,7 @@ def dashboard_view(request):
         else:
             profile.total += float(amount)
         profile.save()
-        transaction = Transaction(transaction_type=transaction_type, amount=amount, date=datetime_combined, profile=profile, category=category, comment=comment)
+        transaction = Transaction(transaction_type=transaction_type, amount=amount, date=parsed_date, profile=profile, category=category, comment=comment)
         transaction.save()
 
         return redirect(url) if request.POST['start'] else redirect(request.path_info)
