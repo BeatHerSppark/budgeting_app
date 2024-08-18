@@ -204,7 +204,6 @@ def dashboard_view(request):
         else:
             category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title=request.POST['category'])
         dateTransaction = request.POST['date']
-        parsed_date = datetime.strptime(dateTransaction, '%Y-%m-%dT%H:%M').date()
         comment = request.POST['comment']
 
         profile = Profile.objects.get(user=request.user)
@@ -213,7 +212,7 @@ def dashboard_view(request):
         else:
             profile.total += float(amount)
         profile.save()
-        transaction = Transaction(transaction_type=transaction_type, amount=amount, date=parsed_date, profile=profile, category=category, comment=comment)
+        transaction = Transaction(transaction_type=transaction_type, amount=amount, date=dateTransaction, profile=profile, category=category, comment=comment)
         transaction.save()
 
         return redirect(url) if request.POST['start'] else redirect(request.path_info)
