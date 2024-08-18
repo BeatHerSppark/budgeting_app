@@ -51,11 +51,7 @@ def dashboard_edit_transaction(request):
             transaction.category = Category.objects.get(category_type="Uncategorized")
         else:
             transaction.category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title=request.POST["category"])
-        dateTransaction = request.POST['date']
-        parsed_date = datetime.strptime(dateTransaction, "%Y-%m-%d").date()
-        current_time = datetime.now().time()
-        datetime_combined = datetime.combine(parsed_date, current_time)
-        transaction.date = datetime_combined
+        transaction.date = request.POST['date']
         transaction.comment = request.POST["comment"]
 
         if request.POST["transaction_type"] == "Expense":
