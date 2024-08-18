@@ -131,7 +131,6 @@ def dashboard_view(request):
     userExpenseCategories = Category.objects.filter(category_type="Expense").filter(profile=request.user.profile)
     defaultIncomeCategories = Category.objects.filter(category_type="Income").filter(default_category="True")
     userIncomeCategories = Category.objects.filter(category_type="Income").filter(profile=request.user.profile)
-    print("linux")
 
     current_day = datetime.now().strftime('%Y-%m-%dT%H:%M')
     #current_week = datetime.now().strftime('%Y-W%V')
