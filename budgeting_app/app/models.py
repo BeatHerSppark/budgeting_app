@@ -29,7 +29,7 @@ class Transaction(models.Model):
     ]
     transaction_type = models.CharField(max_length=7, choices=CHOICES)
     amount = models.FloatField()
-    date = models.DateField(default=now)
+    date = models.DateTimeField(default=now)
     submission_time = models.DateTimeField(default=now)
     profile = models.ForeignKey(to=Profile, on_delete=models.CASCADE, default=None)
     category = models.ForeignKey(to=Category, on_delete=models.SET(on_delete_category), default=None)

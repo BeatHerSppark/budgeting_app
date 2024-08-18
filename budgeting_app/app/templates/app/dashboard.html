@@ -109,7 +109,7 @@ Dashboard
             <td class="align-middle text-left">{{ transaction.transaction_type }}</td>
             <td class="align-middle text-left">{{ transaction.amount }}</td>
             <td class="align-middle text-left">{{ transaction.category }}</td>
-            <td class="align-middle text-left">{{ transaction.date }}</td>
+            <td class="align-middle text-left">{{ transaction.date|date:"b. d, Y"|capfirst }}</td>
             <td class="align-middle text-left">{{ transaction.comment }}</td>
             <td class="align-middle text-left">
                 <button
@@ -121,7 +121,7 @@ Dashboard
                     data-bs-type="{{ transaction.transaction_type }}"
                     data-bs-amount="{{ transaction.amount }}"
                     data-bs-category="{{ transaction.category }}"
-                    data-bs-date="{{ transaction.date }}"
+                    data-bs-date="{{ transaction.date|date:"b. d, Y"|capfirst }}"
                     data-bs-comment="{{ transaction.comment }}"
                 >
                     <i class="lni lni-cog fs-5 mt-2"></i>

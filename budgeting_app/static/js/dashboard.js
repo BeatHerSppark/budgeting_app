@@ -152,6 +152,8 @@ if(editModal) {
         typeInput.value = type;
         amountInput.value = amount;
         dateInput.value = formatDate(date);
+        console.log(date);
+
         commentInput.value = comment;
     })
 

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, time
 from dateutil.relativedelta import relativedelta
 from users.models import Profile
 import json
@@ -51,7 +51,11 @@ def dashboard_edit_transaction(request):
             transaction.category = Category.objects.get(category_type="Uncategorized")
         else:
             transaction.category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title=request.POST["category"])
-        transaction.date = request.POST["date"]
+        dateTransaction = request.POST['date']
+        parsed_date = datetime.strptime(dateTransaction, "%Y-%m-%d").date()
+        current_time = datetime.now().time()
+        datetime_combined = datetime.combine(parsed_date, current_time)
+        transaction.date = datetime_combined
         transaction.comment = request.POST["comment"]
 
         if request.POST["transaction_type"] == "Expense":
@@ -76,18 +80,22 @@ def handleDashboardLastPeriod(request, selected_date, oldest=False):
             oldest_transaction = Transaction.objects.earliest("date")
         except Transaction.DoesNotExist:
             oldest_transaction = None
-        start = oldest_transaction.date if oldest_transaction else None
+        start = datetime.combine(oldest_transaction.date, time(0, 0, 0)) if oldest_transaction else None
 
     if selected_date == "today":
         start = (datetime.now() - timedelta(days=1)).date() if start==None else start
         end = (datetime.now() - timedelta(days=1)).date()
+        start = datetime.combine(start, time(0, 0, 0))
+        end = datetime.combine(end, time(23, 59, 59, 999999))
         lastExpenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
         lastIncomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
     elif selected_date == "week":
         today = datetime.now().date()
         days_to_monday = today.weekday() + 7
         start = today - timedelta(days=days_to_monday) if start==None else start
-        end = start + timedelta(days=6)
+        end = (today - timedelta(days=today.weekday())) - timedelta(days=1)
+        start = datetime.combine(start, time(0, 0, 0))
+        end = datetime.combine(end, time(23, 59, 59, 999999))
         lastExpenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
         lastIncomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
     elif selected_date == "month":
@@ -95,6 +103,8 @@ def handleDashboardLastPeriod(request, selected_date, oldest=False):
         first_of_current_month = today.replace(day=1)
         end = first_of_current_month - timedelta(days=1)
         start = end.replace(day=1) if start==None else start
+        start = datetime.combine(start, time(0, 0, 0))
+        end = datetime.combine(end, time(23, 59, 59, 999999))
         lastExpenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
         lastIncomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
     else:
@@ -102,6 +112,8 @@ def handleDashboardLastPeriod(request, selected_date, oldest=False):
         first_of_current_year = today.replace(month=1, day=1)
         end = first_of_current_year - timedelta(days=1)
         start = end.replace(month=1, day=1) if start==None else start
+        start = datetime.combine(start, time(0, 0, 0))
+        end = datetime.combine(end, time(23, 59, 59, 999999))
         lastExpenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
         lastIncomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
 
@@ -111,8 +123,6 @@ def handleDashboardLastPeriod(request, selected_date, oldest=False):
 def dashboard_get_chart(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        expenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(data['start'], data['end']))
-        incomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(data['start'], data['end']))
 
         return JsonResponse({"data": data})
 
@@ -135,6 +145,13 @@ def dashboard_view(request):
         end = date.today()
         start = end - timedelta(days=end.weekday())
         selected_date = "week"
+    else:
+        start = datetime.strptime(start, "%Y-%m-%d").date()
+        end = datetime.strptime(end, "%Y-%m-%d").date()
+
+    start = datetime.combine(start, time(0, 0, 0))
+    end = datetime.combine(end, time(23, 59, 59, 999999))
+    print(start)
 
     expenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
     incomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
@@ -187,6 +204,9 @@ def dashboard_view(request):
         else:
             category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title=request.POST['category'])
         dateTransaction = request.POST['date']
+        parsed_date = datetime.strptime(dateTransaction, "%Y-%m-%d").date()
+        current_time = datetime.now().time()
+        datetime_combined = datetime.combine(parsed_date, current_time)
         comment = request.POST['comment']
 
         profile = Profile.objects.get(user=request.user)
@@ -195,7 +215,7 @@ def dashboard_view(request):
         else:
             profile.total += float(amount)
         profile.save()
-        transaction = Transaction(transaction_type=transaction_type, amount=amount, date=dateTransaction, profile=profile, category=category, comment=comment)
+        transaction = Transaction(transaction_type=transaction_type, amount=amount, date=datetime_combined, profile=profile, category=category, comment=comment)
         transaction.save()
 
         return redirect(url) if request.POST['start'] else redirect(request.path_info)
