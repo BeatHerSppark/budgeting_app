@@ -5,6 +5,7 @@ from datetime import datetime, date, timedelta, time
 from dateutil.relativedelta import relativedelta
 from users.models import Profile
 import json
+import calendar
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from .models import Transaction, Category, Icon
@@ -118,11 +119,144 @@ def handleDashboardLastPeriod(request, selected_date, oldest=False):
 @login_required(login_url="/users/login/")
 def dashboard_get_chart(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        if data['selected_date'] == 'today':
-            print("today")
+        start = request.session.get("start")
+        end = request.session.get("end")
+        selected_date = request.session.get("selected_date")
+        categories = []
+        expenses = []
+        income = []
+        if selected_date == "today":
+            categories = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"]
+            start = datetime.strptime(start, "%Y-%m-%dT%H:%M")
 
-        return JsonResponse({"data": data})
+            for i in range(24):
+                end = start + timedelta(minutes=59, seconds=59)
+                expensesSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
+                incomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
+
+                expenseSum=0
+                incomeSum=0
+
+                for exp in expensesSelection:
+                    expenseSum += exp.amount
+
+                for inc in incomeSelection:
+                    incomeSum += inc.amount
+
+                expenses.append(expenseSum)
+                income.append(incomeSum)
+
+
+                start = start + timedelta(hours=1)
+
+        if selected_date == "week":
+            today = datetime.today()
+            monday = today - timedelta(days=today.weekday())
+
+            categories = [
+                (monday + timedelta(days=day)).strftime("%A")
+                for day in range((today - monday).days + 1)
+            ]
+            start = datetime.strptime(start, "%Y-%m-%dT%H:%M")
+
+            for i in range(len(categories)):
+                end = start + timedelta(hours=23, minutes=59, seconds=59)
+                expensesSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
+                incomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
+                expenseSum=0
+                incomeSum=0
+
+                for exp in expensesSelection:
+                    expenseSum += exp.amount
+
+                for inc in incomeSelection:
+                    incomeSum += inc.amount
+
+                expenses.append(expenseSum)
+                income.append(incomeSum)
+
+                start = start + timedelta(days=1)
+
+        if selected_date == "month":
+            today = datetime.today()
+            current_day = today.day
+
+            categories = [f"{day:02}" for day in range(1, current_day + 1)]
+            start = datetime.strptime(start, "%Y-%m-%dT%H:%M")
+
+            for i in range(current_day):
+                end = start + timedelta(hours=23, minutes=59, seconds=59)
+                expensesSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
+                incomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
+                expenseSum=0
+                incomeSum=0
+
+                for exp in expensesSelection:
+                    expenseSum += exp.amount
+
+                for inc in incomeSelection:
+                    incomeSum += inc.amount
+
+                expenses.append(expenseSum)
+                income.append(incomeSum)
+
+                start = start + timedelta(days=1)
+
+        if selected_date == "year":
+            today = datetime.today()
+            current_year = today.year
+            current_month = today.month
+            categories = [
+                datetime(current_year, month, 1).strftime("%B")
+                for month in range(1, current_month + 1)
+]
+            start = datetime.strptime(start, "%Y-%m-%dT%H:%M")
+
+            for month in range(1, len(categories)+1):
+                last_day = calendar.monthrange(current_year, month)[1]
+                end = datetime(current_year, month, last_day, 23, 59)
+
+                expensesSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
+                incomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
+                expenseSum=0
+                incomeSum=0
+
+                for exp in expensesSelection:
+                    expenseSum += exp.amount
+
+                for inc in incomeSelection:
+                    incomeSum += inc.amount
+
+                expenses.append(expenseSum)
+                income.append(incomeSum)
+
+                start = start + relativedelta(months=1)
+
+        return JsonResponse({"categories": categories, "expenses": expenses, "income": income})
+    
+@login_required(login_url="/users/login/")
+def set_date_range(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        start = data["start"]
+        end = data["end"]
+        selected_date = data["selected_date"]
+        if start==None or end==None:
+            end = date.today()
+            start = end - timedelta(days=end.weekday())
+            selected_date = "week"
+        else:
+            start = datetime.strptime(start, "%Y-%m-%d").date()
+            end = datetime.strptime(end, "%Y-%m-%d").date()
+        start = datetime.combine(start, time(0, 0, 0))
+        end = datetime.combine(end, time(23, 59, 59, 999999))
+
+        request.session["start"] = start.strftime('%Y-%m-%dT%H:%M')
+        request.session["end"] = end.strftime('%Y-%m-%dT%H:%M')
+        request.session["selected_date"] = selected_date
+        
+        return JsonResponse({"start": start, "end": end, "selected_date": selected_date})
+
 
 @login_required(login_url="/users/login/")
 def dashboard_view(request):
@@ -136,18 +270,18 @@ def dashboard_view(request):
     #current_week = datetime.now().strftime('%Y-W%V')
     recent_transactions = Transaction.objects.filter(profile=request.user.profile).order_by("-submission_time")[:10]
 
-    start = request.GET.get("start")
-    end = request.GET.get("end")
-    selected_date = request.GET.get("selected_date")
-    if start==None or end==None:
+    start = request.session.get("start")
+    end = request.session.get("end")
+    selected_date = request.session.get("selected_date")
+    if start==None or end==None or selected_date=="allTime":
         end = date.today()
         start = end - timedelta(days=end.weekday())
         selected_date = "week"
-    else:
-        start = datetime.strptime(start, "%Y-%m-%d").date()
-        end = datetime.strptime(end, "%Y-%m-%d").date()
-    start = datetime.combine(start, time(0, 0, 0))
-    end = datetime.combine(end, time(23, 59, 59, 999999))
+        start = datetime.combine(start, time(0, 0, 0))
+        end = datetime.combine(end, time(23, 59, 59, 999999))
+        request.session["start"] = start.strftime('%Y-%m-%dT%H:%M')
+        request.session["end"] = end.strftime('%Y-%m-%dT%H:%M')
+        request.session["selected_date"] = selected_date
 
     expenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
     incomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
@@ -185,16 +319,11 @@ def dashboard_view(request):
     percentTotal = round(((request.user.profile.total - lastTotal)/abs(lastTotal))*100, 2) if lastTotal!=0 else 0
 
     if request.method == "POST":
-        post_start = request.POST['start'] if request.POST['start']!="0" else start.strftime("%Y-%m-%d")
-        post_end = request.POST['end'] if request.POST['end']!="0" else end.strftime("%Y-%m-%d")
-        post_selected_date = request.POST['selected_date'] if request.POST['selected_date']!="0" else selected_date
-        url = f"{request.path_info}?start={post_start}&end={post_end}&selected_date={post_selected_date}"
-
         transaction_type = request.POST['transaction_type']
         amount = request.POST['amount']
         if(float(amount) < 0):
             messages.error(request, "Amount can't be negative.")
-            return redirect(url) if request.POST['start'] else redirect(request.path_info)
+            return redirect(request.path_info)
         if request.POST["category"] == "Choose a category":
             category = Category.objects.get(category_type="Uncategorized")
         else:
@@ -211,7 +340,7 @@ def dashboard_view(request):
         transaction = Transaction(transaction_type=transaction_type, amount=amount, date=dateTransaction, profile=profile, category=category, comment=comment)
         transaction.save()
 
-        return redirect(url) if request.POST['start'] else redirect(request.path_info)
+        return redirect(request.path_info)
 
     return render(request, "app/dashboard.html", {
         "current_day": current_day,
@@ -260,18 +389,17 @@ def get_budget(request):
 
 @login_required(login_url="/users/login/")
 def transactions_view(request):
-    start = request.GET.get("start")
-    end = request.GET.get("end")
-    transactions = None
-    selected_date = request.GET.get("date")
+    start = request.session.get("start")
+    end = request.session.get("end")
+    selected_date = request.session.get("selected_date")
     if start==None or end==None:
         end = date.today()
         start = end - timedelta(days=end.weekday())
-        transactions = Transaction.objects.filter(profile=request.user.profile).filter(date__range=(start, end)).order_by("-date")
         selected_date = "week"
-    else:
-        transactions = Transaction.objects.filter(profile=request.user.profile).filter(date__range=(start, end)).order_by("-date")
+        start = datetime.combine(start, time(0, 0, 0))
+        end = datetime.combine(end, time(23, 59, 59, 999999))
 
+    transactions = Transaction.objects.filter(profile=request.user.profile).filter(date__range=(start, end)).order_by("-date")
     expenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
     incomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
     expenses = 0

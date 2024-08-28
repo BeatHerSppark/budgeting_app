@@ -19,10 +19,10 @@ Dashboard
     <div class="mt-4 mb-4 d-flex justify-content-between align-items-center">
         <h2 class="fs-5">Overview</h2>
         <div class="dates d-flex gap-2">
-            <a href="#" id="todayBtn" class="btn {% if selected_date == 'today' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">Today</a>
-            <a href="#" id="weekBtn" class="btn {% if selected_date == 'week' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">This week</a>
-            <a href="#" id="monthBtn" class="btn {% if selected_date == 'month' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">This month</a>
-            <a href="#" id="yearBtn" class="btn {% if selected_date == 'year' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">This year</a>
+            <button id="todayBtn" class="btn {% if selected_date == 'today' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">Today</button>
+            <button id="weekBtn" class="btn {% if selected_date == 'week' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">This week</button>
+            <button id="monthBtn" class="btn {% if selected_date == 'month' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">This month</button>
+            <button id="yearBtn" class="btn {% if selected_date == 'year' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">This year</button>
         </div>
     </div>
 
@@ -38,7 +38,7 @@ Dashboard
                         <i class="lni lni-coin fs-3 bg-primary-subtle p-2 rounded text-primary"></i>
                     </div>
                     <div class="d-flex gap-3">
-                        <p class="{% if percentTotal > 0 %}text-success{% elif percentTotal < 0 %}text-danger{% else %}text-secondary{% endif %} text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni {% if percentExpenses > 0 %}lni-angle-double-up{% elif percentExpenses < 0 %}lni-angle-double-down{% else %}lni-minus{% endif %}"></i> {{ percentTotal }}%</p>
+                        <p class="{% if percentTotal > 0 %}text-success{% elif percentTotal < 0 %}text-danger{% else %}text-secondary{% endif %} text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni {% if percentTotal > 0 %}lni-angle-double-up{% elif percentTotal < 0 %}lni-angle-double-down{% else %}lni-minus{% endif %}"></i> {{ percentTotal }}%</p>
                         <p class="text-secondary fs-6 mb-0">Since {% if selected_date == 'today' %}yesterday{% elif selected_date == 'week' %}last week{% elif selected_date == 'month' %}last month{% else %}last year{% endif %} <span class="text-black-50">(${{ lastTotal }})</p>
                     </div>
                 </div>
@@ -135,6 +135,8 @@ Dashboard
         </tbody>
         </table>
     </div>
+    
+    <a href="{% url 'app:transactions' %}" class="btn btn-outline-primary">View more</a>
 </main>
 {% endblock %}
 

@@ -37,25 +37,65 @@ const getFirstOfYear = (d) => {
 
 todayBtn.addEventListener("click", () => {
     let today = formatDate_date(new Date());
-    todayBtn.href = `?start=${encodeURIComponent(today)}&end=${encodeURIComponent(today)}&selected_date=${encodeURIComponent("today")}`;
+    fetch("/app/set-date-range", {
+        body: JSON.stringify({
+            start: today,
+            end: today,
+            selected_date: "today",
+        }),
+        method: "POST",
+    })
+    .then(res => res.json())
+    .then(data => location.reload())
+    //todayBtn.href = `?start=${encodeURIComponent(today)}&end=${encodeURIComponent(today)}&selected_date=${encodeURIComponent("today")}`;
 })
 
 weekBtn.addEventListener("click", () => {
     let today = formatDate_date(new Date());
     let monday = formatDate_date( getMonday(new Date()) );
-    weekBtn.href = `?start=${encodeURIComponent(monday)}&end=${encodeURIComponent(today)}&selected_date=${encodeURIComponent("week")}`;
+    fetch("/app/set-date-range", {
+        body: JSON.stringify({
+            start: monday,
+            end: today,
+            selected_date: "week",
+        }),
+        method: "POST",
+    })
+    .then(res => res.json())
+    .then(data => location.reload())
+    //weekBtn.href = `?start=${encodeURIComponent(monday)}&end=${encodeURIComponent(today)}&selected_date=${encodeURIComponent("week")}`;
 })
 
 monthBtn.addEventListener("click", () => {
     let today = formatDate_date(new Date());
     let firstOfMonth = formatDate_date( getFirstOfMonth(new Date()) );
-    monthBtn.href = `?start=${encodeURIComponent(firstOfMonth)}&end=${encodeURIComponent(today)}&selected_date=${encodeURIComponent("month")}`;
+    fetch("/app/set-date-range", {
+        body: JSON.stringify({
+            start: firstOfMonth,
+            end: today,
+            selected_date: "month",
+        }),
+        method: "POST",
+    })
+    .then(res => res.json())
+    .then(data => location.reload())
+    //monthBtn.href = `?start=${encodeURIComponent(firstOfMonth)}&end=${encodeURIComponent(today)}&selected_date=${encodeURIComponent("month")}`;
 })
 
 yearBtn.addEventListener("click", () => {
     let today = formatDate_date(new Date());
     let firstOfYear = formatDate_date( getFirstOfYear(new Date()) );
-    yearBtn.href = `?start=${encodeURIComponent(firstOfYear)}&end=${encodeURIComponent(today)}&selected_date=${encodeURIComponent("year")}`;
+    fetch("/app/set-date-range", {
+        body: JSON.stringify({
+            start: firstOfYear,
+            end: today,
+            selected_date: "year",
+        }),
+        method: "POST",
+    })
+    .then(res => res.json())
+    .then(data => location.reload())
+    //yearBtn.href = `?start=${encodeURIComponent(firstOfYear)}&end=${encodeURIComponent(today)}&selected_date=${encodeURIComponent("year")}`;
 })
 
 // DELETING TRANSACTIONS
@@ -169,72 +209,64 @@ if(editModal) {
 }
 
 // EXPENSE VS INCOME CHART
-const urlParams = new URLSearchParams(window.location.search);
-let start = null, end=null, selected_date=null;
-if (!urlParams.get('start')) {
-    start = formatDate_date( getMonday(new Date()) );
-    end = formatDate_date(new Date());
-    selected_date = "week";
-} else {
-    start = urlParams.get('start');
-    end = urlParams.get('end');
-    selected_date = urlParams.get('selected_date');
+async function fetchChartData() {
+    const response = await fetch("/app/dashboard-get-chart", {
+                    method: "POST",
+                });
+
+    const data = await response.json();
+    
+    let incomeData = data.income;
+    let expensesData = data.expenses;
+    let categories = data.categories;
+
+    updateChart(incomeData, expensesData, categories);
 }
 
-let incomeData = [];
-let expensesData = [];
-
-fetch("/app/dashboard-get-chart", {
-    body: JSON.stringify({
-        start: start,
-        end: end,
-        selected_date: selected_date,
-    }),
-    method: "POST",
-})
-.then(res => res.json())
-.then(data => console.log(data))
-
-var options = {
-    chart: {
-        type: 'area',
-        height: '100%',
-    },
-    stroke: {
-        curve: 'smooth'
-    },
-    series: [
-        {
-            name: 'Income',
-            data: [31, 40, 28, 51, 42, 109, 100]
+const updateChart = (income, expenses, categories) => {
+    var options = {
+        chart: {
+            type: 'area',
+            height: '100%',
         },
-        {
-            name: 'Expenses',
-            data: [11, 32, 45, 32, 34, 52, 41]
-        }
-    ],
-    xaxis: {
-        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
-    },
-    fill: {
-        type: 'gradient',
-        gradient: {
-            shadeIntensity: 1,
-            opacityFrom: 0.7,
-            opacityTo: 0.9,
-            stops: [0, 90, 100]
-        }
-    },
-    dataLabels: {
-        enabled: false
-    },
-    tooltip: {
-        shared: true,
-        intersect: false
-    },
-    colors: ['#00E396', '#E91E63']
-};
+        stroke: {
+            curve: 'smooth'
+        },
+        series: [
+            {
+                name: 'Income',
+                data: income
+            },
+            {
+                name: 'Expenses',
+                data: expenses
+            }
+        ],
+        xaxis: {
+            categories: categories
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.7,
+                opacityTo: 0.9,
+                stops: [0, 90, 100]
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        tooltip: {
+            shared: true,
+            intersect: false
+        },
+        colors: ['#00E396', '#E91E63']
+    };
+    
+    var chart = new ApexCharts(document.querySelector("#expenseIncomeChart"), options);
+    
+    chart.render();
+}
 
-var chart = new ApexCharts(document.querySelector("#expenseIncomeChart"), options);
-
-chart.render();
+fetchChartData();

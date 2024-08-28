@@ -38,31 +38,81 @@ const getFirstOfYear = (d) => {
 
 todayBtn.addEventListener("click", () => {
     let today = formatDate(new Date());
-    todayBtn.href = `?start=${encodeURIComponent(today)}&end=${encodeURIComponent(today)}&date=${encodeURIComponent("today")}`;
+    fetch("/app/set-date-range", {
+        body: JSON.stringify({
+            start: today,
+            end: today,
+            selected_date: "today",
+        }),
+        method: "POST",
+    })
+    .then(res => res.json())
+    .then(data => location.reload())
+    //todayBtn.href = `?start=${encodeURIComponent(today)}&end=${encodeURIComponent(today)}&date=${encodeURIComponent("today")}`;
 })
 
 weekBtn.addEventListener("click", () => {
     let today = formatDate(new Date());
     let monday = formatDate( getMonday(new Date()) );
-    weekBtn.href = `?start=${encodeURIComponent(monday)}&end=${encodeURIComponent(today)}&date=${encodeURIComponent("week")}`;
+    fetch("/app/set-date-range", {
+        body: JSON.stringify({
+            start: monday,
+            end: today,
+            selected_date: "week",
+        }),
+        method: "POST",
+    })
+    .then(res => res.json())
+    .then(data => location.reload())
+    //weekBtn.href = `?start=${encodeURIComponent(monday)}&end=${encodeURIComponent(today)}&date=${encodeURIComponent("week")}`;
 })
 
 monthBtn.addEventListener("click", () => {
     let today = formatDate(new Date());
     let firstOfMonth = formatDate( getFirstOfMonth(new Date()) );
-    monthBtn.href = `?start=${encodeURIComponent(firstOfMonth)}&end=${encodeURIComponent(today)}&date=${encodeURIComponent("month")}`;
+    fetch("/app/set-date-range", {
+        body: JSON.stringify({
+            start: firstOfMonth,
+            end: today,
+            selected_date: "month",
+        }),
+        method: "POST",
+    })
+    .then(res => res.json())
+    .then(data => location.reload())
+    //monthBtn.href = `?start=${encodeURIComponent(firstOfMonth)}&end=${encodeURIComponent(today)}&date=${encodeURIComponent("month")}`;
 })
 
 yearBtn.addEventListener("click", () => {
     let today = formatDate(new Date());
     let firstOfYear = formatDate( getFirstOfYear(new Date()) );
-    yearBtn.href = `?start=${encodeURIComponent(firstOfYear)}&end=${encodeURIComponent(today)}&date=${encodeURIComponent("year")}`;
+    fetch("/app/set-date-range", {
+        body: JSON.stringify({
+            start: firstOfYear,
+            end: today,
+            selected_date: "year",
+        }),
+        method: "POST",
+    })
+    .then(res => res.json())
+    .then(data => location.reload())
+    //yearBtn.href = `?start=${encodeURIComponent(firstOfYear)}&end=${encodeURIComponent(today)}&date=${encodeURIComponent("year")}`;
 })
 
 allTimeBtn.addEventListener("click", () => {
     let earliestDate = formatDate(new Date(0));
     let today = formatDate(new Date());
-    allTimeBtn.href = `?start=${encodeURIComponent(earliestDate)}&end=${encodeURIComponent(today)}&date=${encodeURIComponent("allTime")}`;
+    fetch("/app/set-date-range", {
+        body: JSON.stringify({
+            start: earliestDate,
+            end: today,
+            selected_date: "allTime",
+        }),
+        method: "POST",
+    })
+    .then(res => res.json())
+    .then(data => location.reload())
+    //allTimeBtn.href = `?start=${encodeURIComponent(earliestDate)}&end=${encodeURIComponent(today)}&date=${encodeURIComponent("allTime")}`;
 })
 
 // DELETE TRANSACTIONS
