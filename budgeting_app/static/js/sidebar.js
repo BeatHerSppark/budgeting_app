@@ -49,9 +49,20 @@ fetch("/app/get-budget", {
 .then(data => {
     const dataField = document.getElementById("spent_this_month");
     const progressPercent = document.getElementById("progressPercent");
-    const progressPercentText = document.getElementById("progressPercentText");
+    const hiddenProgress = document.getElementById("hiddenProgress");
+    const hiddenPercent = document.getElementById("hiddenPercent");
+    const daily_spending = document.getElementById("daily_spending");
+    const days_left = document.getElementById("days_left");
+    const spending_info = document.getElementById("spending_info");
     let stm = formatNumber(data?.spent_this_month);
     dataField.innerText = "$" + String(stm);
+    if(data?.percent_spent > 100) {
+        spending_info.innerHTML = `Budget passed by $${-data?.daily_spending}`
+    }
     progressPercent.style.width = `${data?.percent_spent}%`;
+    hiddenProgress.style.width = `${data?.percent_spent}%`;
     progressPercent.innerText = `${data?.percent_spent}%`;
+    hiddenPercent.innerText = `${data?.percent_spent}%`;
+    daily_spending.innerText = `${data?.daily_spending}`;
+    days_left.innerText = `${data?.days_left}`;
 })

@@ -55,51 +55,79 @@ Transactions
                     <p class="card-text text-secondary fs-3 fw-semibold mb-1">{{ percentProductivity }}%</p>
                     <i class="lni {% if percentProductivity > 0 %}lni-angle-double-up text-success {% elif percentProductivity < 0 %}lni-angle-double-down text-danger{% else %}lni-minus text-secondary{% endif %} fs-4 mb-1"></i>
                 </div>
-                <h5 class="card-title fs-6 fw-normal text-secondary">Productivity</h5>
+                <h5 class="card-title fs-6 fw-normal text-secondary">Savings rate</h5>
             </div>
         </div>
     </div>
 
-    <div class="d-flex flex-row flex-lg-row flex-column gap-4 mt-4">
-        <div id="chartContainer" class="graph mt-4" style="height: 100%; display: inline-block;">
-            <h2 class="fs-5 mb-4">Expenses by Category</h2>
-            <div id="pieChart" class="py-4" style="background-color: white;"></div>
+    {% include 'partials/_transaction_page_modals.html' %}
+    {% include 'partials/_edit_modal.html' %}
+
+    <div class="d-flex flex-row flex-lg-row flex-column gap-4 mt-4 mb-4">
+        <div class="d-flex flex-column">
+            <div id="chartContainer" class="mt-4" style="display: inline-block; background-color: white;">
+                <div class="d-flex mt-4 px-4 align-items-center">
+                    <h2 class="text-secondary fs-6 w-100">EXPENSES BY CATEGORY</h2>
+                    <i class="lni lni-more" id="pieOptions"></i>
+                </div>
+                <div id="pieChartExpense" class="py-4" style="background-color: white;">
+                </div>
+            </div>
+            <div id="chartContainer" class="mt-4" style="display: inline-block; background-color: white;">
+                <div class="d-flex mt-4 px-4 align-items-center">
+                    <h2 class="text-secondary fs-6 w-100">INCOME BY CATEGORY</h2>
+                    <i class="lni lni-more" id="pieOptions"></i>
+                </div>
+                <div id="pieChartIncome" class="py-4" style="background-color: white;">
+                </div>
+            </div>
         </div>
-        <div style="width:65%;">
-            <div class="mt-4 mb-4 d-flex justify-content-between align-items-center" >
-                <h2 class="fs-5">Transaction History</h2>
-                <div class="d-flex gap-2 align-items-center">
+        <div id="tableContainer" class="mt-4" style="background-color:white;">
+            <div class="mb-4 mt-4 px-4 d-flex justify-content-between align-items-center" >
+                <div class="d-flex gap-3 align-items-center">
+                    <h2 class="fs-6 text-secondary w-100">TRANSACTION HISTORY</h2>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search">
+                </div>
+                <div class="d-flex gap-3 align-items-center">
                     <button class="btn btn-outline-danger d-none" id="dashboard_delete_transactions">Delete selected transactions</button>
-                    <button type="button" id="quick_add_btn" class="btn btn-primary">Add Transaction</button>
+                    <button type="button" id="quick_add_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#typeModelToggle">Add Transaction</button>
                 </div>
             </div>
 
-            <div class="table-responsive small">
-                <table class="table table-light table-striped table-sm">
+            <div class="table-responsive px-2 table-main">
+                <table class="table table-sm">
                 <thead class="fs-6">
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Type</th>
-                        <th scope="col">Amount</th>
+                        <th scope="col" class="d-flex gap-1 align-items-center"><div>Amount</div> <i id="sortAmount" class="lni {% if sortTransactions == "amount" %}lni-sort-amount-asc{% else %}lni-sort-amount-dsc{% endif %} {% if sortTransactions == "amount" or sortTransactions == "-amount" %}text-primary{% endif %}"></i></th>
                         <th scope="col">Category</th>
-                        <th scope="col">Date</th>
+                        <th scope="col" class="d-flex gap-1 align-items-center"><div>Date</div> <i id="sortDate" class="lni {% if sortTransactions == "date" %}lni-sort-amount-asc{% else %}lni-sort-amount-dsc{% endif %} {% if sortTransactions == "date" or sortTransactions == "-date" %}text-primary{% endif %}"></i></th>
                         <th scope="col">Comment</th>
                         <th scope="col"></th>
                     </tr>
                 </thead>
                 <tbody class="fs-6">
-                {% for transaction in transactions %}
+                {% for transaction in page_obj %}
                     <tr>
                     <td class="align-middle text-left"><input type="checkbox" name="selected_transaction" id="{{ transaction.id }}" value="{{ transaction.id }}"></td>
-                    <td class="align-middle text-left">{{ transaction.transaction_type }}</td>
+                    <td class="align-middle text-left fw-bold {% if transaction.transaction_type == 'Expense' %}text-danger{% else %}text-success{% endif %}">{{ transaction.transaction_type }}</td>
                     <td class="align-middle text-left">{{ transaction.amount }}</td>
                     <td class="align-middle text-left">{{ transaction.category }}</td>
-                    <td class="align-middle text-left">{{ transaction.date }}</td>
+                    <td class="align-middle text-left">{{ transaction.date|date:"b. d, Y"|capfirst }}</td>
                     <td class="align-middle text-left">{{ transaction.comment }}</td>
                     <td class="align-middle text-left">
                         <button
-                            class="border-0"
+                            class="border-0 bg-white"
                             id="edit_transaction"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editModalToggle"
+                            data-bs-id="{{ transaction.id }}"
+                            data-bs-type="{{ transaction.transaction_type }}"
+                            data-bs-amount="{{ transaction.amount }}"
+                            data-bs-category="{{ transaction.category }}"
+                            data-bs-date="{{ transaction.date }}"
+                            data-bs-comment="{{ transaction.comment }}"
                         >
                             <i class="lni lni-cog fs-5 mt-2"></i>
                         </button>
@@ -109,6 +137,39 @@ Transactions
                 </tbody>
                 </table>
             </div>
+
+            <p id="no-results">No results found.</p>
+
+            <div class="table-responsive px-2 table-search">
+                <table class="table table-sm">
+                <thead class="fs-6">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Type</th>
+                        <th scope="col" class="d-flex gap-1 align-items-center"><div>Amount</div></th>
+                        <th scope="col">Category</th>
+                        <th scope="col" class="d-flex gap-1 align-items-center"><div>Date</div></th>
+                        <th scope="col">Comment</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody class="fs-6 search-body">
+
+                </tbody>
+                </table>
+            </div>
+
+            <ul class="ps-2 pagination pagination-container">
+                <li class="page-item">
+                  <a class="page-link" href="?page=1"><span aria-hidden="true">&laquo;</span></a>
+                </li>
+                {% for page in page_obj.paginator %}
+                    <li class="page-item {% if page.number == page_obj.number %}active{% endif %}"><a class="page-link" href="?page={{ page.number }}">{{ page.number }}</a></li>
+                {% endfor %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}"><span aria-hidden="true">&raquo;</span></a>
+                </li>
+            </ul>
         </div>
     </div>
 

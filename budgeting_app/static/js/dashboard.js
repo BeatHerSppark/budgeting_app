@@ -159,8 +159,11 @@ const formatDate = (djangoTimestamp) => {
     return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 const editModal = document.getElementById("editModalToggle");
+let openedOnce = false;
 if(editModal) {
     editModal.addEventListener("show.bs.modal", e => {
+        if(!openedOnce) document.getElementById("modal-body").innerHTML += `<input type="hidden" name="path" id="path" value="dashboard">`;
+
         const button = e.relatedTarget;
         const id = button.getAttribute("data-bs-id");
         const type = button.getAttribute("data-bs-type");
@@ -200,6 +203,8 @@ if(editModal) {
         console.log(date);
 
         commentInput.value = comment;
+
+        openedOnce = true;
     })
 
     editModal.addEventListener("hide.bs.modal", e => {
@@ -215,7 +220,7 @@ async function fetchChartData() {
                 });
 
     const data = await response.json();
-    
+
     let incomeData = data.income;
     let expensesData = data.expenses;
     let categories = data.categories;
@@ -263,9 +268,9 @@ const updateChart = (income, expenses, categories) => {
         },
         colors: ['#00E396', '#E91E63']
     };
-    
+
     var chart = new ApexCharts(document.querySelector("#expenseIncomeChart"), options);
-    
+
     chart.render();
 }
 

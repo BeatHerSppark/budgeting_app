@@ -206,6 +206,16 @@ textarea {
     max-height: 100%;
 }
 
+#pieOptions {
+    rotate: 90deg;
+}
+#pieOptions:hover {
+    cursor: pointer;
+}
+
+#tableContainer {
+    flex: 8;
+}
 
 
 /* CATEGORIES */

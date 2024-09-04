@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.paginator import Paginator
 from datetime import datetime, date, timedelta, time
 from dateutil.relativedelta import relativedelta
 from users.models import Profile
 import json
 import calendar
+from collections import defaultdict
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from .models import Transaction, Category, Icon
@@ -64,7 +66,7 @@ def dashboard_edit_transaction(request):
 
         profile.save()
         transaction.save()
-        return redirect("app:dashboard")
+        return redirect("app:" + request.POST['path'])
 
 def handleDashboardLastPeriod(request, selected_date, oldest=False):
     lastExpenseSelection = None
@@ -233,7 +235,7 @@ def dashboard_get_chart(request):
                 start = start + relativedelta(months=1)
 
         return JsonResponse({"categories": categories, "expenses": expenses, "income": income})
-    
+
 @login_required(login_url="/users/login/")
 def set_date_range(request):
     if request.method == "POST":
@@ -254,7 +256,7 @@ def set_date_range(request):
         request.session["start"] = start.strftime('%Y-%m-%dT%H:%M')
         request.session["end"] = end.strftime('%Y-%m-%dT%H:%M')
         request.session["selected_date"] = selected_date
-        
+
         return JsonResponse({"start": start, "end": end, "selected_date": selected_date})
 
 
@@ -376,8 +378,13 @@ def edit_budget(request):
 def get_budget(request):
     today = datetime.today()
     beginning_of_month = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    end_of_month = (beginning_of_month + relativedelta(months=1)) - relativedelta(days=1)
-    end_of_month = end_of_month.replace(hour=0, minute=0, second=0, microsecond=0)
+    next_month = None
+    if today.month == 12:
+        next_month = today.replace(year=today.year + 1, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+    else:
+        next_month = today.replace(month=today.month + 1, day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    end_of_month = next_month - timedelta(seconds=1)
     transactions = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(beginning_of_month, end_of_month))
     spent_this_month = 0
     for transaction in transactions:
@@ -385,10 +392,100 @@ def get_budget(request):
 
     percentSpent = round((spent_this_month / request.user.profile.budget)*100, 2) if request.user.profile.budget!=0 else 0
 
-    return JsonResponse({"spent_this_month": spent_this_month, "percent_spent": percentSpent}, status=200)
+    days_left = (next_month - today).days +1 if (next_month - today).days!=0 else 1
+    remaining_budget = request.user.profile.budget - spent_this_month
+    daily_spending = round(remaining_budget / days_left, 2)
+
+    return JsonResponse({"spent_this_month": spent_this_month, "percent_spent": percentSpent, "daily_spending": daily_spending, "days_left": days_left}, status=200)
+
+@login_required(login_url="/users/login/")
+def get_pie_chart(request):
+    if request.method == "POST":
+        start = request.session.get("start")
+        end = request.session.get("end")
+        defaultExpenseCategories = Category.objects.filter(category_type="Expense").filter(default_category="True")
+        userExpenseCategories = Category.objects.filter(category_type="Expense").filter(profile=request.user.profile)
+        defaultIncomeCategories = Category.objects.filter(category_type="Income").filter(default_category="True")
+        userIncomeCategories = Category.objects.filter(category_type="Income").filter(profile=request.user.profile)
+        expenseCategoriesDict = defaultdict(int)
+        incomeCategoriesDict = defaultdict(int)
+        totalExp = 0
+        totalInc = 0
+
+        for category in defaultExpenseCategories:
+            exp = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end)).filter(category=category)
+            for el in exp:
+                expenseCategoriesDict[el.category.title] += 1
+                totalExp += 1
+        for category in userExpenseCategories:
+            exp = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end)).filter(category=category)
+            for el in exp:
+                expenseCategoriesDict[el.category.title] += 1
+                totalExp += 1
+        for el in Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end)).filter(category=Category.objects.get(title="Uncategorized")):
+            expenseCategoriesDict[el.category.title] += 1
+            totalExp += 1
+        for category in defaultIncomeCategories:
+            exp = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end)).filter(category=category)
+            for el in exp:
+                incomeCategoriesDict[el.category.title] += 1
+                totalInc += 1
+        for category in userIncomeCategories:
+            exp = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end)).filter(category=category)
+            for el in exp:
+                incomeCategoriesDict[el.category.title] += 1
+                totalInc += 1
+        for el in Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end)).filter(category=Category.objects.get(title="Uncategorized")):
+            incomeCategoriesDict[el.category.title] += 1
+            totalInc += 1
+
+        for key in expenseCategoriesDict:
+            expenseCategoriesDict[key] = (expenseCategoriesDict[key]/totalExp)*100
+        for key in incomeCategoriesDict:
+            incomeCategoriesDict[key] = (incomeCategoriesDict[key]/totalInc)*100
+
+        return JsonResponse({"expenseCategories": expenseCategoriesDict, "incomeCategories": incomeCategoriesDict})
+
+@login_required(login_url="/users/login/")
+def set_sort_date(request):
+    if request.method == "POST":
+        if request.session.get("sortTransactions") == "-date":
+            request.session["sortTransactions"] = "date"
+        else:
+            request.session["sortTransactions"] = "-date"
+        return JsonResponse({"message": "working"}, status=200)
+
+@login_required(login_url="/users/login/")
+def set_sort_amount(request):
+    if request.method == "POST":
+        if request.session.get("sortTransactions") == "-amount":
+                request.session["sortTransactions"] = "amount"
+        else:
+            request.session["sortTransactions"] = "-amount"
+        return JsonResponse({"message": "working"}, status=200)
+
+@login_required(login_url="/users/login/")
+def search_transactions(request):
+    if request.method == "POST":
+        start = request.session.get("start")
+        end = request.session.get("end")
+        data = json.loads(request.body)
+        search_text = data["searchText"]
+        transactions = Transaction.objects.filter(
+            profile=request.user.profile, date__range=(start, end), amount__istartswith=search_text) | Transaction.objects.filter(
+            profile=request.user.profile, date__range=(start, end), date__icontains=search_text) | Transaction.objects.filter(
+            profile=request.user.profile, date__range=(start, end), transaction_type__icontains=search_text) | Transaction.objects.filter(
+            profile=request.user.profile, date__range=(start, end), category__title__icontains=search_text) | Transaction.objects.filter(
+            profile=request.user.profile, date__range=(start, end), comment__icontains=search_text)
+
+        transactions = transactions.order_by(request.session.get("sortTransactions"))
+        print(transactions)
+        listTransactions = list(transactions.values("id", "category__title", "amount", "comment", "date", "profile", "transaction_type"))
+        return JsonResponse({"search_transactions": listTransactions}, status=200)
 
 @login_required(login_url="/users/login/")
 def transactions_view(request):
+    current_day = datetime.now().strftime('%Y-%m-%dT%H:%M')
     start = request.session.get("start")
     end = request.session.get("end")
     selected_date = request.session.get("selected_date")
@@ -399,7 +496,13 @@ def transactions_view(request):
         start = datetime.combine(start, time(0, 0, 0))
         end = datetime.combine(end, time(23, 59, 59, 999999))
 
-    transactions = Transaction.objects.filter(profile=request.user.profile).filter(date__range=(start, end)).order_by("-date")
+    if not request.session.has_key("sortTransactions"):
+        request.session["sortTransactions"] = "-date"
+
+    transactions = Transaction.objects.filter(profile=request.user.profile).filter(date__range=(start, end)).order_by(request.session.get("sortTransactions"))
+    paginator = Paginator(transactions, 15)
+    page_number = request.GET.get('page')
+    page_obj = Paginator.get_page(paginator, page_number)
     expenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
     incomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
     expenses = 0
@@ -409,14 +512,50 @@ def transactions_view(request):
     for earning in incomeSelection:
         income += earning.amount
 
-    percentProductivity = round(((income-expenses)/expenses)*100, 2) if expenses!=0 else 0
+    percentProductivity = round(((income-expenses)/income)*100, 2) if income!=0 else 0
+
+    defaultExpenseCategories = Category.objects.filter(category_type="Expense").filter(default_category="True")
+    userExpenseCategories = Category.objects.filter(category_type="Expense").filter(profile=request.user.profile)
+    defaultIncomeCategories = Category.objects.filter(category_type="Income").filter(default_category="True")
+    userIncomeCategories = Category.objects.filter(category_type="Income").filter(profile=request.user.profile)
+
+    if request.method == "POST":
+        transaction_type = request.POST['transaction_type']
+        amount = request.POST['amount']
+        if(float(amount) < 0):
+            messages.error(request, "Amount can't be negative.")
+            return redirect(request.path_info)
+        if request.POST["category"] == "Choose a category":
+            category = Category.objects.get(category_type="Uncategorized")
+        else:
+            category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title=request.POST['category'])
+        dateTransaction = request.POST['date']
+        comment = request.POST['comment']
+
+        profile = Profile.objects.get(user=request.user)
+        if transaction_type == "Expense":
+            profile.total -= float(amount)
+        else:
+            profile.total += float(amount)
+        profile.save()
+        transaction = Transaction(transaction_type=transaction_type, amount=amount, date=dateTransaction, profile=profile, category=category, comment=comment)
+        transaction.save()
+
+        return redirect(request.path_info)
 
     return render(request, "app/transactions.html", {
         "transactions": transactions,
+        "page_obj": page_obj,
         "selected_date": selected_date,
         "expenses": expenses,
         "income": income,
         "percentProductivity": percentProductivity,
+        "defaultExpenseCategories": defaultExpenseCategories,
+        "userExpenseCategories": userExpenseCategories,
+        "defaultIncomeCategories": defaultIncomeCategories,
+        "userIncomeCategories": userIncomeCategories,
+        "current_day": current_day,
+        "sortTransactions": request.session.get('sortTransactions'),
     })
 
 

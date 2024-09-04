@@ -155,18 +155,264 @@ dashboard_delete_transactions.addEventListener("click", () => {
     })
 })
 
-// CHART
-var options = {
-    chart: {
-        height: 'auto',
-        type: 'pie',
-    },
-    series: [44, 33, 23], // Three values
-    labels: ['Apples', 'Oranges', 'Bananas'], // Labels for the values
-    legend: {
-        position: 'bottom'
-    }
-};
+//EDIT TRANSACTIONS
+const normalizeDate = (djangoTimestamp) => {
+    const normalizedTimestamp = djangoTimestamp
+        .replace("a.m.", "AM")
+        .replace("p.m.", "PM")
+        .replace(/\./g, "");
+    const dateObj = new Date(normalizedTimestamp);
 
-var chart = new ApexCharts(document.querySelector("#pieChart"), options);
-chart.render();
+    if (isNaN(dateObj.getTime())) {
+        return null;
+    }
+
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const hours = String(dateObj.getHours()).padStart(2, '0');
+    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+const editModal = document.getElementById("editModalToggle");
+let openedOnce = false;
+
+if(editModal) {
+    editModal.addEventListener("show.bs.modal", e => {
+        if(!openedOnce) document.getElementById("modal-body").innerHTML += `<input type="hidden" name="path" id="path" value="transactions">`;
+
+        const button = e.relatedTarget;
+        const id = button.getAttribute("data-bs-id");
+        const type = button.getAttribute("data-bs-type");
+        const amount = button.getAttribute("data-bs-amount");
+        const category = button.getAttribute("data-bs-category");
+        const date = button.getAttribute("data-bs-date");
+        const comment = button.getAttribute("data-bs-comment");
+
+        const idInput = editModal.querySelector("#id");
+        const typeInput = editModal.querySelector("#transaction_type");
+        const amountInput = editModal.querySelector("#amount");
+        const categoryInput = editModal.querySelector("#category");
+        const dateInput = editModal.querySelector("#date");
+        const commentInput = editModal.querySelector("#comment");
+
+        fetch("/app/dashboard-get-categories", {
+            body: JSON.stringify({ category_type: type }),
+            method: "POST",
+        })
+        .then(res => res.json())
+        .then(data => {
+            data.categories.forEach(category => {
+                categoryInput.innerHTML += `<option value="${category.title}">${category.title}</option>`
+            })
+            if(category=="Uncategorized") {
+                categoryInput.value = "Choose a category";
+            }
+            else {
+                categoryInput.value = category;
+            }
+        })
+
+        idInput.value = id;
+        typeInput.value = type;
+        amountInput.value = amount;
+        dateInput.value = normalizeDate(date);
+        commentInput.value = comment;
+
+        openedOnce = true;
+    })
+
+    editModal.addEventListener("hide.bs.modal", e => {
+        const categoryInput = editModal.querySelector("#category");
+        categoryInput.innerHTML = `<option selected>Choose a category</option>`
+    })
+}
+
+// CHART
+async function fetchChartData() {
+    const response = await fetch("/app/get-pie-chart", {
+                    method: "POST",
+                });
+
+    const data = await response.json();
+
+    const expenseCategoryTitles = Object.keys(data["expenseCategories"]);
+    const expenseCategoryValues = Object.values(data["expenseCategories"]);
+    updateChartExpense(expenseCategoryTitles, expenseCategoryValues);
+
+    const incomeCategoryTitles = Object.keys(data["incomeCategories"]);
+    const incomeCategoryValues = Object.values(data["incomeCategories"]);
+    updateChartIncome(incomeCategoryTitles, incomeCategoryValues);
+}
+
+const updateChartExpense = (expenseCategoryTitles, expenseCategoryValues) => {
+    if(expenseCategoryTitles.length>0) {
+        var options = {
+            chart: {
+                height: '350px',
+                type: 'donut',
+            },
+            series: expenseCategoryValues,
+            labels: expenseCategoryTitles,
+            legend: {
+                position: 'bottom',
+            }
+        };
+
+        var chart = new ApexCharts(document.querySelector("#pieChartExpense"), options);
+        chart.render();
+    }
+    else {
+        var options = {
+            chart: {
+                height: '350px',
+                type: 'donut',
+            },
+            series: [100],
+            labels: ["No transactions yet"],
+            colors: ['#9f9f9f'],
+            legend: {
+                position: 'bottom',
+            }
+        };
+
+        var chart = new ApexCharts(document.querySelector("#pieChartExpense"), options);
+        chart.render();
+    }
+}
+
+const updateChartIncome = (incomeCategoryTitles, incomeCategoryValues) => {
+    if(incomeCategoryTitles.length>0) {
+        var options = {
+            chart: {
+                height: '350px',
+                type: 'donut',
+            },
+            series: incomeCategoryValues,
+            labels: incomeCategoryTitles,
+            legend: {
+                position: 'bottom',
+            }
+        };
+
+        var chart = new ApexCharts(document.querySelector("#pieChartIncome"), options);
+        chart.render();
+    }
+    else {
+        var options = {
+            chart: {
+                height: '350px',
+                type: 'donut',
+            },
+            series: [100],
+            labels: ["No transactions yet"],
+            colors: ['#9f9f9f'],
+            legend: {
+                position: 'bottom',
+            }
+        };
+
+        var chart = new ApexCharts(document.querySelector("#pieChartIncome"), options);
+        chart.render();
+    }
+}
+
+fetchChartData();
+
+// SORT TRANSACTIONS
+const sortDate = document.getElementById("sortDate");
+const sortAmount = document.getElementById("sortAmount");
+
+sortDate.addEventListener('click', async () => {
+    const response = await fetch("/app/set-sort-date", {
+        method: "POST",
+    });
+
+    const data = await response.json();
+    location.reload();
+})
+
+sortAmount.addEventListener('click', async () => {
+    const response = await fetch("/app/set-sort-amount", {
+        method: "POST",
+    });
+
+    const data = await response.json();
+    location.reload();
+})
+
+// SEARCH TRANSACTIONS
+const searchInput = document.getElementById("searchInput");
+const tableMain = document.querySelector(".table-main");
+const tableSearch = document.querySelector(".table-search");
+const paginationContainer = document.querySelector(".pagination-container");
+const searchBody = document.querySelector(".search-body");
+const noResults = document.getElementById("no-results");
+tableSearch.style.display = 'none';
+noResults.style.display = 'none';
+searchInput.addEventListener("keyup", (e) => {
+    const ignoredKeys = [
+        'Control', 'Alt', 'Shift', 'Meta', 'ArrowUp', 'ArrowDown',
+        'ArrowLeft', 'ArrowRight', 'CapsLock', 'Escape', 'Tab',
+        'Enter', 'PageUp', 'PageDown', 'Home', 'End', 'Insert'
+    ];
+    if(!ignoredKeys.includes(e.key)) {
+        const searchValue = e.target.value;
+        if(searchValue.trim().length>0) {
+            paginationContainer.style.display = 'none';
+            searchBody.innerHTML = "";
+            fetch("/app/search-transactions", {
+                body: JSON.stringify({ searchText: searchValue }),
+                method: "POST",
+            })
+            .then(res => res.json())
+            .then(data => {
+                tableMain.style.display = 'none';
+                tableSearch.style.display = 'block';
+                if(data.search_transactions.length === 0) {
+                    tableSearch.style.display = 'none';
+                    noResults.style.display = 'block';
+                } else {
+                    noResults.style.display = 'none';
+                    data.search_transactions.forEach(item => {
+                        const dateObj = new Date(item.date);
+                        const parts = dateObj.toLocaleDateString('en-US', {year: 'numeric',month: 'short',day: '2-digit'}).split(' ');
+                        const formattedDate = `${parts[0]}. ${parts[1]} ${parts[2]}`;
+                        searchBody.innerHTML += `
+                            <tr>
+                            <td class="align-middle text-left"><input type="checkbox" name="selected_transaction" id="${item.id}" value="${item.id}"></td>
+                            <td class="align-middle text-left fw-bold ${item.transaction_type=="Expense" ? "text-danger" : "text-success"}">${item.transaction_type}</td>
+                            <td class="align-middle text-left">${item.amount}</td>
+                            <td class="align-middle text-left">${item.category__title}</td>
+                            <td class="align-middle text-left">${formattedDate}</td>
+                            <td class="align-middle text-left">${item.comment}</td>
+                            <td class="align-middle text-left">
+                                <button
+                                    class="border-0 bg-white"
+                                    id="edit_transaction"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editModalToggle"
+                                    data-bs-id="{{ transaction.id }}"
+                                    data-bs-type="{{ transaction.transaction_type }}"
+                                    data-bs-amount="{{ transaction.amount }}"
+                                    data-bs-category="{{ transaction.category }}"
+                                    data-bs-date="{{ transaction.date }}"
+                                    data-bs-comment="{{ transaction.comment }}"
+                                >
+                                    <i class="lni lni-cog fs-5 mt-2"></i>
+                                </button>
+                            </td>
+                            </tr>
+                        `
+                    })
+                }
+            })
+        }
+        else {
+            tableMain.style.display = 'block';
+            tableSearch.style.display = 'none';
+            paginationContainer.style.display = 'flex';
+        }
+    }
+})
