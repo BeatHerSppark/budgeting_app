@@ -444,7 +444,7 @@ def get_pie_chart(request):
         for key in incomeCategoriesDict:
             incomeCategoriesDict[key] = (incomeCategoriesDict[key]/totalInc)*100
 
-        return JsonResponse({"expenseCategories": expenseCategoriesDict, "incomeCategories": incomeCategoriesDict})
+        return JsonResponse({"expenseCategories": expenseCategoriesDict, "incomeCategories": incomeCategoriesDict}, status=200)
 
 @login_required(login_url="/users/login/")
 def set_sort_date(request):

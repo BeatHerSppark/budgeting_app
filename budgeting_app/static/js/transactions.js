@@ -359,6 +359,7 @@ searchInput.addEventListener("keyup", (e) => {
     ];
     if(!ignoredKeys.includes(e.key)) {
         const searchValue = e.target.value;
+        noResults.style.display = 'none';
         if(searchValue.trim().length>0) {
             paginationContainer.style.display = 'none';
             searchBody.innerHTML = "";
