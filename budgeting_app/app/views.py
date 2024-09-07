@@ -398,7 +398,7 @@ def get_budget(request):
     remaining_budget = request.user.profile.budget - spent_this_month
     daily_spending = round(remaining_budget / days_left, 2)
 
-    return JsonResponse({"spent_this_month": spent_this_month, "percent_spent": percentSpent, "daily_spending": daily_spending, "days_left": days_left}, status=200)
+    return JsonResponse({"spent_this_month": spent_this_month, "percent_spent": percentSpent, "daily_spending": daily_spending, "days_left": days_left, "remaining_budget": remaining_budget}, status=200)
 
 @login_required(login_url="/users/login/")
 def get_pie_chart(request):

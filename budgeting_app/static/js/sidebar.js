@@ -45,8 +45,8 @@ fetch("/app/get-budget", {
     const spending_info = document.getElementById("spending_info");
     let stm = formatNumber(data?.spent_this_month);
     dataField.innerText = "$" + String(stm);
-    if(data?.percent_spent > 100) {
-        spending_info.innerHTML = `Budget passed by $${-data?.daily_spending}`
+    if(data?.percent_spent > 100 || data?.percent_spent <=0) {
+        spending_info.innerHTML = `Budget passed by $${-data?.remaining_budget}`
     }
     progressPercent.style.width = `${data?.percent_spent}%`;
     hiddenProgress.style.width = `${data?.percent_spent}%`;

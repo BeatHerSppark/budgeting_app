@@ -332,70 +332,76 @@ const searchBody = document.querySelector(".search-body");
 const noResults = document.getElementById("no-results");
 tableSearch.style.display = 'none';
 noResults.style.display = 'none';
+let debounceTimeout;
+
 searchInput.addEventListener("keyup", (e) => {
-    const ignoredKeys = [
-        'Control', 'Alt', 'Shift', 'Meta', 'ArrowUp', 'ArrowDown',
-        'ArrowLeft', 'ArrowRight', 'CapsLock', 'Escape', 'Tab',
-        'Enter', 'PageUp', 'PageDown', 'Home', 'End', 'Insert'
-    ];
-    if(!ignoredKeys.includes(e.key)) {
-        const searchValue = e.target.value;
-        noResults.style.display = 'none';
-        if(searchValue.trim().length>0) {
-            paginationContainer.style.display = 'none';
-            searchBody.innerHTML = "";
-            fetch("/app/search-transactions", {
-                body: JSON.stringify({ searchText: searchValue }),
-                method: "POST",
-            })
-            .then(res => res.json())
-            .then(data => {
-                tableMain.style.display = 'none';
-                tableSearch.style.display = 'block';
-                if(data.search_transactions.length === 0) {
-                    tableSearch.style.display = 'none';
-                    noResults.style.display = 'block';
-                } else {
-                    noResults.style.display = 'none';
-                    data.search_transactions.forEach(item => {
-                        const dateObj = new Date(item.date);
-                        console.log(item.date.slice(0, -6));
-                        const parts = dateObj.toLocaleDateString('en-US', {year: 'numeric',month: 'short',day: '2-digit'}).split(' ');
-                        const formattedDate = `${parts[0]}. ${parts[1]} ${parts[2]}`;
-                        searchBody.innerHTML += `
-                            <tr>
-                            <td class="align-middle text-left"><input type="checkbox" name="selected_transaction" id="${item.id}" value="${item.id}"></td>
-                            <td class="align-middle text-left fw-bold ${item.transaction_type=="Expense" ? "text-danger" : "text-success"}">${item.transaction_type}</td>
-                            <td class="align-middle text-left">${item.amount}</td>
-                            <td class="align-middle text-left"><div class="d-flex align-items-center gap-2"><i class="lni ${item.category__icon_tag}"></i><div>${item.category__title}</div></div></td>
-                            <td class="align-middle text-left">${formattedDate}</td>
-                            <td class="align-middle text-left">${item.comment}</td>
-                            <td class="align-middle text-left">
-                                <button
-                                    class="border-0 bg-white"
-                                    id="edit_transaction"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editModalToggle"
-                                    data-bs-id="${item.id}"
-                                    data-bs-type="${item.transaction_type}"
-                                    data-bs-amount="${item.amount}"
-                                    data-bs-category="${item.category__title}"
-                                    data-bs-date="${item.date.slice(0, -6)}"
-                                    data-bs-comment="${item.comment}"
-                                >
-                                    <i class="lni lni-cog fs-5 mt-2"></i>
-                                </button>
-                            </td>
-                            </tr>
-                        `
-                    })
-                }
-            })
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+
+        const ignoredKeys = [
+            'Control', 'Alt', 'Shift', 'Meta', 'ArrowUp', 'ArrowDown',
+            'ArrowLeft', 'ArrowRight', 'CapsLock', 'Escape', 'Tab',
+            'Enter', 'PageUp', 'PageDown', 'Home', 'End', 'Insert'
+        ];
+        if(!ignoredKeys.includes(e.key)) {
+            const searchValue = e.target.value;
+            noResults.style.display = 'none';
+            if(searchValue.trim().length>0) {
+                paginationContainer.style.display = 'none';
+                searchBody.innerHTML = "";
+                fetch("/app/search-transactions", {
+                    body: JSON.stringify({ searchText: searchValue }),
+                    method: "POST",
+                })
+                .then(res => res.json())
+                .then(data => {
+                    tableMain.style.display = 'none';
+                    tableSearch.style.display = 'block';
+                    if(data.search_transactions.length === 0) {
+                        tableSearch.style.display = 'none';
+                        noResults.style.display = 'block';
+                    } else {
+                        noResults.style.display = 'none';
+                        data.search_transactions.forEach(item => {
+                            const dateObj = new Date(item.date);
+                            console.log(item.date.slice(0, -6));
+                            const parts = dateObj.toLocaleDateString('en-US', {year: 'numeric',month: 'short',day: '2-digit'}).split(' ');
+                            const formattedDate = `${parts[0]}. ${parts[1]} ${parts[2]}`;
+                            searchBody.innerHTML += `
+                                <tr>
+                                <td class="align-middle text-left"><input type="checkbox" name="selected_transaction" id="${item.id}" value="${item.id}"></td>
+                                <td class="align-middle text-left fw-bold ${item.transaction_type=="Expense" ? "text-danger" : "text-success"}">${item.transaction_type}</td>
+                                <td class="align-middle text-left">${item.amount}</td>
+                                <td class="align-middle text-left"><div class="d-flex align-items-center gap-2"><i class="lni ${item.category__icon_tag}"></i><div>${item.category__title}</div></div></td>
+                                <td class="align-middle text-left">${formattedDate}</td>
+                                <td class="align-middle text-left">${item.comment}</td>
+                                <td class="align-middle text-left">
+                                    <button
+                                        class="border-0 bg-white"
+                                        id="edit_transaction"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editModalToggle"
+                                        data-bs-id="${item.id}"
+                                        data-bs-type="${item.transaction_type}"
+                                        data-bs-amount="${item.amount}"
+                                        data-bs-category="${item.category__title}"
+                                        data-bs-date="${item.date.slice(0, -6)}"
+                                        data-bs-comment="${item.comment}"
+                                    >
+                                        <i class="lni lni-cog fs-5 mt-2"></i>
+                                    </button>
+                                </td>
+                                </tr>
+                            `
+                        })
+                    }
+                })
+            }
+            else {
+                tableMain.style.display = 'block';
+                tableSearch.style.display = 'none';
+                paginationContainer.style.display = 'flex';
+            }
         }
-        else {
-            tableMain.style.display = 'block';
-            tableSearch.style.display = 'none';
-            paginationContainer.style.display = 'flex';
-        }
-    }
+    }, 300);
 })
