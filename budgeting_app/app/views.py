@@ -365,6 +365,13 @@ def dashboard_view(request):
     },)
 
 @login_required(login_url="/users/login/")
+def get_expenses(request):
+    if request.method == "POST":
+        transactions = Transaction.objects.filter(profile=request.user.profile, transaction_type="Expense").values("id", "category__title", "category__icon_tag", "amount", "comment", "date", "profile", "transaction_type")
+        transactions = list(transactions.order_by("-date"))
+        return JsonResponse({"expenses": transactions}, status=200)
+
+@login_required(login_url="/users/login/")
 def edit_budget(request):
     if request.method == "POST":
         data = json.loads(request.body)

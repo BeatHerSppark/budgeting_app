@@ -92,6 +92,10 @@ body {
     font-size: 0.75rem;
 }
 
+#budgetHistory:hover {
+    cursor: pointer;
+}
+
 #editBudget:hover {
     cursor: pointer;
 }

@@ -1,0 +1,31 @@
+<div class="modal fade" id="historyModalToggle" aria-hidden="true" aria-labelledby="historyModalToggleLabel" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+        <div class="modal-header d-flex align-items-center justify-content-between">
+            <h1 class="modal-title fs-5" id="historyModalToggleLabel">Expense History</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <div class="modal-body">
+                <div class="table-responsive px-2">
+                    <table class="table table-sm">
+                    <thead class="fs-6">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Type</th>
+                            <th scope="col" class="d-flex gap-1 align-items-center"><div>Amount</div></th>
+                            <th scope="col">Category</th>
+                            <th scope="col" class="d-flex gap-1 align-items-center"><div>Date</div></th>
+                            <th scope="col">Comment</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="fs-6" id="historyTable">
+
+                    </tbody>
+                    </table>
+                </div>
+                <button class="btn btn-primary" id="seeMoreHistory">See more</button>
+            </div>
+        </div>
+    </div>
+</div>

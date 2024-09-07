@@ -21,5 +21,6 @@ urlpatterns = [
     path('get-pie-chart', csrf_exempt(views.get_pie_chart), name="get_pie_chart"),
     path('set-sort-date', csrf_exempt(views.set_sort_date), name="set_sort_date"),
     path('set-sort-amount', csrf_exempt(views.set_sort_amount), name="set_sort_amount"),
-    path('search-transactions', csrf_exempt(views.search_transactions), name="search_transactions")
+    path('search-transactions', csrf_exempt(views.search_transactions), name="search_transactions"),
+    path('get-expenses', csrf_exempt(views.get_expenses), name="get_expenses")
 ]
