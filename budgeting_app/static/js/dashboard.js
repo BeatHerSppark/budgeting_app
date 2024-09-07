@@ -139,25 +139,6 @@ dashboard_delete_transactions.addEventListener("click", () => {
 })
 
 // EDITING TRANSACTIONS
-const formatDate = (djangoTimestamp) => {
-    const normalizedTimestamp = djangoTimestamp
-        .replace("a.m.", "AM")
-        .replace("p.m.", "PM")
-        .replace(/\./g, "");
-    const dateObj = new Date(normalizedTimestamp);
-
-    if (isNaN(dateObj.getTime())) {
-        return null;
-    }
-
-    const year = dateObj.getFullYear();
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const day = String(dateObj.getDate()).padStart(2, '0');
-    const hours = String(dateObj.getHours()).padStart(2, '0');
-    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-}
 const editModal = document.getElementById("editModalToggle");
 let openedOnce = false;
 if(editModal) {
@@ -199,11 +180,8 @@ if(editModal) {
         idInput.value = id;
         typeInput.value = type;
         amountInput.value = amount;
-        dateInput.value = formatDate(date);
-        console.log(date);
-
+        dateInput.value = date;
         commentInput.value = comment;
-
         openedOnce = true;
     })
 

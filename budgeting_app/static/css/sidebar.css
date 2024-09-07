@@ -56,11 +56,6 @@ body {
     background-color: #0e223e;
 }
 
-#sidebar.collapse {
-    width: 4.375rem;
-    min-width: 4.375rem;
-}
-
 #toggle-btn {
     background-color: transparent;
     cursor: pointer;
@@ -84,16 +79,7 @@ body {
     font-weight: 600;
 }
 
-#sidebar:is(.collapse) .sidebar-logo,
-#sidebar:is(.collapse) .sidebar-link span {
-    display: none;
-}
-
-#sidebar:is(.collapse) .progress {
-    height: 10px;
-}
-
-#sidebar:not(.collapse) .progress_container {
+.progress_container {
     display: none;
 }
 
@@ -165,6 +151,25 @@ a.sidebar-link:hover {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
     transition: all 0.2s;
+}
+
+@media (max-width: 1150px) {
+    #sidebar {
+        width: 4.375rem;
+        min-width: 4.375rem;
+    }
+
+    .sidebar-logo, .sidebar-link span {
+        display: none;
+    }
+
+    .progress {
+        height: 10px;
+    }
+
+    .progress_container {
+        display: block;
+    }
 }
 
 form button {

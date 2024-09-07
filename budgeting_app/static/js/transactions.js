@@ -156,25 +156,6 @@ dashboard_delete_transactions.addEventListener("click", () => {
 })
 
 //EDIT TRANSACTIONS
-const normalizeDate = (djangoTimestamp) => {
-    const normalizedTimestamp = djangoTimestamp
-        .replace("a.m.", "AM")
-        .replace("p.m.", "PM")
-        .replace(/\./g, "");
-    const dateObj = new Date(normalizedTimestamp);
-
-    if (isNaN(dateObj.getTime())) {
-        return null;
-    }
-
-    const year = dateObj.getFullYear();
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const day = String(dateObj.getDate()).padStart(2, '0');
-    const hours = String(dateObj.getHours()).padStart(2, '0');
-    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-}
 const editModal = document.getElementById("editModalToggle");
 let openedOnce = false;
 
@@ -217,7 +198,7 @@ if(editModal) {
         idInput.value = id;
         typeInput.value = type;
         amountInput.value = amount;
-        dateInput.value = normalizeDate(date);
+        dateInput.value = date;
         commentInput.value = comment;
 
         openedOnce = true;
@@ -378,6 +359,7 @@ searchInput.addEventListener("keyup", (e) => {
                     noResults.style.display = 'none';
                     data.search_transactions.forEach(item => {
                         const dateObj = new Date(item.date);
+                        console.log(item.date.slice(0, -6));
                         const parts = dateObj.toLocaleDateString('en-US', {year: 'numeric',month: 'short',day: '2-digit'}).split(' ');
                         const formattedDate = `${parts[0]}. ${parts[1]} ${parts[2]}`;
                         searchBody.innerHTML += `
@@ -385,7 +367,7 @@ searchInput.addEventListener("keyup", (e) => {
                             <td class="align-middle text-left"><input type="checkbox" name="selected_transaction" id="${item.id}" value="${item.id}"></td>
                             <td class="align-middle text-left fw-bold ${item.transaction_type=="Expense" ? "text-danger" : "text-success"}">${item.transaction_type}</td>
                             <td class="align-middle text-left">${item.amount}</td>
-                            <td class="align-middle text-left">${item.category__title}</td>
+                            <td class="align-middle text-left"><div class="d-flex align-items-center gap-2"><i class="lni ${item.category__icon_tag}"></i><div>${item.category__title}</div></div></td>
                             <td class="align-middle text-left">${formattedDate}</td>
                             <td class="align-middle text-left">${item.comment}</td>
                             <td class="align-middle text-left">
@@ -394,12 +376,12 @@ searchInput.addEventListener("keyup", (e) => {
                                     id="edit_transaction"
                                     data-bs-toggle="modal"
                                     data-bs-target="#editModalToggle"
-                                    data-bs-id="{{ transaction.id }}"
-                                    data-bs-type="{{ transaction.transaction_type }}"
-                                    data-bs-amount="{{ transaction.amount }}"
-                                    data-bs-category="{{ transaction.category }}"
-                                    data-bs-date="{{ transaction.date }}"
-                                    data-bs-comment="{{ transaction.comment }}"
+                                    data-bs-id="${item.id}"
+                                    data-bs-type="${item.transaction_type}"
+                                    data-bs-amount="${item.amount}"
+                                    data-bs-category="${item.category__title}"
+                                    data-bs-date="${item.date.slice(0, -6)}"
+                                    data-bs-comment="${item.comment}"
                                 >
                                     <i class="lni lni-cog fs-5 mt-2"></i>
                                 </button>

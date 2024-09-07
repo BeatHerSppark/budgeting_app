@@ -21,15 +21,15 @@
     <div class="wrapper">
         <aside id="sidebar">
             <div class="d-flex">
-                <button id="toggle-btn" type="button"><i class="lni lni-grid-alt"></i></button>
+                <a href="{% url "app:dashboard" %}" id="toggle-btn" type="button"><i class="lni lni-grid-alt"></i></a>
                 <div class="sidebar-logo">
-                    <a href="#">Dollabro</a>
+                    <a href="{% url "app:dashboard" %}">Dollabro</a>
                 </div>
             </div>
             <ul class="sidebar-nav">
                 <li class="sidebar-item">
                     <div class="sidebar-link">
-                        <div class="text-center progress_container">
+                        <div data-bs-toggle="modal" data-bs-target="#editBudgetModal" class="text-center progress_container">
                             <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                                 <div id="hiddenProgress" class="progress-bar bg-info" style="width: 25%"></div>
                             </div>

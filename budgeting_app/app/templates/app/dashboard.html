@@ -111,7 +111,7 @@ Dashboard
             <td class="align-middle text-left"><input type="checkbox" name="selected_transaction" id="{{ transaction.id }}" value="{{ transaction.id }}"></td>
             <td class="align-middle text-left fw-bold {% if transaction.transaction_type == 'Expense' %}text-danger{% else %}text-success{% endif %}">{{ transaction.transaction_type }}</td>
             <td class="align-middle text-left">{{ transaction.amount }}</td>
-            <td class="align-middle text-left">{{ transaction.category }}</td>
+            <td class="align-middle text-left"><div class="d-flex align-items-center gap-2"><i class="lni {{ transaction.category.icon_tag }}"></i><div>{{ transaction.category }}</div></div></td>
             <td class="align-middle text-left">{{ transaction.date|date:"b. d, Y"|capfirst }}</td>
             <td class="align-middle text-left">{{ transaction.comment }}</td>
             <td class="align-middle text-left">
@@ -124,7 +124,7 @@ Dashboard
                     data-bs-type="{{ transaction.transaction_type }}"
                     data-bs-amount="{{ transaction.amount }}"
                     data-bs-category="{{ transaction.category }}"
-                    data-bs-date="{{ transaction.date }}"
+                    data-bs-date="{{ transaction.date|date:"Y-m-d\\TH:i" }}"
                     data-bs-comment="{{ transaction.comment }}"
                 >
                     <i class="lni lni-cog fs-5 mt-2"></i>

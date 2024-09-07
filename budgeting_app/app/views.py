@@ -10,6 +10,7 @@ import calendar
 from collections import defaultdict
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
+from django.utils import timezone
 from .models import Transaction, Category, Icon
 
 # Create your views here.
@@ -55,6 +56,7 @@ def dashboard_edit_transaction(request):
         else:
             transaction.category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title=request.POST["category"])
         transaction.date = request.POST['date']
+        print(request.POST["date"])
         transaction.comment = request.POST["comment"]
 
         if request.POST["transaction_type"] == "Expense":
@@ -479,8 +481,9 @@ def search_transactions(request):
             profile=request.user.profile, date__range=(start, end), comment__icontains=search_text)
 
         transactions = transactions.order_by(request.session.get("sortTransactions"))
-        print(transactions)
-        listTransactions = list(transactions.values("id", "category__title", "amount", "comment", "date", "profile", "transaction_type"))
+        listTransactions = list(transactions.values("id", "category__title", "category__icon_tag", "amount", "comment", "date", "profile", "transaction_type"))
+        for transaction in listTransactions:
+            transaction['date'] = timezone.localtime(transaction['date'])
         return JsonResponse({"search_transactions": listTransactions}, status=200)
 
 @login_required(login_url="/users/login/")
