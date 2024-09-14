@@ -32,14 +32,14 @@ Dashboard
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
-                            <h5 class="card-title fs-5 fw-normal text-secondary mb-3">Total Balance</h5>
-                            <p class="card-text fs-3 fw-semibold">${{ request.user.profile.total|floatformat:"-2"|intcomma }}</p>
+                            <h5 class="card-title fs-6 text-secondary mb-3">TOTAL BALANCE</h5>
+                            <p class="card-text fs-3 fw-semibold" id="totalBalance"></p>
                         </div>
                         <i class="lni lni-coin fs-3 bg-primary-subtle p-2 rounded text-primary"></i>
                     </div>
                     <div class="d-flex gap-3">
                         <p class="{% if percentTotal > 0 %}text-success{% elif percentTotal < 0 %}text-danger{% else %}text-secondary{% endif %} text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni {% if percentTotal > 0 %}lni-angle-double-up{% elif percentTotal < 0 %}lni-angle-double-down{% else %}lni-minus{% endif %}"></i> {{ percentTotal }}%</p>
-                        <p class="text-secondary fs-6 mb-0">Since {% if selected_date == 'today' %}yesterday{% elif selected_date == 'week' %}last week{% elif selected_date == 'month' %}last month{% else %}last year{% endif %} <span class="text-black-50">(${{ lastTotal }})</p>
+                        <p class="text-secondary fs-6 mb-0">Since {% if selected_date == 'today' %}yesterday{% elif selected_date == 'week' %}last week{% elif selected_date == 'month' %}last month{% else %}last year{% endif %} <span class="text-black-50" id="lastTotal"></p>
                     </div>
                 </div>
             </div>
@@ -47,14 +47,14 @@ Dashboard
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
-                            <h5 class="card-title fs-5 fw-normal text-secondary mb-3">Expenses</h5>
-                            <p class="card-text fs-3 fw-semibold">${{ expenses|floatformat:"-2"|intcomma }}</p>
+                            <h2 class="card-title fs-6 text-secondary mb-3">EXPENSES</h2>
+                            <p class="card-text fs-3 fw-semibold" id="expenses"></p>
                         </div>
                         <i class="lni lni-stats-down fs-3 bg-danger-subtle p-2 rounded text-danger"></i>
                     </div>
                     <div class="d-flex gap-3">
                         <p class="{% if percentExpenses > 0 %}text-success{% elif percentExpenses < 0 %}text-danger{% else %}text-secondary{% endif %} text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni {% if percentExpenses > 0 %}lni-angle-double-up{% elif percentExpenses < 0 %}lni-angle-double-down{% else %}lni-minus{% endif %}"></i> {{ percentExpenses }}%</p>
-                        <p class="text-secondary fs-6 mb-0">Since {% if selected_date == 'today' %}yesterday{% elif selected_date == 'week' %}last week{% elif selected_date == 'month' %}last month{% else %}last year{% endif %} <span class="text-black-50">(${{ lastExpenses }})</span></p>
+                        <p class="text-secondary fs-6 mb-0">Since {% if selected_date == 'today' %}yesterday{% elif selected_date == 'week' %}last week{% elif selected_date == 'month' %}last month{% else %}last year{% endif %} <span class="text-black-50" id="lastExpenses"></span></p>
                     </div>
                 </div>
             </div>
@@ -62,14 +62,14 @@ Dashboard
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
-                            <h5 class="card-title fs-5 fw-normal text-secondary mb-3">Income</h5>
-                            <p class="card-text fs-3 fw-semibold">${{ income|floatformat:"-2"|intcomma }}</p>
+                            <h5 class="card-title fs-6 text-secondary mb-3">INCOME</h5>
+                            <p class="card-text fs-3 fw-semibold" id="income"></p>
                         </div>
                         <i class="lni lni-stats-up fs-3 bg-success-subtle p-2 rounded text-success"></i>
                     </div>
                     <div class="d-flex gap-3">
                         <p class="{% if percentIncome > 0 %}text-success{% elif percentIncome < 0 %}text-danger{% else %}text-secondary{% endif %} text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni {% if percentIncome > 0 %}lni-angle-double-up{% elif percentIncome < 0 %}lni-angle-double-down{% else %}lni-minus{% endif %}"></i> {{ percentIncome }}%</p>
-                        <p class="text-secondary fs-6 mb-0">Since {% if selected_date == 'today' %}yesterday{% elif selected_date == 'week' %}last week{% elif selected_date == 'month' %}last month{% else %}last year{% endif %} <span class="text-black-50">(${{ lastIncome }})</span></p>
+                        <p class="text-secondary fs-6 mb-0">Since {% if selected_date == 'today' %}yesterday{% elif selected_date == 'week' %}last week{% elif selected_date == 'month' %}last month{% else %}last year{% endif %} <span class="text-black-50" id="lastIncome"></span></p>
                     </div>
                 </div>
             </div>
@@ -77,70 +77,97 @@ Dashboard
         <div class="graph" id="expenseIncomeChart" style="background-color: white; height=auto;"></div>
     </div>
 
-    <div class="mt-4 mb-4 d-flex justify-content-between align-items-center">
-        <div class="d-flex gap-3 align-items-center">
-            <h2 class="fs-5">Recently Added Transactions</h2>
-            <button class="btn btn-outline-danger d-none" id="dashboard_delete_transactions">Delete selected transactions</button>
+    <div id="recentContainer" class="mt-4 mb-4" style="background-color:white;">
+        <div class="pb-4 pt-4 px-4 d-flex justify-content-between align-items-center">
+            <div class="d-flex gap-3 align-items-center">
+                <h2 class="fs-6 text-secondary">RECENTLY ADDED TRANSACTIONS</h2>
+                <button class="btn btn-outline-danger d-none" id="dashboard_delete_transactions">Delete selected transactions</button>
+            </div>
+            <div >
+                <button type="button" id="quick_add_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#typeModelToggle">Add Transaction</button>
+            </div>
         </div>
-        <div >
-            <button type="button" id="quick_add_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#typeModelToggle">Add Transaction</button>
+
+        <div class="table-responsive px-2">
+            <table class="table table-sm">
+            <thead class="fs-6">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Comment</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody class="fs-6">
+            {% for transaction in recent_transactions %}
+                <tr>
+                <td class="align-middle text-left"><input type="checkbox" name="selected_transaction" id="{{ transaction.id }}" value="{{ transaction.id }}"></td>
+                <td class="align-middle text-left fw-bold {% if transaction.transaction_type == 'Expense' %}text-danger{% else %}text-success{% endif %}">{{ transaction.transaction_type }}</td>
+                <td class="align-middle text-left tableAmount">{{ transaction.amount }}</td>
+                <td class="align-middle text-left"><div class="d-flex align-items-center gap-2"><i class="lni {{ transaction.category.icon_tag }}"></i><div>{{ transaction.category }}</div></div></td>
+                <td class="align-middle text-left">{{ transaction.date|date:"b. d, Y"|capfirst }}</td>
+                <td class="align-middle text-left">{{ transaction.comment }}</td>
+                <td class="align-middle text-left">
+                    <button
+                        class="border-0 bg-white"
+                        id="edit_transaction"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editModalToggle"
+                        data-bs-id="{{ transaction.id }}"
+                        data-bs-type="{{ transaction.transaction_type }}"
+                        data-bs-amount="{{ transaction.amount }}"
+                        data-bs-category="{{ transaction.category }}"
+                        data-bs-date="{{ transaction.date|date:"Y-m-d\\TH:i" }}"
+                        data-bs-comment="{{ transaction.comment }}"
+                        data-bs-currency="{{ request.user.profile.currency }}"
+                    >
+                        <i class="lni lni-cog fs-5 mt-2"></i>
+                    </button>
+                </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table>
         </div>
+        <a href="{% url 'app:transactions' %}" class="btn btn-outline-primary mb-3 ms-2">View more</a>
     </div>
-
-    {% include 'partials/_transaction_modal.html' %}
-    {% include 'partials/_edit_modal.html' %}
-
-
-
-    <div class="table-responsive small">
-        <table class="table table-light table-striped table-sm">
-        <thead class="fs-6">
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Type</th>
-                <th scope="col">Amount</th>
-                <th scope="col">Category</th>
-                <th scope="col">Date</th>
-                <th scope="col">Comment</th>
-                <th scope="col"></th>
-            </tr>
-        </thead>
-        <tbody class="fs-6">
-        {% for transaction in recent_transactions %}
-            <tr>
-            <td class="align-middle text-left"><input type="checkbox" name="selected_transaction" id="{{ transaction.id }}" value="{{ transaction.id }}"></td>
-            <td class="align-middle text-left fw-bold {% if transaction.transaction_type == 'Expense' %}text-danger{% else %}text-success{% endif %}">{{ transaction.transaction_type }}</td>
-            <td class="align-middle text-left">{{ transaction.amount }}</td>
-            <td class="align-middle text-left"><div class="d-flex align-items-center gap-2"><i class="lni {{ transaction.category.icon_tag }}"></i><div>{{ transaction.category }}</div></div></td>
-            <td class="align-middle text-left">{{ transaction.date|date:"b. d, Y"|capfirst }}</td>
-            <td class="align-middle text-left">{{ transaction.comment }}</td>
-            <td class="align-middle text-left">
-                <button
-                    class="border-0"
-                    id="edit_transaction"
-                    data-bs-toggle="modal"
-                    data-bs-target="#editModalToggle"
-                    data-bs-id="{{ transaction.id }}"
-                    data-bs-type="{{ transaction.transaction_type }}"
-                    data-bs-amount="{{ transaction.amount }}"
-                    data-bs-category="{{ transaction.category }}"
-                    data-bs-date="{{ transaction.date|date:"Y-m-d\\TH:i" }}"
-                    data-bs-comment="{{ transaction.comment }}"
-                >
-                    <i class="lni lni-cog fs-5 mt-2"></i>
-                </button>
-            </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-        </table>
-    </div>
-
-    <a href="{% url 'app:transactions' %}" class="btn btn-outline-primary mb-3">View more</a>
 </main>
 {% endblock %}
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="{% static 'js/dashboard.js' %}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        async function initializePage() {
+            try {
+                const totalBalance = await convertCurrency("{{ request.user.profile.total }}", 'USD', userCurrency);
+                document.getElementById('totalBalance').textContent = `${formatCurrency(totalBalance, userCurrency)}`;
+                const lastTotal = await convertCurrency("{{ lastTotal }}", 'USD', userCurrency);
+                document.getElementById('lastTotal').textContent = `(${formatCurrency(lastTotal, userCurrency)})`;
+
+                const expenses = await convertCurrency("{{ expenses }}", 'USD', userCurrency);
+                document.getElementById('expenses').textContent = `${formatCurrency(expenses, userCurrency)}`;
+                const lastExpenses = await convertCurrency("{{ lastExpenses }}", 'USD', userCurrency);
+                document.getElementById('lastExpenses').textContent = `(${formatCurrency(lastExpenses, userCurrency)})`;
+
+                const income = await convertCurrency("{{ income }}", 'USD', userCurrency);
+                document.getElementById('income').textContent = `${formatCurrency(income, userCurrency)}`;
+                const lastIncome = await convertCurrency("{{ lastIncome }}", 'USD', userCurrency);
+                document.getElementById('lastIncome').textContent = `(${formatCurrency(lastIncome, userCurrency)})`;
+                const tableAmounts = document.querySelectorAll(".tableAmount");
+                for(let amount of tableAmounts) {
+                    const convertedAmount = await convertCurrency(amount.innerText, "USD", userCurrency);
+                    amount.textContent = `${formatCurrency(convertedAmount, userCurrency)}`;
+                }
+            } catch(err) {
+                console.error("Error initializing page: ", err);
+            }
+        }
+        initializePage();
+    });
+</script>
 {% endblock %}

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -8,10 +9,12 @@ from users.models import Profile
 import json
 import calendar
 from collections import defaultdict
-from django.http import JsonResponse, HttpResponseRedirect
-from django.urls import reverse
+from django.http import JsonResponse
 from django.utils import timezone
 from .models import Transaction, Category, Icon
+from django.core.cache import cache
+import requests
+from django.db.models import Q
 
 # Create your views here.
 @login_required(login_url="/users/login/")
@@ -236,7 +239,7 @@ def dashboard_get_chart(request):
 
                 start = start + relativedelta(months=1)
 
-        return JsonResponse({"categories": categories, "expenses": expenses, "income": income})
+        return JsonResponse({"categories": categories, "expenses": expenses, "income": income, "currency": request.user.profile.currency})
 
 @login_required(login_url="/users/login/")
 def set_date_range(request):
@@ -481,7 +484,11 @@ def search_transactions(request):
         data = json.loads(request.body)
         search_text = data["searchText"]
         transactions = Transaction.objects.filter(
-            profile=request.user.profile, date__range=(start, end), amount__istartswith=search_text) | Transaction.objects.filter(
+            Q(amount__gte=search_text - 1) & Q(amount__lte=search_text + 1), profile=request.user.profile, date__range=(start, end)) | Transaction.objects.filter(
+            profile=request.user.profile, date__range=(start, end), date__icontains=search_text) | Transaction.objects.filter(
+            profile=request.user.profile, date__range=(start, end), transaction_type__icontains=search_text) | Transaction.objects.filter(
+            profile=request.user.profile, date__range=(start, end), category__title__icontains=search_text) | Transaction.objects.filter(
+            profile=request.user.profile, date__range=(start, end), comment__icontains=search_text) if not isinstance(search_text, str) else Transaction.objects.filter(
             profile=request.user.profile, date__range=(start, end), date__icontains=search_text) | Transaction.objects.filter(
             profile=request.user.profile, date__range=(start, end), transaction_type__icontains=search_text) | Transaction.objects.filter(
             profile=request.user.profile, date__range=(start, end), category__title__icontains=search_text) | Transaction.objects.filter(
@@ -571,6 +578,7 @@ def transactions_view(request):
 
 @login_required(login_url="/users/login/")
 def categories_view(request):
+    current_day = datetime.now().strftime('%Y-%m-%dT%H:%M')
     defaultExpenseCategories = Category.objects.filter(category_type="Expense").filter(default_category="True")
     userExpenseCategories = Category.objects.filter(category_type="Expense").filter(profile=request.user.profile)
     defaultIncomeCategories = Category.objects.filter(category_type="Income").filter(default_category="True")
@@ -582,6 +590,7 @@ def categories_view(request):
         "defaultIncomeCategories": defaultIncomeCategories,
         "userIncomeCategories": userIncomeCategories,
         "icons": icons,
+        "current_day": current_day,
     })
 
 @login_required(login_url="/users/login/")
@@ -623,3 +632,60 @@ def delete_category(request):
         category.delete()
 
         return JsonResponse({'message': "Category deleted successfully."}, status=200)
+
+@login_required(login_url="/users/login/")
+def settings_view(request):
+    current_day = datetime.now().strftime('%Y-%m-%dT%H:%M')
+    if request.method == "POST":
+        if "changeCurrency" in request.POST:
+            profile = Profile.objects.get(user=request.user)
+            profile.currency = request.POST["changeCurrency"]
+            profile.save()
+            return redirect("app:settings")
+    return render(request, "app/settings.html", {
+        "userCurrency": request.user.profile.currency,
+        "current_day": current_day,
+    })
+
+@login_required(login_url="/users/login/")
+def change_pfp(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        profile = Profile.objects.get(user=request.user)
+        profile.pfpUrl = data["pfpUrl"]
+        profile.save()
+        return JsonResponse({"message": "Profile picture changed"}, status=200)
+
+
+@login_required(login_url="/users/login/")
+def get_rates(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        cache_key = f'{data["baseCurrency"]}_to_{data["targetCurrency"]}'
+        rate = cache.get(cache_key)
+
+        if rate is None:
+            try:
+                print(f"Caching {cache_key}")
+                response = None
+                rate = None
+                if data["baseCurrency"] != "USD":
+                    response = requests.get(f"https://openexchangerates.org/api/latest.json?app_id=ec93562b949240d2b2172ef74a2d8cf9&base={data["targetCurrency"]}")
+                    rate = 1/response.json()['rates'].get(data["baseCurrency"])
+                else:
+                    response = requests.get(f"https://openexchangerates.org/api/latest.json?app_id=ec93562b949240d2b2172ef74a2d8cf9&base={data["baseCurrency"]}")
+                    rate = response.json()['rates'].get(data["targetCurrency"])
+                if rate is not None:
+                    cache.set(cache_key, rate, timeout=604800)
+            except requests.exceptions.RequestException as e:
+                print(f"Error fetching rate: {e}")
+
+        return JsonResponse({"targetCurrencyRate": rate})
+
+@login_required(login_url="/users/login/")
+def delete_user(request):
+    if request.method == "POST":
+        user = User.objects.get(id=request.user.id)
+        user.delete()
+        return redirect("landing:landing")

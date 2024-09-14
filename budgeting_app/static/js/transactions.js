@@ -155,62 +155,14 @@ dashboard_delete_transactions.addEventListener("click", () => {
     })
 })
 
-//EDIT TRANSACTIONS
-const editModal = document.getElementById("editModalToggle");
-let openedOnce = false;
-
-if(editModal) {
-    editModal.addEventListener("show.bs.modal", e => {
-        if(!openedOnce) document.getElementById("modal-body").innerHTML += `<input type="hidden" name="path" id="path" value="transactions">`;
-
-        const button = e.relatedTarget;
-        const id = button.getAttribute("data-bs-id");
-        const type = button.getAttribute("data-bs-type");
-        const amount = button.getAttribute("data-bs-amount");
-        const category = button.getAttribute("data-bs-category");
-        const date = button.getAttribute("data-bs-date");
-        const comment = button.getAttribute("data-bs-comment");
-
-        const idInput = editModal.querySelector("#id");
-        const typeInput = editModal.querySelector("#transaction_type");
-        const amountInput = editModal.querySelector("#amount");
-        const categoryInput = editModal.querySelector("#category");
-        const dateInput = editModal.querySelector("#date");
-        const commentInput = editModal.querySelector("#comment");
-
-        fetch("/app/dashboard-get-categories", {
-            body: JSON.stringify({ category_type: type }),
-            method: "POST",
-        })
-        .then(res => res.json())
-        .then(data => {
-            data.categories.forEach(category => {
-                categoryInput.innerHTML += `<option value="${category.title}">${category.title}</option>`
-            })
-            if(category=="Uncategorized") {
-                categoryInput.value = "Choose a category";
-            }
-            else {
-                categoryInput.value = category;
-            }
-        })
-
-        idInput.value = id;
-        typeInput.value = type;
-        amountInput.value = amount;
-        dateInput.value = date;
-        commentInput.value = comment;
-
-        openedOnce = true;
-    })
-
-    editModal.addEventListener("hide.bs.modal", e => {
-        const categoryInput = editModal.querySelector("#category");
-        categoryInput.innerHTML = `<option selected>Choose a category</option>`
-    })
+// CHART
+function formatNumber(amount) {
+    return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+    }).format(amount);
 }
 
-// CHART
 async function fetchChartData() {
     const response = await fetch("/app/get-pie-chart", {
                     method: "POST",
@@ -334,6 +286,67 @@ tableSearch.style.display = 'none';
 noResults.style.display = 'none';
 let debounceTimeout;
 
+async function convertSearchAmount(search_transactions) {
+    for(let item of search_transactions) {
+        const dateObj = new Date(item.date);
+        console.log(item.date.slice(0, -6));
+        const parts = dateObj.toLocaleDateString('en-US', {year: 'numeric',month: 'short',day: '2-digit'}).split(' ');
+        const formattedDate = `${parts[0]}. ${parts[1]} ${parts[2]}`;
+        const convertedAmount = await convertCurrency(item.amount, 'USD', userCurrency);
+        let formattedAmount = formatCurrency(convertedAmount, userCurrency);
+        searchBody.innerHTML += `
+            <tr>
+            <td class="align-middle text-left"><input type="checkbox" name="selected_transaction" id="${item.id}" value="${item.id}"></td>
+            <td class="align-middle text-left fw-bold ${item.transaction_type=="Expense" ? "text-danger" : "text-success"}">${item.transaction_type}</td>
+            <td class="align-middle text-left">${formattedAmount}</td>
+            <td class="align-middle text-left"><div class="d-flex align-items-center gap-2"><i class="lni ${item.category__icon_tag}"></i><div>${item.category__title}</div></div></td>
+            <td class="align-middle text-left">${formattedDate}</td>
+            <td class="align-middle text-left">${item.comment}</td>
+            <td class="align-middle text-left">
+                <button
+                    class="border-0 bg-white"
+                    id="edit_transaction"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editModalToggle"
+                    data-bs-id="${item.id}"
+                    data-bs-type="${item.transaction_type}"
+                    data-bs-amount="${item.amount}"
+                    data-bs-category="${item.category__title}"
+                    data-bs-date="${item.date.slice(0, -6)}"
+                    data-bs-comment="${item.comment}"
+                    data-bs-currency="${userCurrency}"
+                >
+                    <i class="lni lni-cog fs-5 mt-2"></i>
+                </button>
+            </td>
+            </tr>
+        `
+    }
+}
+
+async function handleSearchConversion(searchValue) {
+    const convertedAmount = await convertCurrency(searchValue, userCurrency, 'USD');
+    formattedAmount = formatNumber(convertedAmount);
+    console.log(parseFloat(formattedAmount.toString().slice(0, searchValue.length)));
+
+    fetch("/app/search-transactions", {
+        body: JSON.stringify({ searchText: parseFloat(formattedAmount.toString().slice(0, searchValue.length)) }),
+        method: "POST",
+    })
+    .then(res => res.json())
+    .then(data => {
+        tableMain.style.display = 'none';
+        tableSearch.style.display = 'block';
+        if(data.search_transactions.length === 0) {
+            tableSearch.style.display = 'none';
+            noResults.style.display = 'block';
+        } else {
+            noResults.style.display = 'none';
+            convertSearchAmount(data.search_transactions);
+        }
+    })
+}
+
 searchInput.addEventListener("keyup", (e) => {
     clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(() => {
@@ -349,53 +362,27 @@ searchInput.addEventListener("keyup", (e) => {
             if(searchValue.trim().length>0) {
                 paginationContainer.style.display = 'none';
                 searchBody.innerHTML = "";
-                fetch("/app/search-transactions", {
-                    body: JSON.stringify({ searchText: searchValue }),
-                    method: "POST",
-                })
-                .then(res => res.json())
-                .then(data => {
-                    tableMain.style.display = 'none';
-                    tableSearch.style.display = 'block';
-                    if(data.search_transactions.length === 0) {
-                        tableSearch.style.display = 'none';
-                        noResults.style.display = 'block';
-                    } else {
-                        noResults.style.display = 'none';
-                        data.search_transactions.forEach(item => {
-                            const dateObj = new Date(item.date);
-                            console.log(item.date.slice(0, -6));
-                            const parts = dateObj.toLocaleDateString('en-US', {year: 'numeric',month: 'short',day: '2-digit'}).split(' ');
-                            const formattedDate = `${parts[0]}. ${parts[1]} ${parts[2]}`;
-                            searchBody.innerHTML += `
-                                <tr>
-                                <td class="align-middle text-left"><input type="checkbox" name="selected_transaction" id="${item.id}" value="${item.id}"></td>
-                                <td class="align-middle text-left fw-bold ${item.transaction_type=="Expense" ? "text-danger" : "text-success"}">${item.transaction_type}</td>
-                                <td class="align-middle text-left">${item.amount}</td>
-                                <td class="align-middle text-left"><div class="d-flex align-items-center gap-2"><i class="lni ${item.category__icon_tag}"></i><div>${item.category__title}</div></div></td>
-                                <td class="align-middle text-left">${formattedDate}</td>
-                                <td class="align-middle text-left">${item.comment}</td>
-                                <td class="align-middle text-left">
-                                    <button
-                                        class="border-0 bg-white"
-                                        id="edit_transaction"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editModalToggle"
-                                        data-bs-id="${item.id}"
-                                        data-bs-type="${item.transaction_type}"
-                                        data-bs-amount="${item.amount}"
-                                        data-bs-category="${item.category__title}"
-                                        data-bs-date="${item.date.slice(0, -6)}"
-                                        data-bs-comment="${item.comment}"
-                                    >
-                                        <i class="lni lni-cog fs-5 mt-2"></i>
-                                    </button>
-                                </td>
-                                </tr>
-                            `
-                        })
-                    }
-                })
+                if(!isNaN(searchValue)) {
+                    handleSearchConversion(searchValue);
+                }
+                else {
+                    fetch("/app/search-transactions", {
+                        body: JSON.stringify({ searchText: searchValue }),
+                        method: "POST",
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        tableMain.style.display = 'none';
+                        tableSearch.style.display = 'block';
+                        if(data.search_transactions.length === 0) {
+                            tableSearch.style.display = 'none';
+                            noResults.style.display = 'block';
+                        } else {
+                            noResults.style.display = 'none';
+                            convertSearchAmount(data.search_transactions);
+                        }
+                    })
+                }
             }
             else {
                 tableMain.style.display = 'block';

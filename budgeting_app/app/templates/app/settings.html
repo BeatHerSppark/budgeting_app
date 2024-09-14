@@ -1,0 +1,63 @@
+{% extends 'app/layout.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}
+Settings
+{% endblock %}
+
+{% block content %}
+<main class="main px-md-5">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-4">
+        <h1 class="fs-4">Settings</h1>
+    </div>
+    <div class="pb-1 mb-2 border-bottom">
+        <p></p>
+    </div>
+
+    {% include 'partials/_delete_account_modal.html' %}
+
+    <div class="card shadow-sm p-2 mt-4" style="width: 100%;">
+        <div class="card-body">
+            <h5 class="card-title fs-6 fw-normal text-secondary">Change currency:</h5>
+            <form action="{% url "app:settings" %}" method="post">
+                {% csrf_token %}
+                <select class="form-select" id="changeCurrency" name="changeCurrency" aria-label="Change currency">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="MKD">MKD</option>
+                </select>
+                <button class="btn btn-primary mt-3" style="width: auto;">Save changes</button>
+            </form>
+        </div>
+    </div>
+    <div class="card shadow-sm p-2 mt-4" style="width: 100%;">
+        <div class="card-body">
+            <h5 class="card-title fs-6 fw-normal text-secondary">Change profile picture:</h5>
+            <div id="pfpChoices" class="d-flex flex-wrap gap-2 mt-4">
+                <img src="https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg" class="rounded-circle" alt="default" style="width:100px; height:100px;" data-bs-url="https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg">
+                <img src="https://i.imgur.com/a9G4sTF.png" class="rounded-circle" alt="donkey" style="width:100px; height:100px;" data-bs-url="https://i.imgur.com/a9G4sTF.png">
+                <img src="https://i.imgur.com/wBQvZFG.png" class="rounded-circle" alt="monkey" style="width:100px; height:100px;" data-bs-url="https://i.imgur.com/wBQvZFG.png">
+                <img src="https://i.imgur.com/hUnrPAQ.png" class="rounded-circle" alt="hawk" style="width:100px; height:100px;" data-bs-url="https://i.imgur.com/hUnrPAQ.png">
+                <img src="https://i.imgur.com/siodzVS.png" class="rounded-circle" alt="lemur" style="width:100px; height:100px;" data-bs-url="https://i.imgur.com/siodzVS.png">
+            </div>
+            <button class="btn btn-primary mt-4" id="savePfp" disabled>Save changes</button>
+        </div>
+    </div>
+    <div class="card shadow-sm p-2 mt-4" style="width: 100%;">
+        <div class="card-body">
+            <h5 class="card-title fs-6 fw-bold">DANGER ZONE!</h5>
+            <p class="text-secondary" style="width:40%;">By deleting your account, you will delete all your transactions and custom categories you've created.</p>
+            <button class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">Delete entire account</button>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const changeCurrency = document.getElementById("changeCurrency");
+    changeCurrency.value = userCurrency;
+</script>
+<script src="{% static 'js/settings.js' %}"></script>
+{% endblock %}

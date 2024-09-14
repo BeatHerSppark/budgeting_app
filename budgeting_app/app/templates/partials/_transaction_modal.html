@@ -29,9 +29,17 @@
           {% csrf_token %}
           <div class="modal-body">
               <input type="hidden" name="transaction_type" value="Expense">
-              <div class="form-floating mb-3">
-                  <input class="form-control" type="number" name="amount" id="amount">
-                  <label for="amount">Amount</label>
+              <div class="d-flex align-items-center gap-2">
+                <select class="form-select" id="currencyExpense" name="currency" aria-label="Choose currency" style="width: auto;">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="MKD">MKD</option>
+                </select>
+                <div class="form-floating mb-3" style="width: 100%;">
+                    <input class="form-control" type="number" step="0.01" name="shownAmount" id="shownAmountExpense">
+                    <label for="shownAmountExpense">Amount</label>
+                </div>
+                <input class="form-control" type="hidden" step="0.01" name="amount" id="amountExpense">
               </div>
 
               <div class="form-floating mb-3">
@@ -77,13 +85,21 @@
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="{% url 'app:dashboard' %}" method="post">
+      <form action="{% if request.path == "/app/"  %}{% url 'app:dashboard' %}{% else %}{% url 'app:transactions' %}{% endif %}" method="post">
           {% csrf_token %}
           <div class="modal-body">
               <input type="hidden" name="transaction_type" value="Income">
-              <div class="form-floating mb-3">
-                  <input class="form-control" type="number" name="amount" id="amount">
-                  <label for="amount">Amount</label>
+              <div class="d-flex align-items-center gap-2">
+                <select class="form-select" id="currencyIncome" name="currency" aria-label="Choose currency" style="width: auto;">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="MKD">MKD</option>
+                </select>
+                <div class="form-floating mb-3" style="width: 100%;">
+                    <input class="form-control" type="number" step="0.01" name="shownAmount" id="shownAmountIncome">
+                    <label for="shownAmountIncome">Amount</label>
+                </div>
+                <input class="form-control" type="hidden" step="0.01" name="amount" id="amountIncome">
               </div>
 
               <div class="form-floating mb-3">

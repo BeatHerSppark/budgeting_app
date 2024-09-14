@@ -135,8 +135,8 @@ a.sidebar-link:hover {
 }
 
 .sidebar-link img {
-    width: 24px;
-    border-radius: 50%;
+    width: 32px;
+    border-radius: 45%;
     margin-right: 0.75rem;
 }
 
@@ -156,6 +156,9 @@ a.sidebar-link:hover {
     padding-bottom: 0.5rem;
     transition: all 0.2s;
 }
+.dropdown-item:hover {
+    cursor: pointer;
+}
 
 @media (max-width: 1150px) {
     #sidebar {
@@ -173,6 +176,9 @@ a.sidebar-link:hover {
 
     .progress_container {
         display: block;
+    }
+    .sidebar-link img {
+        width: 24px;
     }
 }
 
@@ -243,5 +249,9 @@ textarea {
 }
 
 #iconsContainer .icon:hover {
+    cursor: pointer;
+}
+
+#pfpChoices .rounded-circle:hover {
     cursor: pointer;
 }

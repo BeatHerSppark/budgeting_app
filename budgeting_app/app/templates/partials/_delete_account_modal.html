@@ -1,0 +1,26 @@
+<div class="modal fade" id="deleteAccountModal" aria-hidden="true" aria-labelledby="deleteAccountModalLabel" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        <div class="modal-header d-flex align-items-center justify-content-between">
+            <h1 class="modal-title fs-5" id="deleteAccountModalLabel">Are you sure you want to go? 😢</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <div class="modal-body px-4" id="modal-body">
+                <p>By deleting your account, you will lose access to:</p>
+                <ul>
+                    <li style="list-style: disc;">Your personalized settings and preferences</li>
+                    <li style="list-style: disc;">All transactions and custom-made categories</li>
+                    <li style="list-style: disc;">All logs and graphs with your data</li>
+                </ul>
+                <p>Remember, once you delete your account, there's no going back. 😔</p>
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+                <form method="post" action="{% url 'app:delete_user' %}">
+                    {% csrf_token %}
+                    <button class="btn btn-danger" id="deleteAccount">Delete forever</button>
+                </form>
+                <button class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close">Keep my account</button>
+            </div>
+        </div>
+    </div>
+</div>

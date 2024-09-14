@@ -8,6 +8,7 @@ Transactions
 
 {% block content %}
 <main class="main px-md-5">
+    {% include 'partials/_messages.html' %}
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-4">
         <h1 class="fs-4">Transactions</h1>
     </div>
@@ -16,7 +17,7 @@ Transactions
     </div>
 
     <div class="mt-4 mb-4 d-flex justify-content-between align-items-center">
-        <h2 class="fs-5">Overview</h2>
+        <h2 class="fs-5">Summary</h2>
         <div class="dates d-flex gap-2">
             <button id="todayBtn" class="btn {% if selected_date == 'today' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">Today</button>
             <button id="weekBtn" class="btn {% if selected_date == 'week' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">This week</button>
@@ -30,21 +31,21 @@ Transactions
         <div class="card shadow-sm p-2" style="width: 100%;">
             <div class="card-body text-center">
                 <i class="lni lni-coin fs-3 p-2 rounded text-secondary"></i>
-                <p class="card-text text-secondary fs-3 fw-semibold mb-1">${{ request.user.profile.total|floatformat:"-2"|intcomma }}</p>
+                <p class="card-text text-secondary fs-3 fw-semibold mb-1" id="totalBalance"></p>
                 <h5 class="card-title fs-6 fw-normal text-secondary">Total</h5>
             </div>
         </div>
         <div class="card shadow-sm p-2" style="width: 100%;">
             <div class="card-body text-center">
                 <i class="lni lni-stats-down fs-3 p-2 rounded text-secondary"></i>
-                <p class="card-text text-secondary fs-3 fw-semibold mb-1">${{ expenses }}</p>
+                <p class="card-text text-secondary fs-3 fw-semibold mb-1" id="expenses"></p>
                 <h5 class="card-title fs-6 fw-normal text-secondary">Expenses <span class="text-black-50">{% if selected_date == 'today' %}(Today){% elif selected_date == 'week' %}(This week){% elif selected_date == 'month' %}(This month){% else %}(This year){% endif %}</span></h5>
             </div>
         </div>
         <div class="card shadow-sm p-2" style="width: 100%;">
             <div class="card-body text-center">
                 <i class="lni lni-stats-up fs-3 p-2 rounded text-secondary"></i>
-                <p class="card-text text-secondary fs-3 fw-semibold mb-1">${{ income }}</p>
+                <p class="card-text text-secondary fs-3 fw-semibold mb-1" id="income"></p>
                 <h5 class="card-title fs-6 fw-normal text-secondary">Income <span class="text-black-50">{% if selected_date == 'today' %}(Today){% elif selected_date == 'week' %}(This week){% elif selected_date == 'month' %}(This month){% else %}(This year){% endif %}</span></h5>
             </div>
         </div>
@@ -59,9 +60,6 @@ Transactions
             </div>
         </div>
     </div>
-
-    {% include 'partials/_transaction_page_modals.html' %}
-    {% include 'partials/_edit_modal.html' %}
 
     <div class="d-flex flex-row flex-lg-row flex-column gap-4 mt-4 mb-4">
         <div class="d-flex flex-column">
@@ -112,7 +110,7 @@ Transactions
                     <tr>
                     <td class="align-middle text-left"><input type="checkbox" name="selected_transaction" id="{{ transaction.id }}" value="{{ transaction.id }}"></td>
                     <td class="align-middle text-left fw-bold {% if transaction.transaction_type == 'Expense' %}text-danger{% else %}text-success{% endif %}">{{ transaction.transaction_type }}</td>
-                    <td class="align-middle text-left">{{ transaction.amount }}</td>
+                    <td class="align-middle text-left tableAmount">{{ transaction.amount }}</td>
                     <td class="align-middle text-left"><div class="d-flex align-items-center gap-2"><i class="lni {{ transaction.category.icon_tag }}"></i><div>{{ transaction.category }}</div></div></td>
                     <td class="align-middle text-left">{{ transaction.date|date:"b. d, Y"|capfirst }}</td>
                     <td class="align-middle text-left">{{ transaction.comment }}</td>
@@ -128,6 +126,7 @@ Transactions
                             data-bs-category="{{ transaction.category }}"
                             data-bs-date="{{ transaction.date|date:"Y-m-d\\TH:i" }}"
                             data-bs-comment="{{ transaction.comment }}"
+                            data-bs-currency="{{ request.user.profile.currency }}"
                         >
                             <i class="lni lni-cog fs-5 mt-2"></i>
                         </button>
@@ -179,4 +178,28 @@ Transactions
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="{% static 'js/transactions.js' %}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        async function initializePage() {
+            try {
+                const totalBalance = await convertCurrency("{{ request.user.profile.total }}", 'USD', userCurrency);
+                document.getElementById('totalBalance').textContent = `${formatCurrency(totalBalance, userCurrency)}`;
+
+                const expenses = await convertCurrency("{{ expenses }}", 'USD', userCurrency);
+                document.getElementById('expenses').textContent = `${formatCurrency(expenses, userCurrency)}`;
+
+                const income = await convertCurrency("{{ income }}", 'USD', userCurrency);
+                document.getElementById('income').textContent = `${formatCurrency(income, userCurrency)}`;
+                const tableAmounts = document.querySelectorAll(".tableAmount");
+                for(let amount of tableAmounts) {
+                    const convertedAmount = await convertCurrency(amount.innerText, "USD", userCurrency);
+                    amount.textContent = `${formatCurrency(convertedAmount, userCurrency)}`;
+                }
+            } catch(err) {
+                console.error("Error initializing page: ", err);
+            }
+        }
+        initializePage();
+    });
+</script>
 {% endblock %}

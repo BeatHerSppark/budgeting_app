@@ -22,5 +22,9 @@ urlpatterns = [
     path('set-sort-date', csrf_exempt(views.set_sort_date), name="set_sort_date"),
     path('set-sort-amount', csrf_exempt(views.set_sort_amount), name="set_sort_amount"),
     path('search-transactions', csrf_exempt(views.search_transactions), name="search_transactions"),
-    path('get-expenses', csrf_exempt(views.get_expenses), name="get_expenses")
+    path('get-expenses', csrf_exempt(views.get_expenses), name="get_expenses"),
+    path('settings', views.settings_view, name="settings"),
+    path('get-rates', csrf_exempt(views.get_rates), name="get_rates"),
+    path('change-pfp', csrf_exempt(views.change_pfp), name="change_pfp"),
+    path('delete_user', views.delete_user, name="delete_user")
 ]

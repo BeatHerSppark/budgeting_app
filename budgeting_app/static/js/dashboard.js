@@ -138,60 +138,16 @@ dashboard_delete_transactions.addEventListener("click", () => {
     })
 })
 
-// EDITING TRANSACTIONS
-const editModal = document.getElementById("editModalToggle");
-let openedOnce = false;
-if(editModal) {
-    editModal.addEventListener("show.bs.modal", e => {
-        if(!openedOnce) document.getElementById("modal-body").innerHTML += `<input type="hidden" name="path" id="path" value="dashboard">`;
-
-        const button = e.relatedTarget;
-        const id = button.getAttribute("data-bs-id");
-        const type = button.getAttribute("data-bs-type");
-        const amount = button.getAttribute("data-bs-amount");
-        const category = button.getAttribute("data-bs-category");
-        const date = button.getAttribute("data-bs-date");
-        const comment = button.getAttribute("data-bs-comment");
-
-        const idInput = editModal.querySelector("#id");
-        const typeInput = editModal.querySelector("#transaction_type");
-        const amountInput = editModal.querySelector("#amount");
-        const categoryInput = editModal.querySelector("#category");
-        const dateInput = editModal.querySelector("#date");
-        const commentInput = editModal.querySelector("#comment");
-
-        fetch("/app/dashboard-get-categories", {
-            body: JSON.stringify({ category_type: type }),
-            method: "POST",
-        })
-        .then(res => res.json())
-        .then(data => {
-            data.categories.forEach(category => {
-                categoryInput.innerHTML += `<option value="${category.title}">${category.title}</option>`
-            })
-            if(category=="Uncategorized") {
-                categoryInput.value = "Choose a category";
-            }
-            else {
-                categoryInput.value = category;
-            }
-        })
-
-        idInput.value = id;
-        typeInput.value = type;
-        amountInput.value = amount;
-        dateInput.value = date;
-        commentInput.value = comment;
-        openedOnce = true;
-    })
-
-    editModal.addEventListener("hide.bs.modal", e => {
-        const categoryInput = editModal.querySelector("#category");
-        categoryInput.innerHTML = `<option selected>Choose a category</option>`
-    })
-}
-
 // EXPENSE VS INCOME CHART
+function formatNumber(amount) {
+    if(userCurrency == "MKD") {
+        amount = Math.round(amount);
+    }
+    return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+    }).format(amount);
+}
 async function fetchChartData() {
     const response = await fetch("/app/dashboard-get-chart", {
                     method: "POST",
@@ -202,6 +158,13 @@ async function fetchChartData() {
     let incomeData = data.income;
     let expensesData = data.expenses;
     let categories = data.categories;
+
+    for(let i=0; i<incomeData.length; i++) {
+        convertedIncome = await convertCurrency(incomeData[i], 'USD', data.currency);
+        incomeData[i] = formatNumber(convertedIncome);
+        convertedExpense = await convertCurrency(expensesData[i], 'USD', data.currency);
+        expensesData[i] = formatNumber(convertedExpense);
+    }
 
     updateChart(incomeData, expensesData, categories);
 }
