@@ -5,6 +5,9 @@ Login
 {% endblock %}
 
 {% block content %}
+<div class="mobilehead d-block d-lg-none w-100 text-center py-4">
+    <h6 class="text-white mb-0"><span class="yellow_text">Welcome back!</span> Ready to continue building your financial freedom?</h6>
+</div>
 <main class="form-signin w-100 m-auto">
     {% if form.errors %}
         <div class="alert alert-danger" role="alert">
@@ -37,6 +40,18 @@ Login
         <a href="{% url 'users:register' %}" class="link-offset-2 text-secondary">Don't have an account?</a>
     </form>
 </main>
+
+<div class="sidehalf d-none d-lg-flex align-items-center">
+    <div class="container d-flex gap-4 align-items-center px-5">
+        <div class="sidehalf__text text-white">
+            <h1 class="mb-4"><span class="yellow_text">Welcome back!</span> Ready to continue building your financial freedom?</h1>
+            <p>Log in to track your progress, manage your budgets, and stay on top of your financial goals. Your future is just a click away!</p>
+        </div>
+        <div>
+            <img src="{% static 'css/reglog_savings.svg' %}" alt="">
+        </div>
+    </div>
+</div>
 
 <script src="{% static 'js/login.js' %}"></script>
 {% endblock %}

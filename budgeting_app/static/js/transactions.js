@@ -156,7 +156,7 @@ dashboard_delete_transactions.addEventListener("click", () => {
 })
 
 // CHART
-function formatNumber(amount) {
+function formatNumberTrans(amount) {
     return new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 2
@@ -183,7 +183,6 @@ const updateChartExpense = (expenseCategoryTitles, expenseCategoryValues) => {
     if(expenseCategoryTitles.length>0) {
         var options = {
             chart: {
-                height: '350px',
                 type: 'donut',
             },
             series: expenseCategoryValues,
@@ -199,7 +198,6 @@ const updateChartExpense = (expenseCategoryTitles, expenseCategoryValues) => {
     else {
         var options = {
             chart: {
-                height: '350px',
                 type: 'donut',
             },
             series: [100],
@@ -219,7 +217,6 @@ const updateChartIncome = (incomeCategoryTitles, incomeCategoryValues) => {
     if(incomeCategoryTitles.length>0) {
         var options = {
             chart: {
-                height: '350px',
                 type: 'donut',
             },
             series: incomeCategoryValues,
@@ -235,7 +232,6 @@ const updateChartIncome = (incomeCategoryTitles, incomeCategoryValues) => {
     else {
         var options = {
             chart: {
-                height: '350px',
                 type: 'donut',
             },
             series: [100],
@@ -326,7 +322,7 @@ async function convertSearchAmount(search_transactions) {
 
 async function handleSearchConversion(searchValue) {
     const convertedAmount = await convertCurrency(searchValue, userCurrency, 'USD');
-    formattedAmount = formatNumber(convertedAmount);
+    formattedAmount = formatNumberTrans(convertedAmount);
     console.log(parseFloat(formattedAmount.toString().slice(0, searchValue.length)));
 
     fetch("/app/search-transactions", {

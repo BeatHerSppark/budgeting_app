@@ -155,21 +155,62 @@ if(editModal) {
 }
 
 // EDIT BUDGET
+const editBudgetModal = document.getElementById("editBudgetModal");
 const editBudgetBtn = document.getElementById("editBudgetBtn");
 const budgetInput = document.getElementById("budget");
+const editModalBtn = document.getElementById("editBudget");
+let openedBudget = false;
 
-editBudgetBtn.addEventListener("click", ()=> {
-    if(budgetInput.value) {
-        fetch("/app/edit-budget", {
-            body: JSON.stringify({
-                budget: budgetInput.value,
-            }),
-            method: "POST",
-        })
-        .then(res => res.json())
-        .then(data => location.reload())
-    }
-})
+if(editBudgetModal) {
+    editBudgetModal.addEventListener("show.bs.modal", async e => {
+        let budget = editModalBtn.getAttribute("data-bs-budget");
+        const currency = editModalBtn.getAttribute("data-bs-currency");
+        let shownBudget = await convertCurrency(budget, 'USD', currency);
+        shownBudget = userCurrency == "MKD" ? Math.round(shownBudget) : shownBudget;
+
+        const budgetInput = editBudgetModal.querySelector("#budget");
+        const shownBudgetInput = editBudgetModal.querySelector("#shownBudget");
+        const currencyInput = editBudgetModal.querySelector("#currency");
+
+        budgetInput.value = budget;
+        shownBudgetInput.value = shownBudget;
+        currencyInput.value = currency;
+
+        let debounceTimeout;
+        if(!openedBudget) {
+            shownBudgetInput.addEventListener("input", () => {
+                clearTimeout(debounceTimeout);
+                debounceTimeout = setTimeout(async () => {
+                    convertedAmount = await convertCurrency(shownBudgetInput.value, currencyInput.value, 'USD');
+                    budgetInput.value = convertedAmount;
+                    console.log(budgetInput.value);
+                }, 300);
+            })
+            currencyInput.addEventListener("change", () => {
+                clearTimeout(debounceTimeout);
+                debounceTimeout = setTimeout(async () => {
+                    convertedAmount = await convertCurrency(shownBudgetInput.value, currencyInput.value, 'USD');
+                    budgetInput.value = convertedAmount;
+                    console.log(budgetInput.value);
+                }, 300);
+            })
+            editBudgetBtn.addEventListener("click", ()=> {
+                if(budgetInput.value) {
+                    fetch("/app/edit-budget", {
+                        body: JSON.stringify({
+                            budget: budgetInput.value,
+                        }),
+                        method: "POST",
+                    })
+                    .then(res => res.json())
+                    .then(data => location.reload())
+                }
+            })
+        }
+
+        openedBudget = true;
+    })
+}
 
 // GET BUDGET
 function formatNumber(number) {
@@ -240,6 +281,7 @@ const displayItems = (items, count) => {
     }
 }
 const budgetHistory = document.getElementById("budgetHistory");
+const budgetHistory2 = document.getElementById("budgetHistory2");
 let itemsToShow = 10;
 let incrementBy = 10;
 let firstTimeHistory = true;
@@ -263,7 +305,71 @@ budgetHistory.addEventListener("click", async () => {
                 let formattedAmount = formatCurrency(convertedAmount, userCurrency);
                 historyTable.innerHTML += `
                     <tr style="display: none;">
-                        <td class="align-middle text-left"><input type="checkbox" name="selected_transaction" id="${expense.id}" value="${expense.id}"></td>
+                        <td class="align-middle text-left fw-bold text-danger">${expense.transaction_type}</td>
+                        <td class="align-middle text-left">${formattedAmount}</td>
+                        <td class="align-middle text-left"><div class="d-flex align-items-center gap-2"><i class="lni ${expense.category__icon_tag}"></i><div>${expense.category__title}</div></div></td>
+                        <td class="align-middle text-left">${formattedDate}</td>
+                        <td class="align-middle text-left">${expense.comment}</td>
+                        <td class="align-middle text-left">
+                            <button
+                                class="border-0 bg-white"
+                                id="edit_transaction"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editModalToggle"
+                                data-bs-id="${expense.id}"
+                                data-bs-type="${expense.transaction_type}"
+                                data-bs-amount="${expense.amount}"
+                                data-bs-category="${expense.category__title}"
+                                data-bs-date="${expense.date.slice(0, -1)}"
+                                data-bs-comment="${expense.comment}"
+                                data-bs-currency="${userCurrency}"
+                            >
+                                <i class="lni lni-cog fs-5 mt-2"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `
+            }
+            rows = document.querySelectorAll("#historyTable tr");
+            displayItems(rows, itemsToShow);
+        }
+
+        rows = document.querySelectorAll("#historyTable tr");
+        if(itemsToShow >= rows.length) {
+            seeMore.style.display = "none";
+        }
+        if(!seeMoreListener) {
+            seeMore.addEventListener("click", () => {
+                itemsToShow += incrementBy;
+                displayItems(rows, itemsToShow);
+                if(itemsToShow >= rows.length) {
+                    seeMore.style.display = "none";
+                }
+            })
+            seeMoreListener = true;
+        }
+    }
+})
+
+budgetHistory2.addEventListener("click", async () => {
+    const response = await fetch("/app/get-expenses", {method: "POST"});
+    const data = await response.json();
+    const historyModal = document.getElementById("historyModalToggle");
+
+    if(historyModal) {
+        const historyTable = document.getElementById("historyTable");
+        const seeMore = document.getElementById("seeMoreHistory");
+        let rows;
+        if(firstTimeHistory) {
+            firstTimeHistory = false;
+            for(expense of data.expenses) {
+                const dateObj = new Date(expense.date);
+                const parts = dateObj.toLocaleDateString('en-US', {year: 'numeric',month: 'short',day: '2-digit'}).split(' ');
+                const formattedDate = `${parts[0]}. ${parts[1]} ${parts[2]}`;
+                const convertedAmount = await convertCurrency(expense.amount, 'USD', userCurrency);
+                let formattedAmount = formatCurrency(convertedAmount, userCurrency);
+                historyTable.innerHTML += `
+                    <tr style="display: none;">
                         <td class="align-middle text-left fw-bold text-danger">${expense.transaction_type}</td>
                         <td class="align-middle text-left">${formattedAmount}</td>
                         <td class="align-middle text-left"><div class="d-flex align-items-center gap-2"><i class="lni ${expense.category__icon_tag}"></i><div>${expense.category__title}</div></div></td>

@@ -1,10 +1,76 @@
 {% extends 'landing/layout.html' %}
 {% block title %}
-    Landing Page
+    Dollabro
 {% endblock %}
 
 {% block content %}
-<h1>Landing page</h1>
-<a href="{% url 'users:register' %}" class="btn btn-primary">Register</a>
-<a href="{% url 'users:login' %}" class="btn btn-secondary">Login</a>
+<div class="top__wrapper">
+    <nav class="container d-flex justify-content-between align-items-center py-3 text-white">
+        <div class="logo d-flex gap-1 align-items-center">
+            <i class="lni lni-coin fs-2"></i>
+            <h5 class="mb-0 fs-2">Dollabro</h5>
+        </div>
+        <div class="nav__btns d-flex gap-3">
+            <a href="{% url 'users:register' %}" class="btn btn-secondary register_btn px-3 py-2">Register</a>
+            <a href="{% url 'users:login' %}" class="btn btn-primary login__btn px-3 py-2">Login</a>
+        </div>
+    </nav>
+    <header class="container d-flex flex-column flex-lg-row align-items-center gap-5 text-white">
+        <div class="text">
+            <h1 class="mb-4">Stay on Track the Easy Way with <span id="header__dollabro">Dollabro</span>!</h1>
+            <p class="mb-5">Effortless tool for tracking and analysing your transactions, settings budgets and managing finances. Stay in control and reach financial goals with ease all in one place.</p>
+            <a href="{% url 'users:login' %}" class="btn btn-primary login__btn px-4 py-3 d-flex gap-2 align-items-center"><span>Open Dollabro</span><i class="lni lni-chevron-right"></i></a>
+        </div>
+        <div class>
+            <img src="https://i.imgur.com/82xrnr1.png" alt="hero picture">
+        </div>
+    </header>
+</div>
+<section id="features" class="container d-flex flex-column align-items-center">
+    <h1 class="features__heading text-center">What Can Dollabro Do?</h1>
+    <div class="features__container d-flex flex-column flex-md-row flex-nowrap flex-md-wrap gap-3 justify-content-center">
+        <div class="card card-blue text-center shadow-sm">
+            <div class="card-body">
+                <i class="lni lni-stats-up fs-2 mb-3 mt-2"></i>
+              <h5 class="card-title">Income and Expense Logging</h5>
+              <p class="card-text">Effortlessly record and categorize your earnings and spending, helping you maintain a clear overview of your financial situation at all times.</p>
+            </div>
+        </div>
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <i class="lni lni-cart-full fs-2 mb-3 mt-2"></i>
+              <h5 class="card-title">Set and Track Monthly Budget</h5>
+              <p class="card-text">Define your monthly spending limits and track your progress in real-time, ensuring you stay within budget and meet your financial goals.</p>
+            </div>
+        </div>
+        <div class="card card-blue text-center shadow-sm">
+            <div class="card-body">
+                <i class="lni lni-pie-chart fs-2 mb-3 mt-2"></i>
+              <h5 class="card-title">Data Visualization</h5>
+              <p class="card-text">Gain valuable insights into your financial habits with visually engaging charts and graphs that make it easy to understand your spending patterns.</p>
+            </div>
+        </div>
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <i class="lni lni-home fs-2 mb-3 mt-2"></i>
+              <h5 class="card-title">Create and Monitor Categories</h5>
+              <p class="card-text">Organize your transactions by creating customizable categories, allowing for better tracking and management of specific expense types.</p>
+            </div>
+        </div>
+        <div class="card card-blue text-center shadow-sm">
+            <div class="card-body">
+                <i class="lni lni-euro fs-2 mb-3 mt-2"></i>
+              <h5 class="card-title">Multi-Currency Display</h5>
+              <p class="card-text">Seamlessly switch between multiple currencies for viewing your financial data, accommodating both local and international transactions.</p>
+            </div>
+        </div>
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <i class="lni lni-empty-file fs-2 mb-3 mt-2"></i>
+              <h5 class="card-title">Data Export Functionality</h5>
+              <p class="card-text">Easily download your financial records in various formats, making it convenient to analyze or share your data with others when needed.</p>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

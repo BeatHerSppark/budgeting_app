@@ -1,0 +1,70 @@
+.top__wrapper {
+    background-image: url("dollabrobg.png");
+    background-color: #0e223e;
+}
+
+header img {
+    width: 100%;
+    padding: 10px;
+    border: 3px solid white;
+    border-radius: 20px;
+}
+
+header {
+    padding-top: 8rem;
+    padding-bottom: 8rem;
+}
+
+.login__btn {
+    background-color: #4f9cf9;
+    border-color: #4f9cf9;
+    width: fit-content;
+}
+.login__btn:hover {
+    background-color: #488adc;
+    border-color: #488adc;
+}
+
+.register_btn {
+    background-color: #ffe492;
+    border-color: #ffe492;
+    color: black;
+}
+.register_btn:hover {
+    background-color: #d4be7c;
+    border-color: #d4be7c;
+    color: black;
+}
+
+#header__dollabro {
+    border-bottom: 3px solid #ffe492;
+    color: #ffe492;
+}
+
+.features__heading {
+    border-bottom: 3px solid #ffe492;
+    width: fit-content;
+}
+
+#features {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+.features__container {
+    padding-top: 3rem;
+}
+
+.card {
+    flex-basis: 25%;
+    min-width: 250px;
+    max-width: 350px;
+    border: none !important;
+}
+.card-blue {
+    background-color: #ffe492;
+}
+
+.card-body p {
+    opacity: 0.75;
+}

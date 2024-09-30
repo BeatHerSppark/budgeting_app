@@ -26,7 +26,7 @@ Dashboard
         </div>
     </div>
 
-    <div class="d-flex gap-4">
+    <div class="d-flex flex-column flex-lg-row gap-4">
         <div class="cards">
             <div class="card mb-4 shadow-sm p-2" style="width: 100%;">
                 <div class="card-body">
@@ -35,7 +35,7 @@ Dashboard
                             <h5 class="card-title fs-6 text-secondary mb-3">TOTAL BALANCE</h5>
                             <p class="card-text fs-3 fw-semibold" id="totalBalance"></p>
                         </div>
-                        <i class="lni lni-coin fs-3 bg-primary-subtle p-2 rounded text-primary"></i>
+                        <i class="lni lni-coin fs-3 bg_yellow_subtle p-2 rounded text_yellow"></i>
                     </div>
                     <div class="d-flex gap-3">
                         <p class="{% if percentTotal > 0 %}text-success{% elif percentTotal < 0 %}text-danger{% else %}text-secondary{% endif %} text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni {% if percentTotal > 0 %}lni-angle-double-up{% elif percentTotal < 0 %}lni-angle-double-down{% else %}lni-minus{% endif %}"></i> {{ percentTotal }}%</p>

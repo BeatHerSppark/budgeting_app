@@ -5,6 +5,10 @@ Register
 {% endblock %}
 
 {% block content %}
+<div class="mobilehead d-block d-lg-none w-100 text-center py-4">
+    <h6 class="text-white mb-0">One step away from reaching your <span class="yellow_text">savings goals</span>!</h6>
+</div>
+
 <main class="form-signin w-100 m-auto">
     {% if form.errors.password2 %}
         <div class="alert alert-danger" role="alert">
@@ -45,6 +49,18 @@ Register
         <a href="{% url 'users:login' %}" class="link-offset-2 text-secondary">Already have an account?</a>
     </form>
 </main>
+
+<div class="sidehalf d-none d-lg-flex align-items-center">
+    <div class="container d-flex gap-4 align-items-center px-5">
+        <div class="sidehalf__text text-white">
+            <h1 class="mb-4">One step away from reaching your <span class="yellow_text">savings goals</span>!</h1>
+            <p>Track your spending, set realistic goals, and watch your savings grow. Start today and take control of your financial future!</p>
+        </div>
+        <div>
+            <img src="{% static 'css/reglog_savings.svg' %}" alt="">
+        </div>
+    </div>
+</div>
 
 <script src="{% static 'js/register.js' %}"></script>
 {% endblock %}

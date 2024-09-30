@@ -4,6 +4,13 @@
     padding: 0;
 }
 
+.bg_yellow_subtle {
+    background-color: #fff0c2;
+}
+.text_yellow {
+    color: #ffc20c;
+}
+
 .bg-info-subtle {
     background-color: #337BDF !important;
 }
@@ -79,8 +86,12 @@ body {
     font-weight: 600;
 }
 
-.progress_container {
+.progress_container, .mobileBudgetHistory {
     display: none;
+}
+
+.progress_container:hover {
+    cursor: pointer;
 }
 
 .progress_container p {
@@ -92,12 +103,16 @@ body {
     font-size: 0.75rem;
 }
 
-#budgetHistory:hover {
+#budgetHistory:hover, #budgetHistory2:hover {
     cursor: pointer;
 }
 
 #editBudget:hover {
     cursor: pointer;
+}
+
+.budget_header_bg {
+    background-color: #ffe492;
 }
 
 .card-header p {
@@ -174,7 +189,7 @@ a.sidebar-link:hover {
         height: 10px;
     }
 
-    .progress_container {
+    .progress_container, .mobileBudgetHistory {
         display: block;
     }
     .sidebar-link img {
@@ -221,17 +236,13 @@ textarea {
     max-height: 100%;
 }
 
-#pieOptions {
-    rotate: 90deg;
-}
-#pieOptions:hover {
-    cursor: pointer;
-}
-
 #tableContainer {
     flex: 8;
 }
 
+.chartContainer {
+    width: 100%;
+}
 
 /* CATEGORIES */
 
@@ -254,4 +265,19 @@ textarea {
 
 #pfpChoices .rounded-circle:hover {
     cursor: pointer;
+}
+
+.savings__card {
+    background-color: #ffe492;
+}
+
+@media (min-width: 992px) {
+    .w-lg-25 {
+        width: 30%;
+    }
+}
+@media (min-width: 1200px) {
+    .w-lg-25 {
+        width: 25%;
+    }
 }

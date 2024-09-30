@@ -9,9 +9,17 @@
                 {% csrf_token %}
                 <div class="modal-body">
                     <p class="mb-2 text-black-50">Enter your monthly budget</p>
-                    <div class="form-floating mb-3">
-                        <input class="form-control" type="number" min="0" name="budget" id="budget" value="{{ request.user.profile.budget }}" required>
-                        <label for="title">Budget</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <select class="form-select" id="currency" name="currency" aria-label="Choose currency" style="width: auto;">
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="MKD">MKD</option>
+                        </select>
+                        <div class="form-floating mb-3" style="width: 100%;">
+                            <input class="form-control" type="number" min="0" name="shownBudget" id="shownBudget" step="0.01" required>
+                            <input class="form-control" type="hidden" min="0" name="budget" id="budget" step="0.01" required>
+                            <label for="title">Budget</label>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

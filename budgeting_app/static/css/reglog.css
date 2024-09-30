@@ -27,3 +27,23 @@ body {
   padding: 0;
   margin: 0;
 }
+
+.sidehalf {
+  background-image: url("dollabrobg.png");
+  background-color: #0e223e;
+  width: 70%;
+  height: 100%;
+}
+.sidehalf img {
+  width: 100%;
+  background-color: #ffe492;
+  padding: 5rem 5rem;
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+}
+.mobilehead {
+  background-color: #0e223e;
+}
+.yellow_text {
+  border-bottom: 3px solid #ffe492;
+  color: #ffe492;
+}

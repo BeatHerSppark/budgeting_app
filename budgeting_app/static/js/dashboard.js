@@ -139,9 +139,10 @@ dashboard_delete_transactions.addEventListener("click", () => {
 })
 
 // EXPENSE VS INCOME CHART
-function formatNumber(amount) {
+function formatNumberDash(amount) {
     if(userCurrency == "MKD") {
         amount = Math.round(amount);
+        return amount;
     }
     return new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 0,
@@ -161,10 +162,12 @@ async function fetchChartData() {
 
     for(let i=0; i<incomeData.length; i++) {
         convertedIncome = await convertCurrency(incomeData[i], 'USD', data.currency);
-        incomeData[i] = formatNumber(convertedIncome);
+        incomeData[i] = formatNumberDash(convertedIncome);
         convertedExpense = await convertCurrency(expensesData[i], 'USD', data.currency);
-        expensesData[i] = formatNumber(convertedExpense);
+        expensesData[i] = formatNumberDash(convertedExpense);
     }
+    console.log(incomeData);
+
 
     updateChart(incomeData, expensesData, categories);
 }

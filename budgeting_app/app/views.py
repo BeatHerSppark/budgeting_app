@@ -517,7 +517,7 @@ def transactions_view(request):
         request.session["sortTransactions"] = "-date"
 
     transactions = Transaction.objects.filter(profile=request.user.profile).filter(date__range=(start, end)).order_by(request.session.get("sortTransactions"))
-    paginator = Paginator(transactions, 15)
+    paginator = Paginator(transactions, 13)
     page_number = request.GET.get('page')
     page_obj = Paginator.get_page(paginator, page_number)
     expenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
@@ -671,10 +671,10 @@ def get_rates(request):
                 response = None
                 rate = None
                 if data["baseCurrency"] != "USD":
-                    response = requests.get(f"https://openexchangerates.org/api/latest.json?app_id=ec93562b949240d2b2172ef74a2d8cf9&base={data["targetCurrency"]}")
+                    response = requests.get(f"https://openexchangerates.org/api/latest.json?app_id=ec93562b949240d2b2172ef74a2d8cf9&base={data['targetCurrency']}")
                     rate = 1/response.json()['rates'].get(data["baseCurrency"])
                 else:
-                    response = requests.get(f"https://openexchangerates.org/api/latest.json?app_id=ec93562b949240d2b2172ef74a2d8cf9&base={data["baseCurrency"]}")
+                    response = requests.get(f"https://openexchangerates.org/api/latest.json?app_id=ec93562b949240d2b2172ef74a2d8cf9&base={data['baseCurrency']}")
                     rate = response.json()['rates'].get(data["targetCurrency"])
                 if rate is not None:
                     cache.set(cache_key, rate, timeout=604800)
