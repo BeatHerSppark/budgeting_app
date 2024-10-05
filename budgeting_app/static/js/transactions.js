@@ -322,7 +322,8 @@ async function convertSearchAmount(search_transactions) {
 
 async function handleSearchConversion(searchValue) {
     const convertedAmount = await convertCurrency(searchValue, userCurrency, 'USD');
-    formattedAmount = formatNumberTrans(convertedAmount);
+    formattedAmount = parseInt(convertedAmount);
+    console.log(convertedAmount)
     console.log(parseFloat(formattedAmount.toString().slice(0, searchValue.length)));
 
     fetch("/app/search-transactions", {
@@ -387,4 +388,21 @@ searchInput.addEventListener("keyup", (e) => {
             }
         }
     }, 300);
+})
+
+// CUSTOM DATES
+const setDatesBtn = document.getElementById("submitCustomDates");
+setDatesBtn.addEventListener("click", () => {
+    let startDate = document.getElementById("startDate");
+    let endDate = document.getElementById("endDate");
+    fetch("/app/set-date-range", {
+        body: JSON.stringify({
+            start: formatDate(new Date(startDate.value)),
+            end: formatDate(new Date(endDate.value)),
+            selected_date: "custom",
+        }),
+        method: "POST",
+    })
+    .then(res => res.json())
+    .then(data => location.reload())
 })

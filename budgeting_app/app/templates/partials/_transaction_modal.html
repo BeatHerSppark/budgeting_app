@@ -25,7 +25,7 @@
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="{% url 'app:dashboard' %}" method="post">
+      <form action="{% if request.path == "/app/"  %}{% url 'app:dashboard' %}{% else %}{% url 'app:transactions' %}{% endif %}" method="post">
           {% csrf_token %}
           <div class="modal-body">
               <input type="hidden" name="transaction_type" value="Expense">

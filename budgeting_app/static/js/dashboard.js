@@ -144,10 +144,7 @@ function formatNumberDash(amount) {
         amount = Math.round(amount);
         return amount;
     }
-    return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 2
-    }).format(amount);
+    return amount;
 }
 async function fetchChartData() {
     const response = await fetch("/app/dashboard-get-chart", {

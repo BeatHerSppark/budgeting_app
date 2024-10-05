@@ -9,12 +9,14 @@ from users.models import Profile
 import json
 import calendar
 from collections import defaultdict
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from .models import Transaction, Category, Icon
 from django.core.cache import cache
 import requests
-from django.db.models import Q
+from django.db.models import Q, CharField
+from django.db.models.functions import Cast
+import csv
 
 # Create your views here.
 @login_required(login_url="/users/login/")
@@ -52,6 +54,9 @@ def dashboard_edit_transaction(request):
         profile = Profile.objects.get(user=request.user)
         transaction = Transaction.objects.get(id=request.POST["id"])
         prevAmount = transaction.amount
+        if(float(request.POST["amount"]) < 0):
+            messages.error(request, "Amount can't be negative.")
+            return redirect("app:" + request.POST['path'])
         transaction.amount = request.POST["amount"]
 
         if request.POST["category"] == "Choose a category":
@@ -274,13 +279,12 @@ def dashboard_view(request):
     userIncomeCategories = Category.objects.filter(category_type="Income").filter(profile=request.user.profile)
 
     current_day = datetime.now().strftime('%Y-%m-%dT%H:%M')
-    #current_week = datetime.now().strftime('%Y-W%V')
     recent_transactions = Transaction.objects.filter(profile=request.user.profile).order_by("-submission_time")[:10]
 
     start = request.session.get("start")
     end = request.session.get("end")
     selected_date = request.session.get("selected_date")
-    if start==None or end==None or selected_date=="allTime":
+    if start==None or end==None or selected_date=="allTime" or selected_date=="custom":
         end = date.today()
         start = end - timedelta(days=end.weekday())
         selected_date = "week"
@@ -427,29 +431,29 @@ def get_pie_chart(request):
         for category in defaultExpenseCategories:
             exp = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end)).filter(category=category)
             for el in exp:
-                expenseCategoriesDict[el.category.title] += 1
-                totalExp += 1
+                expenseCategoriesDict[el.category.title] += el.amount
+                totalExp += el.amount
         for category in userExpenseCategories:
             exp = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end)).filter(category=category)
             for el in exp:
-                expenseCategoriesDict[el.category.title] += 1
-                totalExp += 1
+                expenseCategoriesDict[el.category.title] += el.amount
+                totalExp += el.amount
         for el in Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end)).filter(category=Category.objects.get(title="Uncategorized")):
-            expenseCategoriesDict[el.category.title] += 1
-            totalExp += 1
+            expenseCategoriesDict[el.category.title] += el.amount
+            totalExp += el.amount
         for category in defaultIncomeCategories:
             exp = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end)).filter(category=category)
             for el in exp:
-                incomeCategoriesDict[el.category.title] += 1
-                totalInc += 1
+                incomeCategoriesDict[el.category.title] += el.amount
+                totalInc += el.amount
         for category in userIncomeCategories:
             exp = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end)).filter(category=category)
             for el in exp:
-                incomeCategoriesDict[el.category.title] += 1
-                totalInc += 1
+                incomeCategoriesDict[el.category.title] += el.amount
+                totalInc += el.amount
         for el in Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end)).filter(category=Category.objects.get(title="Uncategorized")):
-            incomeCategoriesDict[el.category.title] += 1
-            totalInc += 1
+            incomeCategoriesDict[el.category.title] += el.amount
+            totalInc += el.amount
 
         for key in expenseCategoriesDict:
             expenseCategoriesDict[key] = (expenseCategoriesDict[key]/totalExp)*100
@@ -483,13 +487,11 @@ def search_transactions(request):
         end = request.session.get("end")
         data = json.loads(request.body)
         search_text = data["searchText"]
-        transactions = Transaction.objects.filter(
-            Q(amount__gte=search_text - 1) & Q(amount__lte=search_text + 1), profile=request.user.profile, date__range=(start, end)) | Transaction.objects.filter(
-            profile=request.user.profile, date__range=(start, end), date__icontains=search_text) | Transaction.objects.filter(
+        transactions = Transaction.objects.annotate(amount_str=Cast('amount', CharField())).filter(
+            amount_str__icontains=search_text, profile=request.user.profile, date__range=(start, end)) | Transaction.objects.filter(
             profile=request.user.profile, date__range=(start, end), transaction_type__icontains=search_text) | Transaction.objects.filter(
             profile=request.user.profile, date__range=(start, end), category__title__icontains=search_text) | Transaction.objects.filter(
             profile=request.user.profile, date__range=(start, end), comment__icontains=search_text) if not isinstance(search_text, str) else Transaction.objects.filter(
-            profile=request.user.profile, date__range=(start, end), date__icontains=search_text) | Transaction.objects.filter(
             profile=request.user.profile, date__range=(start, end), transaction_type__icontains=search_text) | Transaction.objects.filter(
             profile=request.user.profile, date__range=(start, end), category__title__icontains=search_text) | Transaction.objects.filter(
             profile=request.user.profile, date__range=(start, end), comment__icontains=search_text)
@@ -522,12 +524,15 @@ def transactions_view(request):
     page_obj = Paginator.get_page(paginator, page_number)
     expenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
     incomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
+    totalTransactions = 0
     expenses = 0
     income = 0
     for expense in expenseSelection:
         expenses += expense.amount
+        totalTransactions += 1
     for earning in incomeSelection:
         income += earning.amount
+        totalTransactions += 1
 
     percentProductivity = round(((income-expenses)/income)*100, 2) if income!=0 else 0
 
@@ -562,8 +567,13 @@ def transactions_view(request):
 
     return render(request, "app/transactions.html", {
         "transactions": transactions,
+        "totalTransactions": totalTransactions,
         "page_obj": page_obj,
         "selected_date": selected_date,
+        "display_start": datetime.strptime(start, "%Y-%m-%dT%H:%M"),
+        "display_end": datetime.strptime(end, "%Y-%m-%dT%H:%M"),
+        "start": start,
+        "end": end,
         "expenses": expenses,
         "income": income,
         "percentProductivity": percentProductivity,
@@ -664,6 +674,7 @@ def get_rates(request):
 
         cache_key = f'{data["baseCurrency"]}_to_{data["targetCurrency"]}'
         rate = cache.get(cache_key)
+        print(rate)
 
         if rate is None:
             try:
@@ -672,7 +683,7 @@ def get_rates(request):
                 rate = None
                 if data["baseCurrency"] != "USD":
                     response = requests.get(f"https://openexchangerates.org/api/latest.json?app_id=ec93562b949240d2b2172ef74a2d8cf9&base={data['targetCurrency']}")
-                    rate = 1/response.json()['rates'].get(data["baseCurrency"])
+                    rate = round(1/response.json()['rates'].get(data["baseCurrency"]), 5)
                 else:
                     response = requests.get(f"https://openexchangerates.org/api/latest.json?app_id=ec93562b949240d2b2172ef74a2d8cf9&base={data['baseCurrency']}")
                     rate = response.json()['rates'].get(data["targetCurrency"])
@@ -689,3 +700,17 @@ def delete_user(request):
         user = User.objects.get(id=request.user.id)
         user.delete()
         return redirect("landing:landing")
+
+@login_required(login_url="/users/login/")
+def export_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=Transactions'+datetime.now().strftime('%Y%m%d%H%M%S')+'.csv'
+    writer = csv.writer(response)
+    writer.writerow(['Type', 'Amount ($)', 'Category', 'Date', 'Comment'])
+
+    transactions = Transaction.objects.filter(profile=request.user.profile).order_by("-date")
+
+    for t in transactions:
+        writer.writerow([t.transaction_type, t.amount, t.category.title, t.date, t.comment])
+
+    return response

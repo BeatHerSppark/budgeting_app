@@ -26,5 +26,6 @@ urlpatterns = [
     path('settings', views.settings_view, name="settings"),
     path('get-rates', csrf_exempt(views.get_rates), name="get_rates"),
     path('change-pfp', csrf_exempt(views.change_pfp), name="change_pfp"),
-    path('delete_user', views.delete_user, name="delete_user")
+    path('delete_user', views.delete_user, name="delete_user"),
+    path('export-csv', views.export_csv, name="export_csv"),
 ]

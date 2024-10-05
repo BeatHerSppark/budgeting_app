@@ -41,27 +41,34 @@ header {
     color: #ffe492;
 }
 
-.features__heading {
+.features__heading, .details__heading {
     border-bottom: 3px solid #ffe492;
     width: fit-content;
 }
 
-#features {
+#features, #details {
     padding-top: 3rem;
-    padding-bottom: 3rem;
+    padding-bottom: 1rem;
 }
 
-.features__container {
+.features__container, .details__container {
     padding-top: 3rem;
+}
+
+.features__container .card {
+    flex-basis: 25%;
+    max-width: 350px;
+}
+
+.details__container .card {
+    max-width: 1000px;
 }
 
 .card {
-    flex-basis: 25%;
     min-width: 250px;
-    max-width: 350px;
     border: none !important;
 }
-.card-blue {
+.card-yellow {
     background-color: #ffe492;
 }
 

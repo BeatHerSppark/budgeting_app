@@ -15,15 +15,20 @@ Transactions
     <div class="pb-1 mb-2 border-bottom">
         <p></p>
     </div>
+    {% include 'partials/_custom_date_modal.html' %}
 
     <div class="mt-4 mb-4 d-flex justify-content-between align-items-center">
-        <h2 class="fs-5">Summary</h2>
+        <div>
+            <h2 class="fs-5">Summary</h2>
+            <p class="text-secondary">({{ display_start|date:"b. d, Y"|capfirst }} - {{ display_end|date:"b. d, Y"|capfirst }})</p>
+        </div>
         <div class="dates d-flex gap-2">
             <button id="todayBtn" class="btn {% if selected_date == 'today' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">Today</button>
             <button id="weekBtn" class="btn {% if selected_date == 'week' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">This week</button>
             <button id="monthBtn" class="btn {% if selected_date == 'month' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">This month</button>
             <button id="yearBtn" class="btn {% if selected_date == 'year' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">This year</button>
             <button id="allTimeBtn" class="btn {% if selected_date == 'allTime' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">All time</button>
+            <button id="customBtn" data-bs-toggle="modal" data-bs-target="#customDateModal" class="btn {% if selected_date == 'custom' %} btn-secondary {% else %} btn-outline-secondary {% endif %}">Custom</button>
         </div>
     </div>
 
@@ -39,14 +44,14 @@ Transactions
             <div class="card-body text-center">
                 <i class="lni lni-stats-down fs-3 p-2 rounded text-secondary"></i>
                 <p class="card-text text-secondary fs-3 fw-semibold mb-1" id="expenses"></p>
-                <h5 class="card-title fs-6 fw-normal text-secondary">Expenses <span class="text-black-50">{% if selected_date == 'today' %}(Today){% elif selected_date == 'week' %}(This week){% elif selected_date == 'month' %}(This month){% else %}(This year){% endif %}</span></h5>
+                <h5 class="card-title fs-6 fw-normal text-secondary">Expenses <span class="text-black-50">{% if selected_date == 'today' %}(Today){% elif selected_date == 'week' %}(This week){% elif selected_date == 'month' %}(This month){% elif selected_date == "year" %}(This year){% elif selected_date == "custom" %}(This period){% endif %}</span></h5>
             </div>
         </div>
         <div class="card shadow-sm p-2 flex-grow-1">
             <div class="card-body text-center">
                 <i class="lni lni-stats-up fs-3 p-2 rounded text-secondary"></i>
                 <p class="card-text text-secondary fs-3 fw-semibold mb-1" id="income"></p>
-                <h5 class="card-title fs-6 fw-normal text-secondary">Income <span class="text-black-50">{% if selected_date == 'today' %}(Today){% elif selected_date == 'week' %}(This week){% elif selected_date == 'month' %}(This month){% else %}(This year){% endif %}</span></h5>
+                <h5 class="card-title fs-6 fw-normal text-secondary">Income <span class="text-black-50">{% if selected_date == 'today' %}(Today){% elif selected_date == 'week' %}(This week){% elif selected_date == 'month' %}(This month){% elif selected_date == "year" %}(This year){% elif selected_date == "custom" %}(This period){% endif %}</span></h5>
             </div>
         </div>
         <div class="card savings__card shadow-sm p-2 flex-grow-1">
@@ -79,14 +84,22 @@ Transactions
             </div>
         </div>
         <div id="tableContainer" class="mt-4" style="background-color:white;">
-            <div class="mb-4 mt-4 px-4 d-flex justify-content-between align-items-center" >
+            <div class="mb-4 mt-4 px-4" >
+                <h2 class="fs-6 text-secondary w-100 mb-4">TRANSACTION HISTORY ({{ totalTransactions }})</h2>
                 <div class="d-flex gap-3 align-items-center">
-                    <h2 class="fs-6 text-secondary w-100">TRANSACTION HISTORY</h2>
+                    <button class="btn btn-outline-danger d-none" id="dashboard_delete_transactions"><i class="lni lni-trash-can mt-1"></i></button>
                     <input type="text" id="searchInput" class="form-control" placeholder="Search">
-                </div>
-                <div class="d-flex gap-3 align-items-center">
-                    <button class="btn btn-outline-danger d-none" id="dashboard_delete_transactions">Delete selected transactions</button>
-                    <button type="button" id="quick_add_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#typeModelToggle">Add Transaction</button>
+                    <div class="d-flex gap-3 align-items-center">
+                        <button type="button" id="quick_add_btn" class="btn btn-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#typeModelToggle">Add Transaction</button>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                              Export
+                            </button>
+                            <ul class="dropdown-menu">
+                              <li><a href="{% url 'app:export_csv' %}" class="dropdown-item" id="exportCsv">Export .csv</a></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
 

@@ -16,7 +16,7 @@
 
                 <div class="mb-3">
                     <p>Choose an icon:</p>
-                    <div id="iconsContainer" class="d-flex flex-wrap gap-2">
+                    <div id="iconsContainer" class="d-flex flex-wrap gap-2 overflow-y-auto" style="max-height: 350px;">
                         {% for icon in icons %}
                         <div data-bs-icon="{{ icon }}" class="mb-1 icon rounded-circle bg-secondary d-flex justify-content-center align-items-center" style="width:60px; height:60px;">
                             <i class="lni {{ icon }} text-white fs-3"></i>
@@ -50,8 +50,8 @@
                 </div>
 
                 <div class="mb-3">
-                    <p>Choose an icon:</p>
-                    <div id="iconsContainer" class="d-flex flex-wrap gap-2">
+                    <p class="mb-2">Choose an icon:</p>
+                    <div id="iconsContainer" class="d-flex flex-wrap gap-2 overflow-y-auto" style="max-height: 350px;">
                         {% for icon in icons %}
                         <div data-bs-icon="{{ icon }}" class="mb-1 icon rounded-circle bg-secondary d-flex justify-content-center align-items-center" style="width:60px; height:60px;">
                             <i class="lni {{ icon }} text-white fs-3"></i>

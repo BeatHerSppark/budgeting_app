@@ -19,7 +19,7 @@ if(incomeModal) {
                 clearTimeout(debounceTimeout);
                 debounceTimeout = setTimeout(async () => {
                     convertedAmount = await convertCurrency(shownAmountInput.value, currencyInput.value, 'USD');
-                    amountInput.value = formatNumber(convertedAmount);
+                    amountInput.value = convertedAmount;
                     console.log(amountInput.value);
                 }, 300);
             })
@@ -51,7 +51,7 @@ if(expenseModal) {
                 clearTimeout(debounceTimeout);
                 debounceTimeout = setTimeout(async () => {
                     convertedAmount = await convertCurrency(shownAmountInput.value, currencyInput.value, 'USD');
-                    amountInput.value = formatNumber(convertedAmount);
+                    amountInput.value = convertedAmount;
                     console.log(amountInput.value);
                 }, 300);
             })
@@ -131,7 +131,8 @@ if(editModal) {
                 clearTimeout(debounceTimeout);
                 debounceTimeout = setTimeout(async () => {
                     convertedAmount = await convertCurrency(shownAmountInput.value, currencyInput.value, 'USD');
-                    amountInput.value = formatNumber(convertedAmount);
+                    amountInput.value = convertedAmount;
+                    console.log(shownAmountInput.value);
                     console.log(amountInput.value);
                 }, 300);
             })
