@@ -381,6 +381,8 @@ def get_expenses(request):
 @login_required(login_url="/users/login/")
 def edit_budget(request):
     if request.method == "POST":
+        if "new_user" in request.session:
+            del request.session["new_user"]
         data = json.loads(request.body)
         if(float(data["budget"]) < 0):
             messages.error(request, "Budget can't be negative.")
@@ -410,7 +412,7 @@ def get_budget(request):
 
     days_left = (next_month - today).days +1 if (next_month - today).days!=0 else 1
     remaining_budget = request.user.profile.budget - spent_this_month
-    daily_spending = round(remaining_budget / days_left, 2)
+    daily_spending = round(remaining_budget / days_left, 2) if request.user.profile.budget != 0 else 0
 
     return JsonResponse({"spent_this_month": spent_this_month, "percent_spent": percentSpent, "daily_spending": daily_spending, "days_left": days_left, "remaining_budget": remaining_budget}, status=200)
 

@@ -23,6 +23,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    {% if request.session.new_user %}<button id="noBudgetBtn" class="btn btn-secondary">Not now</button>{% endif %}
                     <button id="editBudgetBtn" class="btn btn-primary">Set budget</button>
                 </div>
             </div>

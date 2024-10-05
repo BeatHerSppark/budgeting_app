@@ -158,6 +158,7 @@ if(editModal) {
 // EDIT BUDGET
 const editBudgetModal = document.getElementById("editBudgetModal");
 const editBudgetBtn = document.getElementById("editBudgetBtn");
+const noBudgetBtn = document.getElementById("noBudgetBtn");
 const budgetInput = document.getElementById("budget");
 const editModalBtn = document.getElementById("editBudget");
 let openedBudget = false;
@@ -207,6 +208,18 @@ if(editBudgetModal) {
                     .then(data => location.reload())
                 }
             })
+            if(noBudgetBtn) {
+                noBudgetBtn.addEventListener("click", () => {
+                    fetch("/app/edit-budget", {
+                        body: JSON.stringify({
+                            budget: 0,
+                        }),
+                        method: "POST",
+                    })
+                    .then(res => res.json())
+                    .then(data => location.reload())
+                })
+            }
         }
 
         openedBudget = true;

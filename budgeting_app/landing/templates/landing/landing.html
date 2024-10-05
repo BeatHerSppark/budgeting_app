@@ -96,7 +96,90 @@
         </div>
     </div>
 </section>
-<section id="demo">
-
+<section id="demos">
+    <div class="top__wrapper">
+        <div id="quickTransaction" class="container">
+            <div class="top text-white">
+                <h6 class="text_yellow mb-2">QUICK AND SIMPLE TRANSACTION LOGGING</h6>
+                <h1>Log your day in a few seconds</h1>
+            </div>
+            <div class="content d-flex flex-column flex-lg-row align-items-start mt-5" style="gap: 5rem;">
+                <div style="max-width: 400px;">
+                    <ul class="text-white ms-0 ps-4 fs-5">
+                        <li class="mb-3">Add transactions quickly from anywhere in your application.</li>
+                        <li class="mb-3">Analyze real-time trends and changes with interactive charts that are easy to understand.</li>
+                        <li class="mb-3">Drill down on your spending habits by having all necessary information displayed in an elegant way.</li>
+                    </ul>
+                    <a style="width:fit-content;" href="{% url 'users:register' %}" class="btn join__btn d-flex gap-2 align-items-center fw-bold mt-5"><span>Join Dollabro Now</span><i class="lni lni-chevron-right"></i></a>
+                </div>
+                <div class="w-100">
+                    <iframe src="https://player.vimeo.com/video/1016524862?autoplay=1&amp;autopause=0&amp;loop=1&amp;muted=1&amp;title=0&amp;byline=0&amp;portrait=0&amp;controls=0&amp;app_id=58479" frameborder="0" allow="autoplay"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="searchDates" class="container">
+        <div class="top">
+            <h6 class="text_yellow_light mb-2">FULLY CUSTOMIZABLE LOOKUPS</h6>
+            <h1>Be in control of what you see</h1>
+        </div>
+        <div class="content d-flex flex-column flex-lg-row align-items-start mt-5" style="gap: 5rem;">
+            <div class="w-100">
+                <iframe src="https://player.vimeo.com/video/1016527685?autoplay=1&amp;autopause=0&amp;loop=1&amp;muted=1&amp;title=0&amp;byline=0&amp;portrait=0&amp;controls=0&amp;app_id=58479" frameborder="0" allow="autoplay"></iframe>
+            </div>
+            <div style="max-width: 400px;">
+                <ul class="ms-0 ps-4 fs-5">
+                    <li class="mb-3">Look up your transactions by amount, type, category and comment.</li>
+                    <li class="mb-3">Set custom date ranges for a more specific analysis of your income and expenses.</li>
+                    <li class="mb-3">Always see relevant information and charts about your transactions based on your filtering, at any time.</li>
+                </ul>
+                <a style="width:fit-content;" href="{% url 'users:register' %}" class="btn join__btn_light d-flex gap-2 align-items-center fw-bold mt-5"><span>Join Dollabro Now</span><i class="lni lni-chevron-right"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="top__wrapper">
+        <div id="currencyDemo" class="container">
+            <div class="top text-white">
+                <h6 class="text_yellow mb-2">SWITCH BETWEEN POPULAR CURRENCIES</h6>
+                <h1>Always work in your preferred currency</h1>
+            </div>
+            <div class="content d-flex flex-column flex-lg-row align-items-start mt-5" style="gap: 5rem;">
+                <div style="max-width: 400px;">
+                    <ul class="text-white ms-0 ps-4 fs-5">
+                        <li class="mb-3">Add transactions in any currency at any time.</li>
+                        <li class="mb-3">Choose which currency to be displayed everywhere in your application.</li>
+                        <li class="mb-3">Rapid currency conversions in real-time for greatest accuracy.</li>
+                    </ul>
+                    <a style="width:fit-content;" href="{% url 'users:register' %}" class="btn join__btn d-flex gap-2 align-items-center fw-bold mt-5"><span>Join Dollabro Now</span><i class="lni lni-chevron-right"></i></a>
+                </div>
+                <div class="w-100">
+                    <iframe src="https://player.vimeo.com/video/1016549480?autoplay=1&amp;autopause=0&amp;loop=1&amp;muted=1&amp;title=0&amp;byline=0&amp;portrait=0&amp;controls=0&amp;app_id=58479" frameborder="0" allow="autoplay"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="categoriesDemo" class="container">
+        <div class="top">
+            <h6 class="text_yellow_light mb-2">INFINITE LABELS FOR YOUR TRANSACTIONS</h6>
+            <h1>Create as many categories as you need</h1>
+        </div>
+        <div class="content d-flex flex-column flex-lg-row align-items-start mt-5" style="gap: 5rem;">
+            <div class="w-100">
+                <iframe src="https://player.vimeo.com/video/1016563711?autoplay=1&amp;autopause=0&amp;loop=1&amp;muted=1&amp;title=0&amp;byline=0&amp;portrait=0&amp;controls=0&amp;app_id=58479" frameborder="0" allow="autoplay"></iframe>
+            </div>
+            <div style="max-width: 400px;">
+                <ul class="ms-0 ps-4 fs-5">
+                    <li class="mb-3">Choose from many useful pre-defined categories.</li>
+                    <li class="mb-3">Create your own categories that you can utilize immediately for your transactions.</li>
+                    <li class="mb-3">Choose from a wide variety of icons for your categories.</li>
+                </ul>
+                <a style="width:fit-content;" href="{% url 'users:register' %}" class="btn join__btn_light d-flex gap-2 align-items-center fw-bold mt-5"><span>Join Dollabro Now</span><i class="lni lni-chevron-right"></i></a>
+            </div>
+        </div>
+    </div>
+    <script src="https://player.vimeo.com/api/player.js"></script>
 </section>
+<footer class="py-4 text-white">
+    <p class="mb-0 text-center">Made by Petar Avramovikj ©2024</p>
+</footer>
 {% endblock %}
