@@ -51,6 +51,8 @@ def dashboard_get_categories(request):
 @login_required(login_url="/users/login/")
 def dashboard_edit_transaction(request):
     if request.method == "POST":
+        current_day = datetime.now()
+        earliest_day = datetime(1970, 1, 1)
         profile = Profile.objects.get(user=request.user)
         transaction = Transaction.objects.get(id=request.POST["id"])
         prevAmount = transaction.amount
@@ -63,6 +65,14 @@ def dashboard_edit_transaction(request):
             transaction.category = Category.objects.get(category_type="Uncategorized")
         else:
             transaction.category = Category.objects.filter(category_type=request.POST["transaction_type"]).get(title=request.POST["category"])
+
+        try:
+            if datetime.strptime(request.POST['date'], "%Y-%m-%dT%H:%M") > current_day or datetime.strptime(request.POST['date'], "%Y-%m-%dT%H:%M") < earliest_day:
+                messages.error(request, "Date out of bounds.")
+                return redirect("app:" + request.POST['path'])
+        except ValueError as e:
+            messages.error(request, "Invalid date entry.")
+            return redirect("app:" + request.POST['path'])
         transaction.date = request.POST['date']
         print(request.POST["date"])
         transaction.comment = request.POST["comment"]
@@ -250,16 +260,31 @@ def dashboard_get_chart(request):
 def set_date_range(request):
     if request.method == "POST":
         data = json.loads(request.body)
+        current_day = datetime.now()
+        earliest_day = datetime(1970, 1, 1)
         start = data["start"]
         end = data["end"]
         selected_date = data["selected_date"]
+        try:
+            if datetime.strptime(start, "%Y-%m-%d") > current_day or datetime.strptime(start, "%Y-%m-%d") < earliest_day:
+                messages.error(request, "Date out of bounds.")
+                return JsonResponse({"message": "Date out of bounds."}, status=200)
+            if datetime.strptime(end, "%Y-%m-%d") > current_day or datetime.strptime(end, "%Y-%m-%d") < earliest_day:
+                messages.error(request, "Date out of bounds.")
+                return JsonResponse({"message": "Date out of bounds."}, status=200)
+        except ValueError as e:
+            messages.error(request, "Invalid date entry.")
+            return JsonResponse({"message": "Invalid date entry."}, status=200)
         if start==None or end==None:
             end = date.today()
             start = end - timedelta(days=end.weekday())
             selected_date = "week"
         else:
-            start = datetime.strptime(start, "%Y-%m-%d").date()
-            end = datetime.strptime(end, "%Y-%m-%d").date()
+            try:
+                start = datetime.strptime(start, "%Y-%m-%d").date()
+                end = datetime.strptime(end, "%Y-%m-%d").date()
+            except ValueError as e:
+                print(e)
         start = datetime.combine(start, time(0, 0, 0))
         end = datetime.combine(end, time(23, 59, 59, 999999))
 
@@ -279,6 +304,7 @@ def dashboard_view(request):
     userIncomeCategories = Category.objects.filter(category_type="Income").filter(profile=request.user.profile)
 
     current_day = datetime.now().strftime('%Y-%m-%dT%H:%M')
+    earliest_day = datetime(1970, 1, 1).strftime('%Y-%m-%dT%H:%M')
     recent_transactions = Transaction.objects.filter(profile=request.user.profile).order_by("-submission_time")[:10]
 
     start = request.session.get("start")
@@ -355,6 +381,7 @@ def dashboard_view(request):
 
     return render(request, "app/dashboard.html", {
         "current_day": current_day,
+        "earliest_day": earliest_day,
         "recent_transactions": recent_transactions,
         "defaultExpenseCategories": defaultExpenseCategories,
         "userExpenseCategories": userExpenseCategories,
@@ -507,6 +534,10 @@ def search_transactions(request):
 @login_required(login_url="/users/login/")
 def transactions_view(request):
     current_day = datetime.now().strftime('%Y-%m-%dT%H:%M')
+    current_day_min = datetime.now().strftime('%Y-%m-%d')
+    earliest_day = datetime(1970, 1, 1).strftime('%Y-%m-%dT%H:%M')
+    earliest_day_min = datetime(1970, 1, 1).strftime('%Y-%m-%d')
+
     start = request.session.get("start")
     end = request.session.get("end")
     selected_date = request.session.get("selected_date")
@@ -543,6 +574,9 @@ def transactions_view(request):
     defaultIncomeCategories = Category.objects.filter(category_type="Income").filter(default_category="True")
     userIncomeCategories = Category.objects.filter(category_type="Income").filter(profile=request.user.profile)
 
+    customStart = start.split("T00:00")[0]
+    customEnd = end.split("T23:59")[0]
+
     if request.method == "POST":
         transaction_type = request.POST['transaction_type']
         amount = request.POST['amount']
@@ -576,6 +610,8 @@ def transactions_view(request):
         "display_end": datetime.strptime(end, "%Y-%m-%dT%H:%M"),
         "start": start,
         "end": end,
+        "customStart": customStart,
+        "customEnd": customEnd,
         "expenses": expenses,
         "income": income,
         "percentProductivity": percentProductivity,
@@ -584,6 +620,9 @@ def transactions_view(request):
         "defaultIncomeCategories": defaultIncomeCategories,
         "userIncomeCategories": userIncomeCategories,
         "current_day": current_day,
+        "current_day_min": current_day_min,
+        "earliest_day": earliest_day,
+        "earliest_day_min": earliest_day_min,
         "sortTransactions": request.session.get('sortTransactions'),
     })
 
@@ -591,6 +630,7 @@ def transactions_view(request):
 @login_required(login_url="/users/login/")
 def categories_view(request):
     current_day = datetime.now().strftime('%Y-%m-%dT%H:%M')
+    earliest_day = datetime(1970, 1, 1).strftime('%Y-%m-%dT%H:%M')
     defaultExpenseCategories = Category.objects.filter(category_type="Expense").filter(default_category="True")
     userExpenseCategories = Category.objects.filter(category_type="Expense").filter(profile=request.user.profile)
     defaultIncomeCategories = Category.objects.filter(category_type="Income").filter(default_category="True")
@@ -603,6 +643,7 @@ def categories_view(request):
         "userIncomeCategories": userIncomeCategories,
         "icons": icons,
         "current_day": current_day,
+        "earliest_day": earliest_day,
     })
 
 @login_required(login_url="/users/login/")
@@ -648,6 +689,7 @@ def delete_category(request):
 @login_required(login_url="/users/login/")
 def settings_view(request):
     current_day = datetime.now().strftime('%Y-%m-%dT%H:%M')
+    earliest_day = datetime(1970, 1, 1).strftime('%Y-%m-%dT%H:%M')
     if request.method == "POST":
         if "changeCurrency" in request.POST:
             profile = Profile.objects.get(user=request.user)
@@ -657,6 +699,7 @@ def settings_view(request):
     return render(request, "app/settings.html", {
         "userCurrency": request.user.profile.currency,
         "current_day": current_day,
+        "earliest_day": earliest_day,
     })
 
 @login_required(login_url="/users/login/")
@@ -676,7 +719,6 @@ def get_rates(request):
 
         cache_key = f'{data["baseCurrency"]}_to_{data["targetCurrency"]}'
         rate = cache.get(cache_key)
-        print(rate)
 
         if rate is None:
             try:

@@ -1,11 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page Not Found!</title>
-</head>
-<body>
-    <h1>404 | Page Not Found :(</h1>
-</body>
-</html>
+{% extends 'landing/layout.html' %}
+{% load static %}
+{% block title %}
+Page Not Found!
+{% endblock %}
+
+{% block content %}
+<div class="vw-100 vh-100 d-flex flex-column justify-content-center align-items-center">
+    <div class="w-100" style="height: 15%; background-color: #0e223e; background-image: url('{% static 'css/dollabrobg.png' %}');"></div>
+    <div style="height: 75%;" class="container d-flex flex-column justify-content-center align-items-center">
+        <img src="{% static 'css/notfound.svg' %}" alt="page not found" style="width: 35%">
+        <h1 class="mt-4 mb-4">PAGE NOT FOUND!</h1>
+        <a href="{% url 'app:dashboard' %}" class="btn register_btn px-3 py-3">BACK TO DASHBOARD</a>
+    </div>
+    <div class="w-100" style="height: 15%; background-color: #0e223e; background-image: url('{% static 'css/dollabrobg.png' %}');"></div>
+</div>
+{% endblock %}

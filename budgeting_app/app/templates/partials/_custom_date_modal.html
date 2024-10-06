@@ -1,5 +1,5 @@
 <div class="modal fade" id="customDateModal" aria-hidden="true" aria-labelledby="customDateModalLabel" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
             <div class="modal-header d-flex align-items-center justify-content-between">
                 <h1 class="modal-title fs-5" id="customDateModalLabel">Choose custom dates</h1>
@@ -8,11 +8,11 @@
             <div class="modal-body">
                 <div class="mb-3">
                     <label for="date" class="mb-1">Starting date:</label><br>
-                    <input type="datetime-local" class="form-control" name="startDate" id="startDate" max="{{ current_day }}" value="{{ start }}" required>
+                    <input type="date" class="form-control" name="startDate" id="startDate" max="{{ current_day_min }}" min="{{ earliest_day_min }}" value="{{ customStart }}" required>
                 </div>
                 <div class="mb-3">
                     <label for="date" class="mb-1">Ending date:</label><br>
-                    <input type="datetime-local" class="form-control" name="endDate" id="endDate" max="{{ current_day }}" value="{{ end }}" required>
+                    <input type="date" class="form-control" name="endDate" id="endDate" max="{{ current_day_min }}" min="{{ earliest_day_min }}" value="{{ customEnd }}" required>
                 </div>
             </div>
             <div class="modal-footer">
