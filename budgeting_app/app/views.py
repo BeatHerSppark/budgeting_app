@@ -685,7 +685,7 @@ def get_rates(request):
                 rate = None
                 if data["baseCurrency"] != "USD":
                     response = requests.get(f"https://openexchangerates.org/api/latest.json?app_id=ec93562b949240d2b2172ef74a2d8cf9&base={data['targetCurrency']}")
-                    rate = round(1/response.json()['rates'].get(data["baseCurrency"]), 5)
+                    rate = 1/(response.json()['rates'].get(data["baseCurrency"]))
                 else:
                     response = requests.get(f"https://openexchangerates.org/api/latest.json?app_id=ec93562b949240d2b2172ef74a2d8cf9&base={data['baseCurrency']}")
                     rate = response.json()['rates'].get(data["targetCurrency"])
