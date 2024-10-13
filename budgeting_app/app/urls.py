@@ -12,6 +12,7 @@ urlpatterns = [
     path('dashboard-get-chart', csrf_exempt(views.dashboard_get_chart), name="dashboard_get_chart"),
     path('transactions/', views.transactions_view, name="transactions"),
     path('categories/', views.categories_view, name="categories"),
+    path('summaries/', views.summaries_view, name="summaries"),
     path('create-category', csrf_exempt(views.create_category), name="create_category"),
     path('edit-category', csrf_exempt(views.edit_category), name="edit_category"),
     path('delete-category', csrf_exempt(views.delete_category), name="delete_category"),

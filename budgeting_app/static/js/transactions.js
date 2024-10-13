@@ -156,16 +156,12 @@ dashboard_delete_transactions.addEventListener("click", () => {
 })
 
 // CHART
-function formatNumberTrans(amount) {
-    return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 2
-    }).format(amount);
-}
-
 async function fetchChartData() {
     const response = await fetch("/app/get-pie-chart", {
                     method: "POST",
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
                 });
 
     const data = await response.json();

@@ -16,7 +16,7 @@ class Category(models.Model):
     profile = models.ForeignKey(to=Profile, on_delete=models.CASCADE, default=None)
 
     def __str__(self):
-        return self.title
+        return f"{self.title}"
 
 
 def on_delete_category():
@@ -36,7 +36,7 @@ class Transaction(models.Model):
     comment = models.TextField(max_length=200, blank=True, null=True)
 
     def __str__(self):
-        return str(self.amount) + " " + self.profile.user.username
+        return f"{self.profile} - {self.date}, {self.category} {self.transaction_type}, ${self.amount}"
 
 
 class Icon(models.Model):
@@ -44,3 +44,13 @@ class Icon(models.Model):
 
     def __str__(self):
         return self.icon_tag
+
+
+class PastBudget(models.Model):
+    profile = models.ForeignKey(to=Profile, on_delete=models.CASCADE, default=None)
+    yyyy_mm = models.CharField(max_length=7)
+    budget_set = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.profile} - {self.yyyy_mm}"

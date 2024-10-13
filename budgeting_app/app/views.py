@@ -9,9 +9,9 @@ from users.models import Profile
 import json
 import calendar
 from collections import defaultdict
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.utils import timezone
-from .models import Transaction, Category, Icon
+from .models import Transaction, Category, Icon, PastBudget
 from django.core.cache import cache
 import requests
 from django.db.models import Q, CharField
@@ -443,53 +443,62 @@ def get_budget(request):
 
     return JsonResponse({"spent_this_month": spent_this_month, "percent_spent": percentSpent, "daily_spending": daily_spending, "days_left": days_left, "remaining_budget": remaining_budget}, status=200)
 
-@login_required(login_url="/users/login/")
-def get_pie_chart(request):
-    if request.method == "POST":
-        start = request.session.get("start")
-        end = request.session.get("end")
-        defaultExpenseCategories = Category.objects.filter(category_type="Expense").filter(default_category="True")
-        userExpenseCategories = Category.objects.filter(category_type="Expense").filter(profile=request.user.profile)
-        defaultIncomeCategories = Category.objects.filter(category_type="Income").filter(default_category="True")
-        userIncomeCategories = Category.objects.filter(category_type="Income").filter(profile=request.user.profile)
-        expenseCategoriesDict = defaultdict(int)
-        incomeCategoriesDict = defaultdict(int)
-        totalExp = 0
-        totalInc = 0
+def pie_chart_helper(request, summariesStart=None, summariesEnd=None):
+    start = request.session.get("start") if not summariesStart else summariesStart
+    end = request.session.get("end") if not summariesEnd else summariesEnd
+    defaultExpenseCategories = Category.objects.filter(category_type="Expense").filter(default_category="True")
+    userExpenseCategories = Category.objects.filter(category_type="Expense").filter(profile=request.user.profile)
+    defaultIncomeCategories = Category.objects.filter(category_type="Income").filter(default_category="True")
+    userIncomeCategories = Category.objects.filter(category_type="Income").filter(profile=request.user.profile)
+    expenseCategoriesDict = defaultdict(int)
+    incomeCategoriesDict = defaultdict(int)
+    totalExp = 0
+    totalInc = 0
 
-        for category in defaultExpenseCategories:
-            exp = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end)).filter(category=category)
-            for el in exp:
-                expenseCategoriesDict[el.category.title] += el.amount
-                totalExp += el.amount
-        for category in userExpenseCategories:
-            exp = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end)).filter(category=category)
-            for el in exp:
-                expenseCategoriesDict[el.category.title] += el.amount
-                totalExp += el.amount
-        for el in Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end)).filter(category=Category.objects.get(title="Uncategorized")):
+    for category in defaultExpenseCategories:
+        exp = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end)).filter(category=category)
+        for el in exp:
             expenseCategoriesDict[el.category.title] += el.amount
             totalExp += el.amount
-        for category in defaultIncomeCategories:
-            exp = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end)).filter(category=category)
-            for el in exp:
-                incomeCategoriesDict[el.category.title] += el.amount
-                totalInc += el.amount
-        for category in userIncomeCategories:
-            exp = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end)).filter(category=category)
-            for el in exp:
-                incomeCategoriesDict[el.category.title] += el.amount
-                totalInc += el.amount
-        for el in Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end)).filter(category=Category.objects.get(title="Uncategorized")):
+    for category in userExpenseCategories:
+        exp = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end)).filter(category=category)
+        for el in exp:
+            expenseCategoriesDict[el.category.title] += el.amount
+            totalExp += el.amount
+    for el in Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end)).filter(category=Category.objects.get(title="Uncategorized")):
+        expenseCategoriesDict[el.category.title] += el.amount
+        totalExp += el.amount
+    for category in defaultIncomeCategories:
+        exp = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end)).filter(category=category)
+        for el in exp:
             incomeCategoriesDict[el.category.title] += el.amount
             totalInc += el.amount
+    for category in userIncomeCategories:
+        exp = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end)).filter(category=category)
+        for el in exp:
+            incomeCategoriesDict[el.category.title] += el.amount
+            totalInc += el.amount
+    for el in Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end)).filter(category=Category.objects.get(title="Uncategorized")):
+        incomeCategoriesDict[el.category.title] += el.amount
+        totalInc += el.amount
 
-        for key in expenseCategoriesDict:
-            expenseCategoriesDict[key] = (expenseCategoriesDict[key]/totalExp)*100
-        for key in incomeCategoriesDict:
-            incomeCategoriesDict[key] = (incomeCategoriesDict[key]/totalInc)*100
+    for key in expenseCategoriesDict:
+        expenseCategoriesDict[key] = (expenseCategoriesDict[key]/totalExp)*100
+    for key in incomeCategoriesDict:
+        incomeCategoriesDict[key] = (incomeCategoriesDict[key]/totalInc)*100
 
+    if summariesStart == None:
         return JsonResponse({"expenseCategories": expenseCategoriesDict, "incomeCategories": incomeCategoriesDict}, status=200)
+    else:
+        return expenseCategoriesDict, incomeCategoriesDict
+
+@login_required(login_url="/users/login/")
+def get_pie_chart(request):
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return HttpResponseForbidden("<h1>403 Forbidden.</h1>")
+
+    return pie_chart_helper(request)
+
 
 @login_required(login_url="/users/login/")
 def set_sort_date(request):
@@ -690,6 +699,10 @@ def delete_category(request):
 def settings_view(request):
     current_day = datetime.now().strftime('%Y-%m-%dT%H:%M')
     earliest_day = datetime(1970, 1, 1).strftime('%Y-%m-%dT%H:%M')
+    defaultExpenseCategories = Category.objects.filter(category_type="Expense").filter(default_category="True")
+    userExpenseCategories = Category.objects.filter(category_type="Expense").filter(profile=request.user.profile)
+    defaultIncomeCategories = Category.objects.filter(category_type="Income").filter(default_category="True")
+    userIncomeCategories = Category.objects.filter(category_type="Income").filter(profile=request.user.profile)
     if request.method == "POST":
         if "changeCurrency" in request.POST:
             profile = Profile.objects.get(user=request.user)
@@ -697,6 +710,10 @@ def settings_view(request):
             profile.save()
             return redirect("app:settings")
     return render(request, "app/settings.html", {
+        "defaultExpenseCategories": defaultExpenseCategories,
+        "userExpenseCategories": userExpenseCategories,
+        "defaultIncomeCategories": defaultIncomeCategories,
+        "userIncomeCategories": userIncomeCategories,
         "userCurrency": request.user.profile.currency,
         "current_day": current_day,
         "earliest_day": earliest_day,
@@ -738,6 +755,38 @@ def get_rates(request):
 
         return JsonResponse({"targetCurrencyRate": rate})
 
+def currency_format(request, num):
+    CURRENCY_SYMBOLS = {
+        'USD': '$',
+        'EUR': '€',
+        'MKD': 'MKD',
+    }
+    number = f"{num:,.2f}" if request.user.profile.currency != 'MKD' else f"{num:,.0f}"
+    return f"{CURRENCY_SYMBOLS[request.user.profile.currency]} {number}"
+
+
+def get_rate_server(baseCurrency, targetCurrency):
+    cache_key = f'{baseCurrency}_to_{targetCurrency}'
+    rate = cache.get(cache_key)
+    if rate is None:
+            try:
+                print(f"Caching {cache_key}")
+                response = None
+                rate = None
+                if baseCurrency != "USD":
+                    response = requests.get(f"https://openexchangerates.org/api/latest.json?app_id=ec93562b949240d2b2172ef74a2d8cf9&base={targetCurrency}")
+                    rate = 1/(response.json()['rates'].get(baseCurrency))
+                else:
+                    response = requests.get(f"https://openexchangerates.org/api/latest.json?app_id=ec93562b949240d2b2172ef74a2d8cf9&base={baseCurrency}")
+                    rate = response.json()['rates'].get(targetCurrency)
+                if rate is not None:
+                    cache.set(cache_key, rate, timeout=604800)
+            except requests.exceptions.RequestException as e:
+                print(f"Error fetching rate: {e}")
+
+    return rate
+
+
 @login_required(login_url="/users/login/")
 def delete_user(request):
     if request.method == "POST":
@@ -758,3 +807,148 @@ def export_csv(request):
         writer.writerow([t.transaction_type, t.amount, t.category.title, t.date, t.comment])
 
     return response
+
+
+def evi_chart(request, start, end):
+    expenseList = []
+    incomeList = []
+    rangeList = []
+    weeklyPeriods = []
+    currStart = start
+    while currStart <= end:
+        currEnd = currStart + timedelta(days=6)
+        if currEnd > end:
+            currEnd = end
+        else:
+            currEnd = datetime.combine(currEnd, time(23, 59, 59))
+        weeklyPeriods.append((currStart, currEnd))
+        currStart += timedelta(days=7)
+
+    for s, e in weeklyPeriods:
+        rangeList.append(f"{s.strftime('%d')}-{e.strftime('%d')}")
+        expenses= Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(s, e))
+        income = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(s, e))
+        expenseSum=0
+        incomeSum=0
+        for exp in expenses:
+            expenseSum += exp.amount
+        for inc in income:
+            incomeSum += inc.amount
+        expenseList.append(expenseSum)
+        incomeList.append(incomeSum)
+
+    for i in range(len(expenseList)):
+        expenseList[i] = round(expenseList[i]*get_rate_server("USD", request.user.profile.currency), 2) if request.user.profile.currency!="MKD" else round(expenseList[i]*get_rate_server("USD", request.user.profile.currency))
+        incomeList[i] = round(incomeList[i]*get_rate_server("USD", request.user.profile.currency), 2) if request.user.profile.currency!="MKD" else round(incomeList[i]*get_rate_server("USD", request.user.profile.currency))
+
+    return rangeList, expenseList, incomeList
+
+
+def summaries_view(request):
+    current_day = datetime.now().strftime('%Y-%m-%dT%H:%M')
+    defaultExpenseCategories = Category.objects.filter(category_type="Expense").filter(default_category="True")
+    userExpenseCategories = Category.objects.filter(category_type="Expense").filter(profile=request.user.profile)
+    defaultIncomeCategories = Category.objects.filter(category_type="Income").filter(default_category="True")
+    userIncomeCategories = Category.objects.filter(category_type="Income").filter(profile=request.user.profile)
+    current_month = datetime.now().strftime('%Y-%m')
+    currMonthStart = datetime(datetime.now().year, datetime.now().month, 1, 0, 0, 0)
+    currMonthEnd = datetime(datetime.now().year, datetime.now().month, calendar.monthrange(datetime.now().year, datetime.now().month)[1], 23, 59, 59)
+    min_month = User.objects.get(username=request.user.username).date_joined.strftime('%Y-%m')
+    if "summary_month" not in request.session:
+        request.session["summary_month"] = current_month
+    summary_month = request.session.get("summary_month")
+
+    monthBudget = None
+    monthStart = None
+    monthEnd = None
+    if summary_month == current_month:
+        year, month = map(int, summary_month.split('-'))
+        monthBudget = request.user.profile.budget
+        monthEnd = date.today()
+        monthStart = datetime(year, month, 1, 0, 0, 0)
+        monthEnd = datetime.combine(monthEnd, time(23, 59, 59, 999999))
+    else:
+        monthBudget = PastBudget.objects.get(yyyy_mm=summary_month).budget_set
+        year, month = map(int, summary_month.split('-'))
+        monthStart = datetime(year, month, 1, 0, 0, 0)
+        monthEnd = datetime(year, month, calendar.monthrange(year, month)[1], 23, 59, 59)
+    budgetPercent = round((monthBudget - request.user.profile.budget)/request.user.profile.budget * 100, 2) if request.user.profile.budget!=0 else 0
+
+    monthlyExpenses = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(monthStart, monthEnd))
+    monthlyIncome = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(monthStart, monthEnd))
+    sumExpenses = 0
+    sumIncome = 0
+    thisMonthExpenses = -1
+    thisMonthIncome = -1
+    for exp in monthlyExpenses:
+        sumExpenses += exp.amount
+    for inc in monthlyIncome:
+        sumIncome += inc.amount
+    if current_month != summary_month:
+        thisMonthExpenses += 1
+        thisMonthIncome += 1
+        monthExpenses = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(currMonthStart, currMonthEnd))
+        monthIncome = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(currMonthStart, currMonthEnd))
+        for exp in monthExpenses:
+            thisMonthExpenses += exp.amount
+        for inc in monthIncome:
+            thisMonthIncome += inc.amount
+    expensePercentFromBudget = round((sumExpenses / monthBudget)*100, 2) if monthBudget!=0 else 0
+    compareMonthsPercentExp = round((sumExpenses - thisMonthExpenses)/thisMonthExpenses * 100, 2) if thisMonthExpenses!=-1 and thisMonthExpenses!=0 else 0
+    compareMonthsPercentInc = round((sumIncome - thisMonthIncome)/thisMonthIncome * 100, 2) if thisMonthIncome!=-1 and thisMonthIncome!=0 else 0
+
+    expenseCategories, incomeCategories = pie_chart_helper(request, monthStart.strftime("%Y-%m-%dT%H:%M"), monthEnd.strftime("%Y-%m-%dT%H:%M"))
+    expenseCategoriesKeys = list(expenseCategories.keys())
+    expenseCategoriesValues = list(expenseCategories.values())
+    incomeCategoriesKeys = list(incomeCategories.keys())
+    incomeCategoriesValues = list(incomeCategories.values())
+
+    rangeList, expenseList, incomeList = evi_chart(request, monthStart, monthEnd)
+
+    allTransactions = Transaction.objects.filter(profile=request.user.profile).filter(date__range=(monthStart, monthEnd)).order_by('-date')
+    allTransactions = list(allTransactions.values("id", "category__title", "category__icon_tag", "amount", "comment", "date", "profile", "transaction_type"))
+
+    for transaction in allTransactions:
+        transaction["amount"] = currency_format(request, float(transaction["amount"])*get_rate_server("USD", request.user.profile.currency))
+
+    if request.method=="POST":
+        month = request.POST["month"]
+        if month == current_month:
+            request.session["summary_month"] = month
+        else:
+            try:
+                pastBudget = PastBudget.objects.filter(profile=request.user.profile).get(yyyy_mm=month)
+                request.session["summary_month"] = month
+            except PastBudget.DoesNotExist:
+                messages.error(request, "No data from that month.")
+                return redirect("app:summaries")
+        return redirect("app:summaries")
+
+    return render(request, "app/summaries.html", {
+        "current_day": current_day,
+        "defaultExpenseCategories": defaultExpenseCategories,
+        "userExpenseCategories": userExpenseCategories,
+        "defaultIncomeCategories": defaultIncomeCategories,
+        "userIncomeCategories": userIncomeCategories,
+        "current_month": current_month,
+        "min_month": min_month,
+        "summary_month": request.session.get("summary_month"),
+        "monthBudget": currency_format(request, float(monthBudget)*get_rate_server("USD", request.user.profile.currency)),
+        "currBudget": currency_format(request, float(request.user.profile.budget)*get_rate_server("USD", request.user.profile.currency)),
+        "budgetPercent": budgetPercent,
+        "sumExpenses": currency_format(request, float(sumExpenses)*get_rate_server("USD", request.user.profile.currency)),
+        "thisMonthExpenses": currency_format(request, float(thisMonthExpenses)*get_rate_server("USD", request.user.profile.currency)),
+        "expensePercentFromBudget": expensePercentFromBudget,
+        "sumIncome": currency_format(request, float(sumIncome)*get_rate_server("USD", request.user.profile.currency)),
+        "thisMonthIncome": currency_format(request, float(thisMonthIncome)*get_rate_server("USD", request.user.profile.currency)),
+        "compareMonthsPercentExp": compareMonthsPercentExp,
+        "compareMonthsPercentInc": compareMonthsPercentInc,
+        "expenseCategoriesKeys": expenseCategoriesKeys,
+        "expenseCategoriesValues": expenseCategoriesValues,
+        "incomeCategoriesKeys": incomeCategoriesKeys,
+        "incomeCategoriesValues": incomeCategoriesValues,
+        "rangeList": rangeList,
+        "expenseList": expenseList,
+        "incomeList": incomeList,
+        "allTransactions": allTransactions,
+    })

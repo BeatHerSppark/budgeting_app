@@ -87,6 +87,12 @@
                         <span>Categories</span>
                     </a>
                 </li>
+                <li class="sidebar-item">
+                    <a href="{% url "app:summaries" %}" class="sidebar-link">
+                        <i class="lni lni-calculator"></i>
+                        <span>Summaries</span>
+                    </a>
+                </li>
             </ul>
             <div class="sidebar-footer sidebar-item dropdown">
                 <a href="#" class="sidebar-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -120,9 +126,9 @@
         {% endblock %}
     </div>
     <script
-    src="https://code.jquery.com/jquery-3.7.1.slim.js"
-    integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc="
-    crossorigin="anonymous"></script>
+        src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+        crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     {% if request.session.new_user %}
         <script>

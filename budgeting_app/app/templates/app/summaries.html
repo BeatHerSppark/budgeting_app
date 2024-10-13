@@ -1,0 +1,182 @@
+{% extends 'app/layout.html' %}
+{% load static %}
+{% load humanize %}
+{% block title %}
+Summaries
+{% endblock %}
+
+{% block content %}
+<main class="main px-md-5">
+    {% include 'partials/_messages.html' %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-4">
+        <h1 class="fs-4">Monthly Summaries</h1>
+    </div>
+    <div class="pb-1 mb-2 border-bottom">
+        <p></p>
+    </div>
+
+    <div class="d-flex gap-4 mt-4 flex-wrap flex-row justify-content-center">
+        <div class="card shadow-sm p-2 border-0 flex-grow-1">
+            <div class="card-body">
+                <form action="{% url "app:summaries" %}" method="post">
+                    {% csrf_token %}
+                    <label for="month" class="card-title fs-6 fw-normal text-secondary">Select a month:</label><br>
+                    <input type="month" id="month" name="month" class="form-control" value="{{ summary_month }}" max="{{ current_month }}" min="{{ min_month }}" required>
+                    <button class="btn btn-primary mt-3" style="width: auto;">See summary</button>
+                </form>
+            </div>
+        </div>
+        <div class="card shadow-sm p-2 border-0 flex-grow-1">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="card-title fs-6 text-secondary mb-3">MONTH'S BUDGET</h5>
+                        <p class="card-text fs-3 fw-semibold">{{ monthBudget }}</p>
+                    </div>
+                    <i class="lni lni-coin fs-3 bg_yellow_subtle p-2 rounded text_yellow"></i>
+                </div>
+                <div class="d-flex gap-3">
+                    {% if current_month != summary_month %}
+                    <p class="{% if budgetPercent > 0 %}text-success{% elif budgetPercent < 0 %}text-danger{% else %}text-secondary{% endif %} text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni {% if budgetPercent > 0 %}lni-angle-double-up{% elif budgetPercent < 0 %}lni-angle-double-down{% else %}lni-minus{% endif %}"></i>{{ budgetPercent }}%</p>
+                    <p class="text-secondary fs-6 mb-0">{% if budgetPercent > 0 %}More than this month{% elif budgetPercent < 0 %}Less than this month{% else %}Same as this month{% endif %} <span class="text-black-50">({{ currBudget }})</span></p>
+                    {% else %}
+                    <p class="text-secondary text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni lni-minus"></i></p>
+                    <p class="text-secondary fs-6 mb-0">Looking at this month</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="card shadow-sm p-2 border-0 flex-grow-1">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="card-title fs-6 text-secondary mb-3">SPENT IN MONTH</h5>
+                        <p class="card-text fs-3 fw-semibold">{{ sumExpenses }} <span class="text-black-50 fs-6 fw-normal">({{ expensePercentFromBudget }}% of budget)</span></p>
+                    </div>
+                    <i class="lni lni-stats-down fs-3 bg-danger-subtle p-2 rounded text-danger"></i>
+                </div>
+                <div class="d-flex gap-3">
+                    {% if current_month != summary_month %}
+                    <p class="{% if compareMonthsPercentExp > 0 %}text-success{% elif compareMonthsPercentExp < 0 %}text-danger{% else %}text-secondary{% endif %} text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni {% if compareMonthsPercentExp > 0 %}lni-angle-double-up{% elif compareMonthsPercentExp < 0 %}lni-angle-double-down{% else %}lni-minus{% endif %}"></i> {{ compareMonthsPercentExp }}%</p>
+                    <p class="text-secondary fs-6 mb-0">{% if compareMonthsPercentExp > 0 %}More than this month{% elif compareMonthsPercentExp < 0 %}Less than this month{% else %}Same as this month{% endif %} <span class="text-black-50">({{ thisMonthExpenses }})</span></p>
+                    {% else %}
+                    <p class="text-secondary text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni lni-minus"></i></p>
+                    <p class="text-secondary fs-6 mb-0">Looking at this month</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="card shadow-sm p-2 border-0 flex-grow-1">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="card-title fs-6 text-secondary mb-3">EARNED IN MONTH</h5>
+                        <p class="card-text fs-3 fw-semibold">{{ sumIncome }}</p>
+                    </div>
+                    <i class="lni lni-stats-up fs-3 bg-success-subtle p-2 rounded text-success"></i>
+                </div>
+                <div class="d-flex gap-3">
+                    {% if current_month != summary_month %}
+                    <p class="{% if compareMonthsPercentInc > 0 %}text-success{% elif compareMonthsPercentInc < 0 %}text-danger{% else %}text-secondary{% endif %} text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni {% if compareMonthsPercentInc > 0 %}lni-angle-double-up{% elif compareMonthsPercentInc < 0 %}lni-angle-double-down{% else %}lni-minus{% endif %}"></i> {{ compareMonthsPercentInc }}%</p>
+                    <p class="text-secondary fs-6 mb-0">{% if compareMonthsPercentInc > 0 %}More than this month{% elif compareMonthsPercentInc < 0 %}Less than this month{% else %}Same as this month{% endif %} <span class="text-black-50">({{ thisMonthIncome }})</span></p>
+                    {% else %}
+                    <p class="text-secondary text-opacity-75 mb-0 d-flex align-items-center gap-2"><i class="lni lni-minus"></i></p>
+                    <p class="text-secondary fs-6 mb-0">Looking at this month</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex flex-lg-row flex-column gap-4 mt-4 mb-4">
+        <div class="d-flex flex-column flex-md-row flex-lg-column align-items-center justify-content-between w-lg-25 gap-2">
+            <div class="mt-4 chartContainer" style="display: inline-block; background-color: white;">
+                <div class="d-flex mt-4 px-4 align-items-center">
+                    <h2 class="text-secondary fs-6 w-100">EXPENSES BY CATEGORY</h2>
+                </div>
+                <div id="pieChartExpense" class="py-4" style="background-color: white;">
+                </div>
+            </div>
+            <div class="mt-4 chartContainer" style="display: inline-block; background-color: white;">
+                <div class="d-flex mt-4 px-4 align-items-center">
+                    <h2 class="text-secondary fs-6 w-100">INCOME BY CATEGORY</h2>
+                </div>
+                <div id="pieChartIncome" class="py-4" style="background-color: white;">
+                </div>
+            </div>
+        </div>
+        <div class="mt-4 flex-grow-1" id="expenseIncomeChart" style="background-color: white; height:100%;"></div>
+    </div>
+    <div id="recentContainer" class="mt-4 mb-4" style="background-color:white;">
+        <div class="pb-4 pt-4 px-4 d-flex justify-content-between align-items-center">
+            <div class="d-flex gap-3 align-items-center">
+                <h2 class="fs-6 text-secondary text-nowrap">TRANSACTION HISTORY</h2>
+                <input type="text" id="searchInput" class="form-control" placeholder="Search for transactions...">
+            </div>
+        </div>
+
+        <div class="table-responsive px-4">
+            <table class="table table-sm">
+            <thead class="fs-6">
+                <tr>
+                    <th scope="col">Type</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Comment</th>
+                </tr>
+            </thead>
+            <tbody id="transactionsTable" class="fs-6">
+            {% for transaction in allTransactions %}
+                <tr>
+                <td class="py-2 align-middle text-left fw-bold {% if transaction.transaction_type == 'Expense' %}text-danger{% else %}text-success{% endif %}">{{ transaction.transaction_type }}</td>
+                <td class="py-2 align-middle text-left tableAmount">{{ transaction.amount }}</td>
+                <td class="py-2 align-middle text-left"><div class="d-flex align-items-center gap-2"><i class="lni {{ transaction.category__icon_tag }}"></i><div>{{ transaction.category__title }}</div></div></td>
+                <td class="py-2 align-middle text-left">{{ transaction.date|date:"b. d, Y"|capfirst }}</td>
+                <td class="py-2 align-middle text-left">{{ transaction.comment }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+            <div class="fs-5 text-secondary py-3 text-center" id="noResults" style="display: none;">No results found</div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+{{ expenseCategoriesKeys|json_script:"expenseCategoriesKeys" }}
+{{ expenseCategoriesValues|json_script:"expenseCategoriesValues" }}
+{{ incomeCategoriesKeys|json_script:"incomeCategoriesKeys" }}
+{{ incomeCategoriesValues|json_script:"incomeCategoriesValues" }}
+{{ rangeList|json_script:"rangeList" }}
+{{ expenseList|json_script:"expenseList" }}
+{{ incomeList|json_script:"incomeList" }}
+<script>
+    const expenseCategoriesKeys = JSON.parse(document.getElementById('expenseCategoriesKeys').textContent);
+    const expenseCategoriesValues = JSON.parse(document.getElementById('expenseCategoriesValues').textContent);
+    const incomeCategoriesKeys = JSON.parse(document.getElementById('incomeCategoriesKeys').textContent);
+    const incomeCategoriesValues = JSON.parse(document.getElementById('incomeCategoriesValues').textContent);
+
+    const rangeList = JSON.parse(document.getElementById('rangeList').textContent);
+    const expenseList = JSON.parse(document.getElementById('expenseList').textContent);
+    const incomeList = JSON.parse(document.getElementById('incomeList').textContent);
+
+    $(document).ready(function(){
+        $('#searchInput').on('keyup', function() {
+            let value = $(this).val().toLowerCase();
+            let hasRows = false;
+
+            $('#transactionsTable tr').filter(function() {
+                let exists = $(this).text().toLowerCase().indexOf(value) > -1;
+                $(this).toggle(exists);
+                if(exists) hasRows = true;
+            });
+
+            if(hasRows) $('#noResults').hide();
+            else $('#noResults').show();
+        });
+    });
+</script>
+<script src="{% static 'js/summaries.js' %}"></script>
+{% endblock %}
