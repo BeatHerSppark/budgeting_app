@@ -3,6 +3,9 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from .models import Profile
 from django.contrib.auth import login, logout
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from app.models import PastBudget
 
 # Create your views here.
 def register_view(request):
@@ -26,6 +29,12 @@ def login_view(request):
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             login(request, form.get_user())
+            prevMonth = datetime.now() - relativedelta(months=1)
+            prevMonth = prevMonth.strftime("%Y-%m")
+            if prevMonth >= request.user.date_joined.strftime('%Y-%m') and PastBudget.objects.filter(profile=request.user.profile, yyyy_mm=prevMonth).first() is None:
+                print("Logging month's budget for ", request.user.username)
+                pastBudget = PastBudget(profile=request.user.profile, yyyy_mm=prevMonth, budget_set=request.user.profile.budget)
+                pastBudget.save()
             if "next" in request.POST:
                 return redirect(request.POST.get('next'))
             return redirect("app:dashboard")
