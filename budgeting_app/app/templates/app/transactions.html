@@ -116,13 +116,13 @@ Transactions
                         <th scope="col"></th>
                     </tr>
                 </thead>
-                <tbody class="fs-6">
-                {% for transaction in page_obj %}
+                <tbody class="fs-6" id="transactionsTable">
+                {% for transaction in transactions %}
                     <tr>
                     <td class="align-middle text-left"><input type="checkbox" name="selected_transaction" id="{{ transaction.id }}" value="{{ transaction.id }}"></td>
                     <td class="align-middle text-left fw-bold {% if transaction.transaction_type == 'Expense' %}text-danger{% else %}text-success{% endif %}">{{ transaction.transaction_type }}</td>
                     <td class="align-middle text-left tableAmount">{{ transaction.amount }}</td>
-                    <td class="align-middle text-left"><div class="d-flex align-items-center gap-2"><i class="lni {{ transaction.category.icon_tag }}"></i><div>{{ transaction.category }}</div></div></td>
+                    <td class="align-middle text-left"><div class="d-flex align-items-center gap-2"><i class="lni {{ transaction.category__icon_tag }}"></i><div>{{ transaction.category__title }}</div></div></td>
                     <td class="align-middle text-left">{{ transaction.date|date:"b. d, Y"|capfirst }}</td>
                     <td class="align-middle text-left">{{ transaction.comment }}</td>
                     <td class="align-middle text-left">
@@ -133,8 +133,8 @@ Transactions
                             data-bs-target="#editModalToggle"
                             data-bs-id="{{ transaction.id }}"
                             data-bs-type="{{ transaction.transaction_type }}"
-                            data-bs-amount="{{ transaction.amount }}"
-                            data-bs-category="{{ transaction.category }}"
+                            data-bs-amount="{{ transaction.cleanAmount }}"
+                            data-bs-category="{{ transaction.category__title }}"
                             data-bs-date="{{ transaction.date|date:"Y-m-d\\TH:i" }}"
                             data-bs-comment="{{ transaction.comment }}"
                             data-bs-currency="{{ request.user.profile.currency }}"
@@ -146,40 +146,10 @@ Transactions
                 {% endfor %}
                 </tbody>
                 </table>
+                <div class="fs-5 text-secondary py-3 text-center" id="noResults" style="display: none;">No results found</div>
             </div>
 
-            <p id="no-results">No results found.</p>
-
-            <div class="table-responsive px-2 table-search">
-                <table class="table table-sm">
-                <thead class="fs-6">
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Type</th>
-                        <th scope="col" class="d-flex gap-1 align-items-center"><div>Amount</div></th>
-                        <th scope="col">Category</th>
-                        <th scope="col" class="d-flex gap-1 align-items-center"><div>Date</div></th>
-                        <th scope="col">Comment</th>
-                        <th scope="col"></th>
-                    </tr>
-                </thead>
-                <tbody class="fs-6 search-body">
-
-                </tbody>
-                </table>
-            </div>
-
-            <ul class="ps-2 pagination pagination-container">
-                <li class="page-item">
-                  <a class="page-link" href="?page=1"><span aria-hidden="true">&laquo;</span></a>
-                </li>
-                {% for page in page_obj.paginator %}
-                    <li class="page-item {% if page.number == page_obj.number %}active{% endif %}"><a class="page-link" href="?page={{ page.number }}">{{ page.number }}</a></li>
-                {% endfor %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}"><span aria-hidden="true">&raquo;</span></a>
-                </li>
-            </ul>
+            <div class="ps-4" id="paginationControls"></div>
         </div>
     </div>
 
@@ -201,16 +171,75 @@ Transactions
 
                 const income = await convertCurrency("{{ income }}", 'USD', userCurrency);
                 document.getElementById('income').textContent = `${formatCurrency(income, userCurrency)}`;
-                const tableAmounts = document.querySelectorAll(".tableAmount");
-                for(let amount of tableAmounts) {
-                    const convertedAmount = await convertCurrency(amount.innerText, "USD", userCurrency);
-                    amount.textContent = `${formatCurrency(convertedAmount, userCurrency)}`;
-                }
             } catch(err) {
                 console.error("Error initializing page: ", err);
             }
         }
         initializePage();
     });
+
+    // SEARCH TRANSACTIONS
+    $(document).ready(function() {
+        let rowsPerPage = 14;
+        let currentPage = 1;
+        let $rows = $('#transactionsTable tr');
+
+        function displayRows() {
+            let start = (currentPage-1) * rowsPerPage;
+            let end = start + rowsPerPage;
+            $rows.hide();
+            $rows.slice(start, end).show();
+
+            updatePaginationControls();
+        }
+        function updatePaginationControls() {
+            let totalPages = Math.ceil($rows.length / rowsPerPage);
+            $('#paginationControls').empty();
+
+            for (let i = 1; i <= totalPages; i++) {
+                let button = $('<button>')
+                    .addClass('btn btn-outline-primary me-1')
+                    .text(i)
+                    .attr('data-page', i)
+                    .on('click', function() {
+                        currentPage = $(this).data('page');
+                        displayRows();
+                    });
+
+                if (i === currentPage) {
+                    button.addClass('active');
+                }
+
+                $('#paginationControls').append(button);
+            }
+        }
+
+        $('#searchInput').on('keyup', function() {
+            let value = $(this).val().toLowerCase();
+            let hasVisibleRows = false;
+
+            if (value) {
+                $rows.each(function() {
+                    let isVisible = $(this).text().toLowerCase().indexOf(value) > -1;
+                    $(this).toggle(isVisible);
+                    if (isVisible) {
+                        hasVisibleRows = true;
+                    }
+                });
+
+                $('#paginationControls').hide();
+            } else {
+                $rows.show();
+                $('#paginationControls').show();
+                currentPage = 1;
+                hasVisibleRows = true;
+                displayRows();
+            }
+
+            $('#noResults').toggle(!hasVisibleRows);
+        });
+
+        displayRows();
+    })
 </script>
 {% endblock %}

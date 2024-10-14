@@ -107,7 +107,7 @@ Dashboard
                 <td class="align-middle text-left"><input type="checkbox" name="selected_transaction" id="{{ transaction.id }}" value="{{ transaction.id }}"></td>
                 <td class="align-middle text-left fw-bold {% if transaction.transaction_type == 'Expense' %}text-danger{% else %}text-success{% endif %}">{{ transaction.transaction_type }}</td>
                 <td class="align-middle text-left tableAmount">{{ transaction.amount }}</td>
-                <td class="align-middle text-left"><div class="d-flex align-items-center gap-2"><i class="lni {{ transaction.category.icon_tag }}"></i><div>{{ transaction.category }}</div></div></td>
+                <td class="align-middle text-left"><div class="d-flex align-items-center gap-2"><i class="lni {{ transaction.category__icon_tag }}"></i><div>{{ transaction.category__title }}</div></div></td>
                 <td class="align-middle text-left">{{ transaction.date|date:"b. d, Y"|capfirst }}</td>
                 <td class="align-middle text-left">{{ transaction.comment }}</td>
                 <td class="align-middle text-left">
@@ -118,8 +118,8 @@ Dashboard
                         data-bs-target="#editModalToggle"
                         data-bs-id="{{ transaction.id }}"
                         data-bs-type="{{ transaction.transaction_type }}"
-                        data-bs-amount="{{ transaction.amount }}"
-                        data-bs-category="{{ transaction.category }}"
+                        data-bs-amount="{{ transaction.cleanAmount }}"
+                        data-bs-category="{{ transaction.category__title }}"
                         data-bs-date="{{ transaction.date|date:"Y-m-d\\TH:i" }}"
                         data-bs-comment="{{ transaction.comment }}"
                         data-bs-currency="{{ request.user.profile.currency }}"
@@ -158,11 +158,6 @@ Dashboard
                 document.getElementById('income').textContent = `${formatCurrency(income, userCurrency)}`;
                 const lastIncome = await convertCurrency("{{ lastIncome }}", 'USD', userCurrency);
                 document.getElementById('lastIncome').textContent = `(${formatCurrency(lastIncome, userCurrency)})`;
-                const tableAmounts = document.querySelectorAll(".tableAmount");
-                for(let amount of tableAmounts) {
-                    const convertedAmount = await convertCurrency(amount.innerText, "USD", userCurrency);
-                    amount.textContent = `${formatCurrency(convertedAmount, userCurrency)}`;
-                }
             } catch(err) {
                 console.error("Error initializing page: ", err);
             }

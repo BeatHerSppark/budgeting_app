@@ -306,6 +306,10 @@ def dashboard_view(request):
     current_day = datetime.now().strftime('%Y-%m-%dT%H:%M')
     earliest_day = datetime(1970, 1, 1).strftime('%Y-%m-%dT%H:%M')
     recent_transactions = Transaction.objects.filter(profile=request.user.profile).order_by("-submission_time")[:10]
+    recent_transactions = list(recent_transactions.values("id", "category__title", "category__icon_tag", "amount", "comment", "date", "profile", "transaction_type"))
+    for t in recent_transactions:
+        t["cleanAmount"] = round(float(t["amount"])*get_rate_server("USD", request.user.profile.currency), 2) if request.user.profile.currency!="MKD" else round(float(t["amount"])*get_rate_server("USD", request.user.profile.currency))
+        t["amount"] = currency_format(request, float(t["amount"])*get_rate_server("USD", request.user.profile.currency))
 
     start = request.session.get("start")
     end = request.session.get("end")
@@ -561,9 +565,10 @@ def transactions_view(request):
         request.session["sortTransactions"] = "-date"
 
     transactions = Transaction.objects.filter(profile=request.user.profile).filter(date__range=(start, end)).order_by(request.session.get("sortTransactions"))
-    paginator = Paginator(transactions, 13)
-    page_number = request.GET.get('page')
-    page_obj = Paginator.get_page(paginator, page_number)
+    transactions = list(transactions.values("id", "category__title", "category__icon_tag", "amount", "comment", "date", "profile", "transaction_type"))
+    for t in transactions:
+        t["cleanAmount"] = round(float(t["amount"])*get_rate_server("USD", request.user.profile.currency), 2) if request.user.profile.currency!="MKD" else round(float(t["amount"])*get_rate_server("USD", request.user.profile.currency))
+        t["amount"] = currency_format(request, float(t["amount"])*get_rate_server("USD", request.user.profile.currency))
     expenseSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Expense").filter(date__range=(start, end))
     incomeSelection = Transaction.objects.filter(profile=request.user.profile).filter(transaction_type="Income").filter(date__range=(start, end))
     totalTransactions = 0
@@ -613,7 +618,6 @@ def transactions_view(request):
     return render(request, "app/transactions.html", {
         "transactions": transactions,
         "totalTransactions": totalTransactions,
-        "page_obj": page_obj,
         "selected_date": selected_date,
         "display_start": datetime.strptime(start, "%Y-%m-%dT%H:%M"),
         "display_end": datetime.strptime(end, "%Y-%m-%dT%H:%M"),
