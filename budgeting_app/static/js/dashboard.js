@@ -157,15 +157,6 @@ async function fetchChartData() {
     let expensesData = data.expenses;
     let categories = data.categories;
 
-    for(let i=0; i<incomeData.length; i++) {
-        convertedIncome = await convertCurrency(incomeData[i], 'USD', data.currency);
-        incomeData[i] = formatNumberDash(convertedIncome);
-        convertedExpense = await convertCurrency(expensesData[i], 'USD', data.currency);
-        expensesData[i] = formatNumberDash(convertedExpense);
-    }
-    console.log(incomeData);
-
-
     updateChart(incomeData, expensesData, categories);
 }
 

@@ -165,9 +165,11 @@ def dashboard_get_chart(request):
                 for inc in incomeSelection:
                     incomeSum += inc.amount
 
+                expenseSum = round(float(expenseSum)*get_rate_server("USD", request.user.profile.currency), 2) if request.user.profile.currency != "MKD" else round(float(expenseSum)*get_rate_server("USD", request.user.profile.currency))
+                incomeSum = round(float(incomeSum)*get_rate_server("USD", request.user.profile.currency), 2) if request.user.profile.currency != "MKD" else round(float(incomeSum)*get_rate_server("USD", request.user.profile.currency))
+
                 expenses.append(expenseSum)
                 income.append(incomeSum)
-
 
                 start = start + timedelta(hours=1)
 
@@ -194,6 +196,9 @@ def dashboard_get_chart(request):
                 for inc in incomeSelection:
                     incomeSum += inc.amount
 
+                expenseSum = round(float(expenseSum)*get_rate_server("USD", request.user.profile.currency), 2) if request.user.profile.currency != "MKD" else round(float(expenseSum)*get_rate_server("USD", request.user.profile.currency))
+                incomeSum = round(float(incomeSum)*get_rate_server("USD", request.user.profile.currency), 2) if request.user.profile.currency != "MKD" else round(float(incomeSum)*get_rate_server("USD", request.user.profile.currency))
+
                 expenses.append(expenseSum)
                 income.append(incomeSum)
 
@@ -218,6 +223,9 @@ def dashboard_get_chart(request):
 
                 for inc in incomeSelection:
                     incomeSum += inc.amount
+
+                expenseSum = round(float(expenseSum)*get_rate_server("USD", request.user.profile.currency), 2) if request.user.profile.currency != "MKD" else round(float(expenseSum)*get_rate_server("USD", request.user.profile.currency))
+                incomeSum = round(float(incomeSum)*get_rate_server("USD", request.user.profile.currency), 2) if request.user.profile.currency != "MKD" else round(float(incomeSum)*get_rate_server("USD", request.user.profile.currency))
 
                 expenses.append(expenseSum)
                 income.append(incomeSum)
@@ -248,6 +256,9 @@ def dashboard_get_chart(request):
 
                 for inc in incomeSelection:
                     incomeSum += inc.amount
+
+                expenseSum = round(float(expenseSum)*get_rate_server("USD", request.user.profile.currency), 2) if request.user.profile.currency != "MKD" else round(float(expenseSum)*get_rate_server("USD", request.user.profile.currency))
+                incomeSum = round(float(incomeSum)*get_rate_server("USD", request.user.profile.currency), 2) if request.user.profile.currency != "MKD" else round(float(incomeSum)*get_rate_server("USD", request.user.profile.currency))
 
                 expenses.append(expenseSum)
                 income.append(incomeSum)
