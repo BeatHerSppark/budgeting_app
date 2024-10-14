@@ -83,13 +83,12 @@ if(editModal) {
         const button = e.relatedTarget;
         const id = button.getAttribute("data-bs-id");
         const type = button.getAttribute("data-bs-type");
-        let amount = button.getAttribute("data-bs-amount");
+        const currency = button.getAttribute("data-bs-currency");
+        let shownAmount = button.getAttribute("data-bs-amount");
+        let amount = await convertCurrency(shownAmount, currency, "USD");
         const category = button.getAttribute("data-bs-category");
         const date = button.getAttribute("data-bs-date");
         const comment = button.getAttribute("data-bs-comment");
-        const currency = button.getAttribute("data-bs-currency");
-        let shownAmount = await convertCurrency(amount, 'USD', currency);
-        shownAmount = userCurrency == "MKD" ? Math.round(shownAmount) : shownAmount;
 
         const idInput = editModal.querySelector("#id");
         const typeInput = editModal.querySelector("#transaction_type");
